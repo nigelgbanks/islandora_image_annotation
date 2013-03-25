@@ -455,21 +455,16 @@ function islandora_canvas_update_annotation() {
  */
 function islandora_annotations_get_type_terms() {
   $type_field = variable_get('annotation_type_search_field', 'anno_category_s');
-  $solr = variable_get('islandora_solr_url', 'localhost:8080/solr');
-  $data = array(
-    'q' => 'rels.hasModel:"islandora:OACCmodel"',
+  $query = 'rels.hasModel:"islandora:OACCmodel"';
+  $params = array(
     'fl' => "$type_field, PID",
     'start' => '0',
     'rows' => '10000',
-    'wt' => 'json',
-    'qt' => variable_get('islandora_solr_request_handler', 'standard'),
+    'qt' => variable_get('islandora_solr_request_handler', ''),
   );
-  $solr_url = url($solr . '/select', array('query' => $data));
-  $result_request = drupal_http_request($solr_url);
-  $results = json_decode($result_request->data, TRUE);
-  $docs = $results['response']['docs'];
+  $results = islandora_annotations_query_solr($query, $params);
   $terms = array();
-  foreach ($docs as $doc) {
+  foreach ($results['solr_doc'] as $doc) {
     if (array_key_exists($type_field, $doc)) {
       $terms[$doc[$type_field][0]] = 1;
     }
@@ -542,4 +537,32 @@ function islandora_annotations_get_mads_as_json($pid) {
   }
   echo json_encode($arr);
   exit();
+}
+
+/**
+ * Helper function to query solr.
+ *
+ * @param string $query
+ *   A query string.
+ *
+ * @param array $params
+ *   An associate array containing solr params.
+ */
+function islandora_annotations_query_solr($query, $params) {
+  $query_processor = new IslandoraSolrQueryProcessor();
+  $query_processor->solrQuery = $query;
+  foreach ($params as $field => $value) {
+    if ($field == 'start') {
+      $query_processor->solrStart = $value;
+    }
+    elseif ($field == 'rows') {
+      $query_processor->solrLimit = $value;
+    }
+    else {
+      $query_processor->solrParams[$field] = $value;
+    }
+  }
+  $query_processor->executeQuery(FALSE);
+  $results = $query_processor->islandoraSolrResult;
+  return $results;
 }
