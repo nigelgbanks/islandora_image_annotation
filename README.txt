@@ -5,17 +5,6 @@ Adds the ability to add annotations to images.  This solution pack piggy backs
 on top of other Islandora Solution Packs such as basic_image and large_image by 
 adding a new tab to existing views.  This tab includes the annotation tools.
 
-
-REQUIREMENTS
-------------
-
-INSTALLATION
-------------
-
-Google Analytics tracking should be setup independent of this reporting aspect. A Google Analytics module is available for tracking
-(http://www.drupal.org/project/google_analytics).
-
-
 CONFIGURATION
 -------------
 
