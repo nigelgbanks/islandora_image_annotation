@@ -1,3 +1,11 @@
+CONTENTS OF THIS FILE
+---------------------
+
+ * summary
+ * configuration
+ * customization
+ * faq
+ 
 SUMMARY
 -------
 
@@ -31,9 +39,6 @@ have to update them as well.
 
 If you have solr configured properly and have Annotation Categories set as user 
 defined you will have a type ahead for the Annotations categories section.
-
-TROUBLESHOOTING
----------------
 
 
 F.A.Q.
