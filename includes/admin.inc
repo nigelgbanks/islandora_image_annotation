@@ -117,7 +117,7 @@ function islandora_image_annotation_admin() {
     '#default_value' => $optimized,
   );
   $form['annotation_colors_fs']['annotation_stroke_widths'] = array(
-    '#type' => 'textarea',
+    '#type' => 'textfield',
     '#title' => t('Annotation Stroke Widths for dropdown'),
     '#default_value' => variable_get('annotation_stroke_widths', '.3'),
     '#description' => t('The width of the lines to use when drawing the annotations. Must be a number,
