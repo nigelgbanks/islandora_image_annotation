@@ -34,13 +34,13 @@ function islandora_image_annotation_admin() {
   $form['content_model_wrapper'] = array(
     '#type' => 'fieldset',
     '#title' => t('Configure Content Models'),
-    '#collapsible' => TRUE,
+    '#collapsible' => FALSE,
     '#collapsed' => FALSE,
   );
 
   $form['content_model_wrapper']['annotation_table'] = array(
     '#type' => 'item',
-    '#title' => t('Select Content Models'),
+    '#title' => t('Enable annotating'),
     '#description' => t('Allow annotation of objects associated with these content models.'),
     '#tree' => TRUE,
     '#theme' => 'islandora_annotation_table',
@@ -86,68 +86,74 @@ function islandora_image_annotation_admin() {
   }
 
   $form['annotation_categories_fs'] = array(
-    '#title' => 'Annotation Categories',
+    '#title' => 'Annotation categories',
     '#type' => 'fieldset',
     '#collapsed' => FALSE,
   );
   $form['annotation_categories_fs']['annotation_categories'] = array(
     '#type' => 'radios',
-    '#title' => t('Annotation Categories'),
+    '#title' => t('Annotation categories'),
     '#options' => array(0 => t('User defined'), 1 => t("Administrator defined")),
     '#description' => t('Allows administrators to select predefined taxonomies to determine annotation categorization terminology'),
     '#default_value' => $enforced,
   );
   $form['annotation_categories_fs']['annotation_type_search_field'] = array(
     '#type' => 'textfield',
-    '#title' => t('Annotation Type Search Field'),
+    '#title' => t('Annotation type search field'),
     '#description' => t('If Annotation Categories is set to User Defined and you want to do auto complete enter a solr field.
         this field\'s contents will be used to populate the auto complete.'),
     '#default_value' => variable_get('annotation_type_search_field', 'mads_categories_s'),
     '#weight' => 3,
   );
   $form['annotation_colors_fs'] = array(
-    '#title' => 'Annotation Colors',
+    '#title' => 'Annotation stroke & colors',
     '#type' => 'fieldset',
     '#collapsed' => FALSE,
   );
   $form['annotation_colors_fs']['annotation_colors'] = array(
     '#type' => 'radios',
-    '#title' => t('Annotation Colors'),
+    '#title' => t('Annotation colors'),
     '#options' => array(0 => t('User defined (user selects when creating annotation)'), 1 => t("Optimized (Colors are selected randomly.  Recommended for overlapping annotations")),
     '#default_value' => $optimized,
   );
   $form['annotation_colors_fs']['annotation_stroke_widths'] = array(
     '#type' => 'textfield',
-    '#title' => t('Annotation Stroke Widths for dropdown'),
-    '#default_value' => variable_get('annotation_stroke_widths', '.3'),
+    '#title' => t('Annotation stroke widths for drop down'),
+    '#default_value' => variable_get('annotation_stroke_widths', '.3 .6. .9  1.2 1.5'),
     '#description' => t('The width of the lines to use when drawing the annotations. Must be a number,
       can include a decimal.  For instance .5 is valid.  You can Enter several values here seperated by a space.'),
     '#required' => TRUE,
   );
   $form['annotation_controlled_titles'] = array(
-    '#title' => 'Controlled Vocabulary for Titles',
+    '#title' => 'Controlled vocabulary for titles',
     '#type' => 'fieldset',
     '#collapsed' => FALSE,
   );
   $form['annotation_controlled_titles']['annotation_title_search_field'] = array(
     '#type' => 'textfield',
-    '#title' => t('Annotation Title Search Field'),
+    '#title' => t('Annotation title search field'),
     '#description' => t('This must be a single valued solr field.'),
     '#default_value' => variable_get('annotation_title_search_field', 'mads_titles_sv'),
   );
   $form['annotation_controlled_titles']['annotation_use_title_vocabulary'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Use a Controlled Vocabulary for Annotation Titles'),
+    '#title' => t('Use a controlled vocabulary for annotation titles'),
     '#default_value' => variable_get('annotation_use_title_vocabulary', FALSE),
     '#weight' => -5,
-    '#description' => t('If checked you must configure a Solr Field to retrieve the titles from.'),
+    '#description' => t('If checked you must configure a Solr field to retrieve the titles from.'),
   );
   $form['annotation_controlled_titles']['annotation_title_search_field'] = array(
     '#type' => 'textfield',
-    '#title' => t('Annotation Title Search Field'),
-    '#description' => t('This must be a single valued solr field.'),
+    '#title' => t('Annotation title search field'),
+    '#description' => t('This must be a single valued Solr field.'),
     '#default_value' => variable_get('annotation_title_search_field', 'mads_titles_sv'),
     '#weight' => 3,
+    '#states' => array(
+      // Hide the settings when the cancel notify checkbox is disabled.
+      'invisible' => array(
+       ':input[name="annotation_use_title_vocabulary"]' => array('checked' => FALSE),
+      ),
+    ),
   );
   $form['actions'] = array(
     '#type' => 'actions',

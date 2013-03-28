@@ -2,6 +2,10 @@
   width: 120px;
 }
 
-#annotation_admin_table {
-  width: 80%;
+.islandora-annotation-checkbox {
+  
+}
+
+.form-item.form-item-annotation-title-search-field {
+  margin-left: 2em;
 }
