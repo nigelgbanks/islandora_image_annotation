@@ -92,7 +92,7 @@ function islandora_image_annotation_menu() {
     'file' => 'includes/callbacks.inc',
   );
 
-  $items['islandora/object/%islandora_object/view/annotation'] = array(
+  $items['islandora/object/%islandora_object/annotation'] = array(
     'title' => 'Image Annotation',
     'page callback' => 'islandora_image_annotation_view',
     'page arguments' => array(2),
