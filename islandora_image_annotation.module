@@ -191,6 +191,8 @@ function islandora_image_annotation_preprocess_islandora_image_annotation_view(&
   $variables['islandora_image_annotation_src'] = $src;
   $variables['islandora_image_annotation_pid'] = $pid;
 
+  drupal_add_css($path . '/css/islandora_annotation.css');
+
   drupal_add_js($path . '/shared_canvas/js/window_behaviours.js');
 
   // Add css.

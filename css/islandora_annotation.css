@@ -9,3 +9,19 @@
 .form-item.form-item-annotation-title-search-field {
   margin-left: 2em;
 }
+
+.islandora-image-annotation {
+  
+}
+
+.islandora-image-annotation-annotations {
+  float: left;
+  width: 25%;
+  background-color: #eee;
+}
+
+.islandora-image-annotation-canvas {
+  float: left;
+  width: 75%;
+  background-color: #ddd;
+}
