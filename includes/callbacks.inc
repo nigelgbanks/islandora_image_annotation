@@ -290,54 +290,6 @@ function islandora_save_updated_annotations($pid, $rdf) {
 }
 
 /**
- * Builds an annotation list.
- *
- * @global url $base_url
- *
- * @param string $pid
- *   The pid of an object.
- *
- * @return RDF
- *   An IslandoraRdfBuilder object.
- */
-function build_annotation_list($pid) {
-  global $base_url;
-  $doc_url = url("islandora/object/$pid");
-  $doc_path_url = url("islandora/anno/serve/$pid");
-  $item = islandora_object_load($pid);
-
-  // XXX: This should probably be made to access directly, instead of
-  // calling out through a URL.
-  $annotation_list = get_annotation_list($doc_url, $doc_path_url);
-  $dom_doc = new DOMDocument();
-  $dom_doc->formatOutput = TRUE;
-  $dom_doc->loadXML($annotation_list);
-  $rdf = new IslandoraRdfBuilder($dom_doc);
-
-  if (isset($item['AnnotationList'])) {
-    $list = $item['AnnotationList']->content;
-    if (strlen($list) < 50) {
-      return;
-    }
-    $anno_doc = new DOMDocument();
-    $anno_doc->loadXML($list);
-    $descriptions = $anno_doc->getElementsByTagName('Description');
-    foreach ($descriptions as $description) {
-      $constrains = $description->getElementsByTagName('constrains');
-      foreach ($constrains as $candidate) {
-        // XXX: Reference to a path which doesn't exist...?  Not entirely sure
-        // what purpose this serves, so not touching...
-        $candidate->setAttribute("rdf:resource", "$base_url/fedora/repository/$pid/Canvas");
-      }
-      $new_node = $dom_doc->importNode($description, TRUE);
-      $rdf->root->appendChild($new_node);
-    }
-  }
-
-  return $rdf;
-}
-
-/**
  * Gets the pid of an annotation object identified by a know urn.
  *
  * @param URN $urn
