@@ -10,13 +10,14 @@
  *
  * Supplies the basic data, including maifest uri
  *
- * @global url $base_url
+ * @global string $base_path
+ * @global object $user
  *
  * @param string $pid
  *   The pid of a object.
  */
 function islandora_canvas_setup($pid) {
-  global $base_url;
+  global $base_path;
   global $user;
 
   module_load_include('inc', 'islandora_image_annotation', 'includes/rdf_builder');
@@ -41,21 +42,21 @@ function islandora_canvas_setup($pid) {
     $categories = islandora_annotations_get_type_terms();
   }
 
-  $image_url = "$base_url/islandora/object/$pid/datastream/$dsid";
+  $image_url = url("islandora/object/$pid/datastream/$dsid");
   $title = $item->label;
   $pages = array();
   $pages[1] = $pid;
   $position = array_search($pid, $pages);
   $results = array();
-  $results['manifest_url'] = "$base_url/islandora/anno/serve/$pid/Manifest/manifest.xml";
+  $results['manifest_url'] = url("islandora/anno/serve/$pid/Manifest/manifest.xml");
   $results['page_title'] = $item->label;
-  $results['object_base'] = "$base_url/islandora/object/$pid";
-  $results['islandora_post_url'] = "$base_url/islandora/anno/add_annotation/$pid";
-  $results['islandora_get_annotation'] = "$base_url/islandora/anno/get_annotation/";
-  $results['islandora_delete_annotation'] = "$base_url/islandora/anno/delete_annotation/$pid/";
-  $results['get_annotation_list_url'] = "$base_url/islandora/anno/get_urns/$pid";
-  $results['islandora_update_annotation'] = "$base_url/islandora/anno/update_annotation/";
-  $results['islandora_base_url'] = "$base_url/";
+  $results['object_base'] = url("islandora/object/$pid");
+  $results['islandora_post_url'] = url("islandora/anno/add_annotation/$pid");
+  $results['islandora_get_annotation'] = url("islandora/anno/get_annotation/");
+  $results['islandora_delete_annotation'] = url("islandora/anno/delete_annotation/$pid/");
+  $results['get_annotation_list_url'] = url("islandora/anno/get_urns/$pid");
+  $results['islandora_update_annotation'] = url("islandora/anno/update_annotation/");
+  $results['islandora_base_url'] = "$base_path";
   $results['islandora_anno_use_title_vocab'] = variable_get('annotation_use_title_vocabulary', FALSE);
   $results['islandora_anno_stroke_width'] = $stroke_width;
   $results['islandora_anno_stroke_widths'] = variable_get('annotation_stroke_widths', '.3 .6. .9  1.2 1.5');
@@ -73,14 +74,11 @@ function islandora_canvas_setup($pid) {
 /**
  * Creates annotation objects from html supplied by Shared Canvas.
  *
- * @global url $base_url
- *
  * @param string $pid
  *   The pid of a object.
  */
 function islandora_add_annotation($pid) {
   global $user;
-  global $base_url;
   module_load_include('inc', 'islandora', 'includes/utilities');
   $data = $_POST['data'];
   $stroke_width = $_POST['strokeWidth'];
@@ -167,8 +165,6 @@ function islandora_shared_transform_annotation_list($xml_in, $input_type) {
  *
  * Called with islandora/anno/get_urns.
  *
- * @global url $base_url
- *
  * @param array $pid
  *   An array of pids.
  */
@@ -220,8 +216,6 @@ QUERY;
 
 /**
  * Retrieves details of individual annotation from datastream.
- *
- * @global url $base_url
  *
  * @param string $pid
  *   A pid of an object.
@@ -308,10 +302,12 @@ function islandora_save_updated_annotations($pid, $rdf) {
  */
 function build_annotation_list($pid) {
   global $base_url;
-  $doc_url = "$base_url/islandora/object/$pid";
-  $doc_path_url = "$base_url/islandora/anno/serve/$pid";
+  $doc_url = url("islandora/object/$pid");
+  $doc_path_url = url("islandora/anno/serve/$pid");
   $item = islandora_object_load($pid);
 
+  // XXX: This should probably be made to access directly, instead of
+  // calling out through a URL.
   $annotation_list = get_annotation_list($doc_url, $doc_path_url);
   $dom_doc = new DOMDocument();
   $dom_doc->formatOutput = TRUE;
@@ -329,6 +325,8 @@ function build_annotation_list($pid) {
     foreach ($descriptions as $description) {
       $constrains = $description->getElementsByTagName('constrains');
       foreach ($constrains as $candidate) {
+        // XXX: Reference to a path which doesn't exist...?  Not entirely sure
+        // what purpose this serves, so not touching...
         $candidate->setAttribute("rdf:resource", "$base_url/fedora/repository/$pid/Canvas");
       }
       $new_node = $dom_doc->importNode($description, TRUE);
@@ -455,13 +453,18 @@ function islandora_canvas_update_annotation() {
  */
 function islandora_annotations_get_type_terms() {
   $type_field = variable_get('annotation_type_search_field', 'anno_category_s');
-  $query = 'rels.hasModel:"islandora:OACCmodel"';
+  $query = format_string('!field:("!content_model" OR "info:fedora/!content_model")', array(
+    '!field' => variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms'),
+    '!content_model' => 'islandora:OACCmodel',
+  ));
+
   $params = array(
     'fl' => "$type_field, PID",
     'start' => '0',
     'rows' => '10000',
     'qt' => variable_get('islandora_solr_request_handler', ''),
   );
+
   $results = islandora_annotations_query_solr($query, $params);
   $terms = array();
   foreach ($results['solr_doc'] as $doc) {
@@ -484,7 +487,10 @@ function islandora_annotations_get_title_terms($type) {
   $title_field = variable_get('annotation_title_search_field', 'mads_titles_sv');
   $solr = variable_get('islandora_solr_url', 'localhost:8080/solr');
   $data = array(
-    'q' => 'mads_genre_it:"' . $type . '"',
+    'q' => format_string('!field:"!value"', array(
+      '!field' => variable_get('annotation_genre_field', 'mads_genre_it'),
+      '!value' => $type,
+    )),
     'fl' => "$title_field, PID",
     'start' => '0',
     'rows' => '10000',

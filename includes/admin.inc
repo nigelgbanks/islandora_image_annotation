@@ -11,10 +11,10 @@
  * @return array
  *   Islandora annotation admin form.
  */
-function islandora_image_annotation_admin() {
+function islandora_image_annotation_admin($form, &$form_state) {
   module_load_include('inc', 'islandora_image_annotation', 'includes/admin.util');
   drupal_add_css(drupal_get_path('module', 'islandora_image_annotation') . '/css/islandora_annotation.css');
-  $form = array();
+
   $coptions = islandora_annotation_get_content_models();
   $selected = variable_get('islandora_annotation_mappings', array());
   $enforced = variable_get('islandora_annotation_enforce_taxonomy', 0);
@@ -129,12 +129,6 @@ function islandora_image_annotation_admin() {
     '#type' => 'fieldset',
     '#collapsed' => FALSE,
   );
-  $form['annotation_controlled_titles']['annotation_title_search_field'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Annotation title search field'),
-    '#description' => t('This must be a single valued solr field.'),
-    '#default_value' => variable_get('annotation_title_search_field', 'mads_titles_sv'),
-  );
   $form['annotation_controlled_titles']['annotation_use_title_vocabulary'] = array(
     '#type' => 'checkbox',
     '#title' => t('Use a controlled vocabulary for annotation titles'),
@@ -148,6 +142,18 @@ function islandora_image_annotation_admin() {
     '#description' => t('This must be a single valued Solr field.'),
     '#default_value' => variable_get('annotation_title_search_field', 'mads_titles_sv'),
     '#weight' => 3,
+    '#states' => array(
+      // Hide the settings when the cancel notify checkbox is disabled.
+      'invisible' => array(
+       ':input[name="annotation_use_title_vocabulary"]' => array('checked' => FALSE),
+      ),
+    ),
+  );
+  $form['annotation_controlled_titles']['annotation_genre_search_field'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Annotation genre search field'),
+    '#default_value' => variable_get('annotation_genre_search_field', 'mads_genre_it'),
+    '#weight' => 4,
     '#states' => array(
       // Hide the settings when the cancel notify checkbox is disabled.
       'invisible' => array(
@@ -188,8 +194,9 @@ function islandora_image_annotation_admin_submit($form, &$form_state) {
   variable_set('islandora_annotation_mappings', $content_model_mappings);
   variable_set('islandora_annotation_enforce_taxonomy', $form_state['values']['annotation_categories']);
   variable_set('islandora_annotation_optimized', $form_state['values']['annotation_colors']);
-  variable_set('annotation_title_search_field', $form_state['values']['annotation_title_search_field']);
   variable_set('annotation_use_title_vocabulary', $form_state['values']['annotation_use_title_vocabulary']);
+  variable_set('annotation_title_search_field', $form_state['values']['annotation_title_search_field']);
+  variable_set('annotation_genre_search_field', $form_state['values']['annotation_genre_search_field']);
   variable_set('annotation_type_search_field', $form_state['values']['annotation_type_search_field']);
   variable_set('annotation_stroke_widths', $form_state['values']['annotation_stroke_widths']);
 }
