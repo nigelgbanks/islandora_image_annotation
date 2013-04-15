@@ -248,9 +248,8 @@ $(document).ready(function(){
     base = here.split(splitter);
     base = base[0];
     PID = $.urlParam('PID');
- 
     $.ajax({
-        url: base +'/islandora/anno/setup/' + PID,
+        url: base + '/islandora/anno/setup/' + PID,
         async:false,
         success: function(data, status, xhr) {
             islandora_canvas_params = data;

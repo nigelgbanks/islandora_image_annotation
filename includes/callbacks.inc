@@ -19,56 +19,9 @@
 function islandora_canvas_setup($pid) {
   global $base_path;
   global $user;
-
-  module_load_include('inc', 'islandora_image_annotation', 'includes/rdf_builder');
-  module_load_include('module', 'taxonomy', 'module');
-  $item = islandora_object_load($pid);
-  $rels = $item->relationships->get('info:fedora/fedora-system:def/model#', 'hasModel');
-  $cmodel = $rels[0]['object']['value'];
-  $stroke_width = variable_get('annotation_stroke_width', '1%');
-  $mappings = variable_get('islandora_annotation_mappings', array());
-  $optimized = variable_get('islandora_annotation_optimized', TRUE);
-  $dropdown = variable_get('islandora_annotation_enforce_taxonomy', TRUE);
-  $vid = $mappings[$cmodel]['TAX'];
-  $dsid = $mappings[$cmodel]['DSID'];
-  if ($dropdown) {
-    $terms = taxonomy_get_tree($vid, 0, 1);
-    $categories = array();
-    foreach ($terms as $term) {
-      $categories[] = $term->name;
-    }
-  }
-  else {
-    $categories = islandora_annotations_get_type_terms();
-  }
-
-  $image_url = url("islandora/object/$pid/datastream/$dsid");
-  $title = $item->label;
-  $pages = array();
-  $pages[1] = $pid;
-  $position = array_search($pid, $pages);
-  $results = array();
-  $results['manifest_url'] = url("islandora/anno/serve/$pid/Manifest/manifest.xml");
-  $results['page_title'] = $item->label;
-  $results['object_base'] = url("islandora/object/$pid");
-  $results['islandora_post_url'] = url("islandora/anno/add_annotation/$pid");
-  $results['islandora_get_annotation'] = url("islandora/anno/get_annotation/");
-  $results['islandora_delete_annotation'] = url("islandora/anno/delete_annotation/$pid/");
-  $results['get_annotation_list_url'] = url("islandora/anno/get_urns/$pid");
-  $results['islandora_update_annotation'] = url("islandora/anno/update_annotation/");
-  $results['islandora_base_url'] = "$base_path";
-  $results['islandora_anno_use_title_vocab'] = variable_get('annotation_use_title_vocabulary', FALSE);
-  $results['islandora_anno_stroke_width'] = $stroke_width;
-  $results['islandora_anno_stroke_widths'] = variable_get('annotation_stroke_widths', '.3 .6. .9  1.2 1.5');
-  $results['position'] = $position;
-  $results['pages'] = $pages;
-  $results['no_edit'] = !user_access(ISLANDORA_IMAGE_ANNOTATION_CREATE);
-  $results['categories'] = $categories;
-  $results['image_url'] = $image_url;
-  $results['can_choose'] = !$optimized;
-  $results['use_dropdown'] = $dropdown;
-  $json = json_encode($results);
-  echo $json;
+  
+  module_load_include('inc', 'islandora_image_annotation', 'includes/utils');
+  echo islandora_annotation_canvas_setup($pid,$base_path,$user);
 }
 
 /**
@@ -138,8 +91,8 @@ function islandora_shared_transform_annotation_list($xml_in, $input_type) {
 
   $path = drupal_get_path('module', 'islandora_image_annotation') . '/xslt/';
   $xslts = array(
-    'html' => $path . 'html_to_AnnotationList.xsl',
-    'rdf' => $path . 'AnnotationList_to_html.xsl',
+    'html' => $path . 'html_to_annotation_list.xsl',
+    'rdf' => $path . 'annotation_list_to_html.xsl',
   );
   try {
     $proc = new XsltProcessor();

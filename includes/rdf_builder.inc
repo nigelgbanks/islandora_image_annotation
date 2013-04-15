@@ -6,9 +6,7 @@
  *
  * Convenicence class to build RDF objects.
  *
- * @TODO: Conform to Drupal Coding Standards.
  */
-
 class IslandoraRdfBuilder {
 
   public $domDoc = NULL;
@@ -43,7 +41,7 @@ class IslandoraRdfBuilder {
    * @return XML
    *   The XML we construct.
    */
-  public function printRDF() {
+  public function printRdf() {
     return $this->domDoc->saveXML();
   }
 

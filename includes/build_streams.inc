@@ -114,7 +114,7 @@ function get_manifest($doc_url, $doc_path_url) {
   $children[] = $rdf->buildChild('rdf:type', array('rdf:resource' => 'http://www.openarchives.org/ore/terms/ResourceMap'));
   $children[] = $rdf->buildChild('dc:format', NULL, 'application/rdf+xml');
   $rdf->addDescriptionNode($name, $children);
-  return $rdf->printRDF();
+  return $rdf->printRdf();
 }
 
 /**
@@ -179,7 +179,7 @@ function get_normal_sequence($doc_url, $doc_path_url, $pid, $height, $width) {
   $children[] = $rdf->buildChild('foaf:mbox', NULL, "info@islandora.ca");
   $children[] = $rdf->buildChild('dc:format', NULL, 'application/rdf+xml');
 
-  return $rdf->printRDF();
+  return $rdf->printRdf();
 }
 
 /**
@@ -269,7 +269,7 @@ function get_image_annotations($doc_url, $doc_path_url, $height, $width, $title)
   $children[] = $rdf->buildChild('dms:option', array('rdf:resource' => "$doc_url/JPEG"));
   $rdf->addDescriptionNode($name, $children);
 
-  return $rdf->printRDF();
+  return $rdf->printRdf();
 }
 
 /**
@@ -312,7 +312,7 @@ function get_annotationList($doc_url, $doc_path_url) {
   $children[] = $rdf->buildChild('dcterms:modified', NULL, "$timestamp");
   $rdf->addDescriptionNode($name, $children);
 
-  return $rdf->printRDF();
+  return $rdf->printRdf();
 }
 
 /**

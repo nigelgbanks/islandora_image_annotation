@@ -19,7 +19,7 @@ function islandora_image_annotation_menu() {
     'page callback' => 'drupal_get_form',
     'access arguments' => array('administer site configuration'),
     'page arguments' => array('islandora_image_annotation_admin'),
-    'file' => 'includes/admin.inc',
+    'file' => 'includes/admin.form.inc',
     'type' => MENU_NORMAL_ITEM,
   );
   $items['islandora/anno/test'] = array(

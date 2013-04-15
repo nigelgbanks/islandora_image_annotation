@@ -8,8 +8,8 @@
 <div class="islandora-anno-wrapper">
 
   <div class="islandora-image-annotation">
-    <div class="islandora-image-annotation-annotations">image annotations</div>
-    <div class="islandora-image-annotation-canvas">canvas</div>
+    <!-- div> class="islandora-image-annotation-annotations">image annotations</div>
+    <div class="islandora-image-annotation-canvas">canvas</div-->
   </div>
 
   <input id="full-window-button" type="button" value="<?php print t('Full Window'); ?>" />

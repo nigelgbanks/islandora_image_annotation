@@ -13,7 +13,7 @@
  * @return string
  *   The marked up output.
  */
-function theme_islandora_annotation_table($variables) {
+function theme_islandora_annotation_table(array $variables) {
   // Set form.
   $form = $variables['form'];
   $rows = array();
