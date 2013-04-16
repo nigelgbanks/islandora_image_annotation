@@ -17,11 +17,8 @@
  *   The pid of a object.
  */
 function islandora_canvas_setup($pid) {
-  global $base_path;
-  global $user;
-  
   module_load_include('inc', 'islandora_image_annotation', 'includes/utils');
-  echo islandora_annotation_canvas_setup($pid,$base_path,$user);
+  echo islandora_annotation_canvas_setup($pid);
 }
 
 /**

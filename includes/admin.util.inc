@@ -21,14 +21,22 @@ function theme_islandora_annotation_table(array $variables) {
     // Do not take form control structures.
     if (is_array($element) && element_child($key)) {
       $row = array();
-      $row[] = array('data' => drupal_render($form['enabled'][$key]), 'class' => 'islandora-annotation-checkbox');
-      $row[] = array('data' => drupal_render($form['name'][$key]), 'title' => $key);
-      $row[] = array('data' => drupal_render($form['content_model'][$key]));
-      $row[] = array('data' => drupal_render($form['DSID'][$key]));
-      $row[] = array('data' => drupal_render($form['TAX'][$key]));
-
+      $row[] = array(
+        'data' => drupal_render($form['enabled'][$key]), 
+        'class' => 'islandora-annotation-checkbox');
+      $row[] = array(
+        'data' => drupal_render($form['name'][$key]), 
+        'title' => $key);
+      $row[] = array(
+        'data' => drupal_render($form['content_model'][$key]));
+      $row[] = array(
+        'data' => drupal_render($form['DSID'][$key]));
+      $row[] = array(
+        'data' => drupal_render($form['TAX'][$key]));
       // Add to rows.
-      $rows[] = array('data' => $row, 'class' => array('draggable'));
+      $rows[] = array(
+        'data' => $row, 
+        'class' => array('draggable'));
     }
   }
   // Individual table headers.

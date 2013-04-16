@@ -31,7 +31,7 @@ function build_manifest($pid) {
   $file_array['Manifest'] = get_manifest($doc_url, $doc_path_url);
   $file_array['ImageAnnotations'] = get_image_annotations($doc_url, $doc_path_url, $height, $width, $title);
   $file_array['NormalSequence'] = get_normal_sequence($doc_url, $doc_path_url, $pid, $height, $width);
-  $file_array['AnnotationList'] = get_annotationList($doc_url, $doc_path_url);
+  $file_array['AnnotationList'] = get_annotation_list($doc_url, $doc_path_url);
   $flat_pid = str_replace(':', '_', $pid);
   $file_path = file_directory_path() . "/$flat_pid/manifest";
   if (!is_dir($file_path)) {
@@ -284,7 +284,7 @@ function get_image_annotations($doc_url, $doc_path_url, $height, $width, $title)
  * @return XML
  *   XML generated in the RDF builder.
  */
-function get_annotationList($doc_url, $doc_path_url) {
+function get_annotation_list($doc_url, $doc_path_url) {
 
   module_load_include('inc', 'islandora_image_annotation', 'includes/rdf_builder');
   $timestamp = date(DATE_W3C);
