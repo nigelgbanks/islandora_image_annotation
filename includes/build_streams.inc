@@ -205,12 +205,13 @@ function get_normal_sequence($doc_url, $doc_path_url, $pid, $height, $width) {
  */
 function get_image_annotations($doc_url, $doc_path_url, $height, $width, $title) {
   module_load_include('inc', 'islandora_image_annotation', 'includes/rdf_builder');
+  module_load_include('inc', 'islandora', 'includes/utilities');
   $rdf = new IslandoraRdfBuilder();
   $rdf->root->setAttribute('xmlns:exif', "http://www.w3.org/2003/12/exif/ns#");
   $rdf->root->setAttribute('xmlns:cnt', "http://www.w3.org/2008/content#");
   $rdf->root->setAttribute('xmlns:oa', "http://www.w3.org/ns/openannotation/core/");
-  $option_uuid = generate_uuid();
-  $first_resource = generate_uuid();
+  $option_uuid = get_uuid();
+  $first_resource = get_uuid();
   $timestamp = date(DATE_W3C);
 
   $name = "$doc_url/ImageAnnotations";
@@ -525,11 +526,22 @@ function islandora_serve($pid, $stream, $width = NULL, $height = NULL) {
 
 /**
  * Generates uuid.
+ * XXX: Update this to use the getUuid() somehow in tuque/Repository.php
  *
  * @return uuid
  *   Returns the uuid.
  */
-function generate_uuid() {
-  return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x', mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0x0fff) | 0x4000, mt_rand(0, 0x3fff) | 0x8000, mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
-  );
+function get_uuid() {
+  $data;
+  //islandora_basic_collection is now a dependency of islandora_image_annotation
+  try {
+    $connection = islandora_get_tuque_connection();
+    $configuration['id'] = $connection->repository->getNextIdentifier(NULL, TRUE);
+    $data = explode(":", $configuration['id']);
+  } catch (Exception $e) {
+    throw $e;
+  }
+  
+  //Return just the uuid portion of the identifier
+  return $data[1];
 }

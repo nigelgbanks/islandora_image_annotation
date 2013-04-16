@@ -64,9 +64,9 @@ function islandora_image_annotation_get_dsid_from_model($pid) {
  *
  * @param string $pid
  *   The Fedora object id to supply the data for
- * 
+ *
  */
-function islandora_annotation_canvas_setup($pid){
+function islandora_annotation_canvas_setup($pid) {
 
   module_load_include('inc', 'islandora_image_annotation', 'includes/build_streams');
   module_load_include('inc', 'islandora_image_annotation', 'includes/callbacks');
@@ -76,10 +76,10 @@ function islandora_annotation_canvas_setup($pid){
 
   global $base_path;
   global $user;
-  
+
   $item = islandora_object_load($pid);
   $rels = $item->relationships->get();
-  //$rels = $item->relationships->get('info:fedora/fedora-system:def/model#', 'hasModel');
+
   foreach ($rels as $relationship) {
     if ($relationship['predicate']['value'] == 'hasModel') {
       $cmodel = $relationship['object']['value'];
@@ -108,13 +108,12 @@ function islandora_annotation_canvas_setup($pid){
   else {
     $categories = islandora_annotations_get_type_terms();
   }
-  
+
   $image_url = url("islandora/object/$pid/datastream/$dsid");
   $pages = array();
   $results = array();
   $pid_final;
-  if(isset($page_object))
-  {
+  if (isset($page_object)) {
     $page_object_of_relationship = $page_object->relationships->get(ISLANDORA_RELS_EXT_URI, 'isPageOf');
     $book_object = islandora_object_load($page_object_of_relationship[0]['object']['value']);
     $pid_final = $page_object->id;
@@ -125,12 +124,12 @@ function islandora_annotation_canvas_setup($pid){
   }
   else {
     $title = $item->label;
-  
+
     $pages[1] = $pid;
     $position = array_search($pid, $pages);
     $pid_final = $pid;
   }
-  
+
   $results['page_title'] = $title;
   $results['object_base'] = url("islandora/object/$pid_final");
   $results['position'] = $position;
@@ -144,15 +143,13 @@ function islandora_annotation_canvas_setup($pid){
   $results['islandora_get_annotation'] = url("islandora/anno/get_annotation/");
   $results['islandora_delete_annotation'] = url("islandora/anno/delete_annotation/$pid_final/");
   $results['islandora_update_annotation'] = url("islandora/anno/update_annotation/");
-
   $results['islandora_base_url'] = "$base_path";
   $results['islandora_anno_use_title_vocab'] = variable_get('annotation_use_title_vocabulary', FALSE);
   $results['islandora_anno_stroke_width'] = $stroke_width;
   $results['islandora_anno_stroke_widths'] = variable_get('annotation_stroke_widths', '.3 .6. .9  1.2 1.5');
-
   $results['image_url'] = $image_url;
   $results['can_choose'] = !$optimized;
-  
+
   $json = json_encode($results);
   return $json;
 }

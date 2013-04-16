@@ -22,10 +22,10 @@ function theme_islandora_annotation_table(array $variables) {
     if (is_array($element) && element_child($key)) {
       $row = array();
       $row[] = array(
-        'data' => drupal_render($form['enabled'][$key]), 
+        'data' => drupal_render($form['enabled'][$key]),
         'class' => 'islandora-annotation-checkbox');
       $row[] = array(
-        'data' => drupal_render($form['name'][$key]), 
+        'data' => drupal_render($form['name'][$key]),
         'title' => $key);
       $row[] = array(
         'data' => drupal_render($form['content_model'][$key]));
@@ -35,7 +35,7 @@ function theme_islandora_annotation_table(array $variables) {
         'data' => drupal_render($form['TAX'][$key]));
       // Add to rows.
       $rows[] = array(
-        'data' => $row, 
+        'data' => $row,
         'class' => array('draggable'));
     }
   }

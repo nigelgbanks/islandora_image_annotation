@@ -2,6 +2,7 @@ name = Islandora Image Annotation
 description = Image annotation for Islandora.
 dependencies[] = islandora
 dependencies[] = islandora_solr
+dependencies[] = islandora_basic_collection
 package = Islandora
 core = 7.x
 
