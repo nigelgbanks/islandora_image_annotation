@@ -106,7 +106,7 @@ function islandora_annotation_canvas_setup($pid) {
     }
   }
   else {
-    $categories = islandora_annotations_get_type_terms();
+    $categories = islandora_image_annotation_get_type_terms();
   }
 
   $image_url = url("islandora/object/$pid/datastream/$dsid");
@@ -114,6 +114,7 @@ function islandora_annotation_canvas_setup($pid) {
   $results = array();
   $pid_final;
   if (isset($page_object)) {
+    //TODO: Add function in islandora_page_content to do this
     $page_object_of_relationship = $page_object->relationships->get(ISLANDORA_RELS_EXT_URI, 'isPageOf');
     $book_object = islandora_object_load($page_object_of_relationship[0]['object']['value']);
     $pid_final = $page_object->id;

@@ -66,7 +66,7 @@ function theme_islandora_annotation_table(array $variables) {
  * @return array
  *   An array containing key value pairs of content model pids and titles.
  */
-function islandora_annotation_get_content_models() {
+function islandora_image_annotation_get_content_models() {
   module_load_include('inc', 'islandora', 'includes/tuque');
   $repository = new IslandoraTuque();
   $query = 'select $object $title from <#ri>
@@ -103,7 +103,7 @@ function islandora_annotation_get_content_models() {
  * @return array
  *   Array containing the DSIDs of datastreams.
  */
-function get_annotation_dsids_from_dscomp($pid) {
+function islandora_image_annotation_get_annotation_dsids_from_dscomp($pid) {
   module_load_include('inc', 'islandora', 'includes/tuque');
   $fedora_object = islandora_object_load($pid);
   $datastream = $fedora_object['DS-COMPOSITE-MODEL'];
@@ -127,44 +127,12 @@ function get_annotation_dsids_from_dscomp($pid) {
 }
 
 /**
- * Retrieve a full list of collections from Fedora.
- *
- * @return array
- *   An array in the form of cmodel_pid => cmodel_title.
- */
-function islandora_annotation_get_collections() {
-  module_load_include('inc', 'islandora', 'includes/tuque');
-  $repository = new IslandoraTuque();
-  $query = 'select $object $title from <#ri>
-               where ($object <info:fedora/fedora-system:def/model#hasModel> <info:fedora/islandora:collectionCModel>
-               and $object <fedora-model:label> $title
-               and $object <fedora-model:state> <info:fedora/fedora-system:def/model#Active>)';
-  $objects = $repository->repository->ri->itqlQuery($query, 'unlimited', '0');
-  $return_array = array();
-  foreach ($objects as $object) {
-    $cmodel_pid = $object['object']['value'];
-    if (strpos($cmodel_pid, 'fedora-system') !== 0) {
-      $cmodel_title = $object['title']['value'];
-      if ($cmodel_title) {
-        $title_string = $cmodel_title . ' ~ ' . $cmodel_pid;
-      }
-      else {
-        $title_string = $cmodel_pid;
-      }
-
-      $return_array[$cmodel_pid] = $cmodel_title;
-    }
-  }
-  return $return_array;
-}
-
-/**
  * Retrieves all taxonomies defined within Drupal.
  *
  * @return array
  *   A key value pair array containing the vid and taxonomy name.
  */
-function islandora_annotation_get_taxonomies() {
+function islandora_image_annotation_get_taxonomies() {
   module_load_include('module', 'taxonomy', 'module');
   $taxonomies = taxonomy_get_vocabularies();
   $output = array(t('None') => 'none');

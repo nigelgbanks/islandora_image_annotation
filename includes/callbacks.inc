@@ -10,13 +10,11 @@
  *
  * Supplies the basic data, including maifest uri
  *
- * @global string $base_path
- * @global object $user
  *
  * @param string $pid
  *   The pid of a object.
  */
-function islandora_canvas_setup($pid) {
+function islandora_image_annotation_canvas_setup($pid) {
   module_load_include('inc', 'islandora_image_annotation', 'includes/utils');
   echo islandora_annotation_canvas_setup($pid);
 }
@@ -27,12 +25,12 @@ function islandora_canvas_setup($pid) {
  * @param string $pid
  *   The pid of a object.
  */
-function islandora_add_annotation($pid) {
+function islandora_image_annotation_add_annotation($pid) {
   global $user;
   module_load_include('inc', 'islandora', 'includes/utilities');
   $data = $_POST['data'];
   $stroke_width = $_POST['strokeWidth'];
-  $annotation_xml = islandora_shared_transform_annotation_list(urldecode($_POST['data']), 'html');
+  $annotation_xml = islandora_image_annotation_shared_transform_annotation_list(urldecode($_POST['data']), 'html');
   $color = $_POST['color'];
   $type = $_POST['type'];
   if (!$type) {
@@ -80,7 +78,7 @@ function islandora_add_annotation($pid) {
  * @return string
  *   The transformed XML.
  */
-function islandora_shared_transform_annotation_list($xml_in, $input_type) {
+function islandora_image_annotation_shared_transform_annotation_list($xml_in, $input_type) {
 
   if ($xml_in == NULL || strlen($xml_in) < 5) {
     return " ";
@@ -118,7 +116,7 @@ function islandora_shared_transform_annotation_list($xml_in, $input_type) {
  * @param array $pid
  *   An array of pids.
  */
-function islandora_shared_get_annotation_pids($pid) {
+function islandora_image_annotation_shared_get_annotation_pids($pid) {
 
   $query = <<<QUERY
   	PREFIX io: <http://islandora.ca/ontology/relsext#>
@@ -173,7 +171,7 @@ QUERY;
  * @return XML
  *   The XML content of the OAC datastream.
  */
-function islandora_get_annotation_data($pid) {
+function islandora_iamge_annotation_get_annotation_data($pid) {
   module_load_include('inc', 'fedora_repository', 'api/fedora_item');
   $item = islandora_object_load($pid);
   if (!isset($item)) {
@@ -194,12 +192,12 @@ function islandora_get_annotation_data($pid) {
  * @param urn $urn
  *   Urn.
  */
-function islandora_shared_get_annotation($pid, $urn = NULL) {
+function islandora_image_annotation_shared_get_annotation($pid, $urn = NULL) {
   if (isset($urn)) {
-    $pid = islandora_canvas_get_pid_from_urn($urn);
+    $pid = islandora_image_annotation_canvas_get_pid_from_urn($urn);
   }
-  $xml = islandora_get_annotation_data($pid);
-  $results = islandora_shared_transform_annotation_list($xml, 'rdf');
+  $xml = islandora_iamge_annotation_get_annotation_data($pid);
+  $results = islandora_image_annotation_shared_transform_annotation_list($xml, 'rdf');
   // Remove the doc type declarations.
   $results = preg_replace('/<\?xml.*?\?>/', '', $results);
   $results = preg_replace('/<!DOCTYPE.*?>/', '', $results);
@@ -217,7 +215,7 @@ function islandora_shared_get_annotation($pid, $urn = NULL) {
  *   Urn.
  */
 function islandora_delete_annotation($pid, $urn) {
-  $pid_to_delete = islandora_canvas_get_pid_from_urn($urn);
+  $pid_to_delete = islandora_image_annotation_canvas_get_pid_from_urn($urn);
   $item = islandora_object_load($pid_to_delete);
   islandora_delete_object($item);
 }
@@ -248,7 +246,7 @@ function islandora_save_updated_annotations($pid, $rdf) {
  * @return string
  *   The pid retrived from an urn.
  */
-function islandora_canvas_get_pid_from_urn($urn) {
+function islandora_image_annotation_canvas_get_pid_from_urn($urn) {
   module_load_include('inc', 'islandora', 'includes/tuque');
   $connection = islandora_get_tuque_connection();
   $query = "select \$id  from <#ri> where \$id <http://islandora.ca/ontology/relsext#hasURN> \$urn
@@ -265,7 +263,7 @@ and \$urn <mulgara:is> 'urn:uuid:$urn'";
  *
  * Called by Shared Canvas with ajax
  */
-function islandora_canvas_update_annotation() {
+function islandora_image_annotation_canvas_update_annotation() {
   $changed = FALSE;
   // Retrieve variables from POST.
   $urn = urldecode($_POST['urn']);
@@ -274,7 +272,7 @@ function islandora_canvas_update_annotation() {
   $type = urldecode($_POST['annoType']);
   $new_color = urldecode($_POST['color']);
   $new_stroke_width = urldecode($_POST['strokeWidth']);
-  $pid = islandora_canvas_get_pid_from_urn($urn);
+  $pid = islandora_image_annotation_canvas_get_pid_from_urn($urn);
   $fedora_object = islandora_object_load($pid);
 
   $annotation = $fedora_object['OAC']->content;
@@ -353,7 +351,7 @@ function islandora_canvas_update_annotation() {
  * @return array
  *   Keys of the terms returned from solr.
  */
-function islandora_annotations_get_type_terms() {
+function islandora_image_annotation_get_type_terms() {
   $type_field = variable_get('annotation_type_search_field', 'anno_category_s');
   $query = format_string('!field:("!content_model" OR "info:fedora/!content_model")', array(
     '!field' => variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms'),
@@ -367,7 +365,7 @@ function islandora_annotations_get_type_terms() {
     'qt' => variable_get('islandora_solr_request_handler', ''),
   );
 
-  $results = islandora_annotations_query_solr($query, $params);
+  $results = islandora_image_annotation_query_solr($query, $params);
   $terms = array();
   foreach ($results['solr_doc'] as $doc) {
     if (array_key_exists($type_field, $doc)) {
@@ -385,7 +383,7 @@ function islandora_annotations_get_type_terms() {
  * @return string
  *   JSON string.
  */
-function islandora_annotations_get_title_terms($type) {
+function islandora_image_annotation_get_title_terms($type) {
   $title_field = variable_get('annotation_title_search_field', 'mads_titles_sv');
   $solr = variable_get('islandora_solr_url', 'localhost:8080/solr');
   $data = array(
@@ -423,7 +421,7 @@ function islandora_annotations_get_title_terms($type) {
  * @param string $pid
  *   the identifier of the object to read the datatstream from
  */
-function islandora_annotations_get_mads_as_json($pid) {
+function islandora_image_annotation_get_mads_as_json($pid) {
   $object = islandora_object_load($pid);
   if (!isset($object) || !isset($object['MADS'])) {
     echo 'error loading MADS datastream';
@@ -456,7 +454,7 @@ function islandora_annotations_get_mads_as_json($pid) {
  * @param array $params
  *   An associate array containing solr params.
  */
-function islandora_annotations_query_solr($query, $params) {
+function islandora_image_annotation_query_solr($query, $params) {
   $query_processor = new IslandoraSolrQueryProcessor();
   $query_processor->solrQuery = $query;
   foreach ($params as $field => $value) {

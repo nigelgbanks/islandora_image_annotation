@@ -23,35 +23,35 @@ function islandora_image_annotation_menu() {
     'type' => MENU_NORMAL_ITEM,
   );
   $items['islandora/anno/test'] = array(
-    'page callback' => 'build_manifest',
+    'page callback' => 'islandora_image_annotation_build_manifest',
     'type' => MENU_CALLBACK,
     'access arguments' => array(ISLANDORA_IMAGE_ANNOTATION_VIEW),
     'file' => 'includes/build_streams.inc',
   );
 
   $items['islandora/anno/setup'] = array(
-    'page callback' => 'islandora_canvas_setup',
+    'page callback' => 'islandora_image_annotation_canvas_setup',
     'type' => MENU_CALLBACK,
     'access arguments' => array(ISLANDORA_IMAGE_ANNOTATION_VIEW),
     'file' => 'includes/callbacks.inc',
   );
 
   $items['islandora/anno/add_annotation'] = array(
-    'page callback' => 'islandora_add_annotation',
+    'page callback' => 'islandora_image_annotation_add_annotation',
     'type' => MENU_CALLBACK,
     'access arguments' => array(ISLANDORA_IMAGE_ANNOTATION_CREATE),
     'file' => 'includes/callbacks.inc',
   );
 
   $items['islandora/anno/get_urns'] = array(
-    'page callback' => 'islandora_shared_get_annotation_pids',
+    'page callback' => 'islandora_image_annotation_shared_get_annotation_pids',
     'type' => MENU_CALLBACK,
     'access arguments' => array(ISLANDORA_IMAGE_ANNOTATION_VIEW),
     'file' => 'includes/callbacks.inc',
   );
 
   $items['islandora/anno/get_annotation'] = array(
-    'page callback' => 'islandora_shared_get_annotation',
+    'page callback' => 'islandora_image_annotation_shared_get_annotation',
     'type' => MENU_CALLBACK,
     'access arguments' => array(ISLANDORA_IMAGE_ANNOTATION_VIEW),
     'file' => 'includes/callbacks.inc',
@@ -64,20 +64,20 @@ function islandora_image_annotation_menu() {
   );
 
   $items['islandora/anno/serve'] = array(
-    'page callback' => 'islandora_serve',
+    'page callback' => 'islandora_image_annotation_islandora_serve',
     'type' => MENU_CALLBACK,
     'access arguments' => array(ISLANDORA_IMAGE_ANNOTATION_VIEW),
     'file' => 'includes/build_streams.inc',
   );
   $items['islandora/anno/update_annotation'] = array(
-    'page callback' => 'islandora_canvas_update_annotation',
+    'page callback' => 'islandora_image_annotation_canvas_update_annotation',
     'type' => MENU_CALLBACK,
     'access arguments' => array(ISLANDORA_IMAGE_ANNOTATION_CREATE),
     'file' => 'includes/callbacks.inc',
   );
 
   $items['islandora/anno/solr/title/terms/%'] = array(
-    'page callback' => 'islandora_annotations_get_title_terms',
+    'page callback' => 'islandora_image_annotation_get_title_terms',
     'page arguments' => array(5),
     'type' => MENU_CALLBACK,
     'access arguments' => array(ISLANDORA_IMAGE_ANNOTATION_CREATE),
@@ -85,7 +85,7 @@ function islandora_image_annotation_menu() {
   );
 
   $items['islandora/anno/mads/%'] = array(
-    'page callback' => 'islandora_annotations_get_mads_as_json',
+    'page callback' => 'islandora_image_annotation_get_mads_as_json',
     'page arguments' => array(3),
     'type' => MENU_CALLBACK,
     'access arguments' => array(ISLANDORA_IMAGE_ANNOTATION_CREATE),
@@ -170,7 +170,15 @@ function islandora_image_annotation_theme($existing, $type, $theme, $path) {
  *   The marked up output.
  */
 function islandora_image_annotation_view($object) {
+  global $base_url;
   $output = theme('islandora_image_annotation_view', array('islandora_object' => $object));
+  
+  // Make the '$base_url' variable available in javascript to avoid nasty string
+  // splicing to get the base url.
+  $my_settings = array(
+    'basepath' => $base_url
+  );
+  drupal_add_js(array('islandora_image_annotation' => $my_settings), 'setting');
   return $output;
 }
 
@@ -191,12 +199,14 @@ function islandora_image_annotation_preprocess_islandora_image_annotation_view(&
   $variables['islandora_image_annotation_src'] = $src;
   $variables['islandora_image_annotation_pid'] = $pid;
 
+  
+  
   drupal_add_css($path . '/css/islandora_annotation.css');
 
-  drupal_add_js($path . '/shared_canvas/js/window_behaviours.js');
+  drupal_add_js($path . '/shared_canvas/js/window_behaviors.js');
 
   // Add css.
-  drupal_add_css($path . '/shared_canvas/css/window_behaviours.css');
+  drupal_add_css($path . '/shared_canvas/css/window_behaviors.css');
 }
 
 /**

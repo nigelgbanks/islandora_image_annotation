@@ -237,16 +237,8 @@ $(document).ready(function(){
  
     // gets setup information from Islandora
     //determine base of Drupal installation
-
-    var here = window.location.toString();
-    var splitter = here.indexOf('/sites/');
-    if(splitter > 0){
-        splitter = '/sites/';
-    }else{
-        splitter = '/modules/';
-    }
-    base = here.split(splitter);
-    base = base[0];
+    
+    base = window.parent.Drupal.settings.islandora_image_annotation.basepath;
     PID = $.urlParam('PID');
     $.ajax({
         url: base + '/islandora/anno/setup/' + PID,
