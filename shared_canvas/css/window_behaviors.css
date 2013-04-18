@@ -1,0 +1,46 @@
+/* Full Screen Styling */
+
+#full-window-button
+{
+ float: left;
+  margin: 5px 5px 5px 0px;
+}
+
+
+.islandora-anno-fullwindow
+{
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  z-index: 601;
+  background: #fff;
+}
+
+.admin-menu .islandora-anno-fullwindow
+{
+  top: 0px;
+}
+
+
+.islandora-anno-fullwindow .islandora-anno-iframe-wrapper
+{
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  top: 30px;
+
+  width: 100%;
+  z-index: 60;
+  
+  background: #fff;
+}
+
+.islandora-anno-fullwindow .islandora-anno-iframe-wrapper iframe
+{
+  position: absolute;
+  width: 100%;
+  height: 100% !important; 
+}

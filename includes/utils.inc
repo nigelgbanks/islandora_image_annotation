@@ -66,7 +66,7 @@ function islandora_image_annotation_get_dsid_from_model($pid) {
  *   The Fedora object id to supply the data for
  *
  */
-function islandora_annotation_canvas_setup($pid) {
+function islandora_image_annotation_canvas_setup($pid) {
 
   module_load_include('inc', 'islandora_image_annotation', 'includes/build_streams');
   module_load_include('inc', 'islandora_image_annotation', 'includes/callbacks');
@@ -138,6 +138,7 @@ function islandora_annotation_canvas_setup($pid) {
   $results['no_edit'] = !user_access(ISLANDORA_IMAGE_ANNOTATION_CREATE);
   $results['categories'] = $categories;
   $results['use_dropdown'] = $dropdown;
+  // Implemented in JavaScript in RDF, which breaks with URL-encoding.
   $results['manifest_url'] = rawurldecode(url("islandora/anno/serve/$pid_final/Manifest/manifest.xml", array('absolute' => TRUE)));
   $results['islandora_post_url'] = url("islandora/anno/add_annotation/$pid_final");
   $results['get_annotation_list_url'] = url("islandora/anno/get_urns/$pid_final");

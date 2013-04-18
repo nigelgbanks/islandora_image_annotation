@@ -16,7 +16,7 @@
  */
 function islandora_image_annotation_canvas_setup($pid) {
   module_load_include('inc', 'islandora_image_annotation', 'includes/utils');
-  echo islandora_annotation_canvas_setup($pid);
+  echo islandora_image_annotation_canvas_setup($pid);
 }
 
 /**
@@ -171,7 +171,7 @@ QUERY;
  * @return XML
  *   The XML content of the OAC datastream.
  */
-function islandora_iamge_annotation_get_annotation_data($pid) {
+function islandora_image_annotation_get_annotation_data($pid) {
   module_load_include('inc', 'fedora_repository', 'api/fedora_item');
   $item = islandora_object_load($pid);
   if (!isset($item)) {
@@ -196,7 +196,7 @@ function islandora_image_annotation_shared_get_annotation($pid, $urn = NULL) {
   if (isset($urn)) {
     $pid = islandora_image_annotation_canvas_get_pid_from_urn($urn);
   }
-  $xml = islandora_iamge_annotation_get_annotation_data($pid);
+  $xml = islandora_image_annotation_get_annotation_data($pid);
   $results = islandora_image_annotation_shared_transform_annotation_list($xml, 'rdf');
   // Remove the doc type declarations.
   $results = preg_replace('/<\?xml.*?\?>/', '', $results);
