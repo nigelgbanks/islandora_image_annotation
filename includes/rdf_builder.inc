@@ -5,8 +5,8 @@
  * Build RDF like XML for OAC standard.
  *
  * Convenicence class to build RDF objects.
- *
  */
+
 class IslandoraRdfBuilder {
 
   public $domDoc = NULL;

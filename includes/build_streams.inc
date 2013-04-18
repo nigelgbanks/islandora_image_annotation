@@ -526,22 +526,23 @@ function islandora_image_annotation_islandora_serve($pid, $stream, $width = NULL
 
 /**
  * Generates uuid.
- * XXX: Update this to use the getUuid() somehow in tuque/Repository.php
  *
  * @return uuid
  *   Returns the uuid.
  */
 function islandora_image_annotation_get_uuid() {
   $data;
-  //islandora_basic_collection is now a dependency of islandora_image_annotation
+  // Module islandora_basic_collection is now
+  // a dependency of islandora_image_annotation.
   try {
     $connection = islandora_get_tuque_connection();
     $configuration['id'] = $connection->repository->getNextIdentifier(NULL, TRUE);
     $data = explode(":", $configuration['id']);
-  } catch (Exception $e) {
+  }
+  catch (Exception $e) {
     throw $e;
   }
 
-  //Return just the uuid portion of the identifier
+  // Return just the uuid portion of the identifier.
   return $data[1];
 }

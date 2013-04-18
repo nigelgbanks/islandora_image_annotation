@@ -367,11 +367,14 @@ function islandora_image_annotation_get_type_terms() {
 
   $results = islandora_image_annotation_query_solr($query, $params);
   $terms = array();
-  foreach ($results['solr_doc'] as $doc) {
-    if (array_key_exists($type_field, $doc)) {
-      $terms[$doc[$type_field][0]] = 1;
+  if (isset($results['solr_doc'])) {
+    foreach ($results['solr_doc'] as $doc) {
+      if (array_key_exists($type_field, $doc)) {
+        $terms[$doc[$type_field][0]] = 1;
+      }
     }
   }
+
   return array_keys($terms);
 }
 

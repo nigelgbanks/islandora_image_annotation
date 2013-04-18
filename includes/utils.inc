@@ -57,14 +57,15 @@ function islandora_image_annotation_get_dsid_from_model($pid) {
 }
 
 /**
+ * Shared canvas setup utilitiy.
+ * 
  * Ajax callback for Shared Canvas, shared functionality in
  * islandora_image_annotation and islandora_critical_edition.
  * Supplies the basic data, including manifest URI. Returns json
  * to be echoed to the client.
  *
  * @param string $pid
- *   The Fedora object id to supply the data for
- *
+ *   The Fedora object id to supply the data for.
  */
 function islandora_image_annotation_canvas_init($pid) {
 
@@ -94,7 +95,7 @@ function islandora_image_annotation_canvas_init($pid) {
   $optimized = variable_get('islandora_annotation_optimized', TRUE);
   $dropdown = variable_get('islandora_annotation_enforce_taxonomy', TRUE);
 
-  $vid = isset($mappings[$cmodel]['TAX']) ? $mappings[$cmodel]['TAX']: NULL;
+  $vid = isset($mappings[$cmodel]['TAX']) ? $mappings[$cmodel]['TAX'] : NULL;
 
   $dsid = $mappings[$cmodel]['DSID'];
 
@@ -114,7 +115,7 @@ function islandora_image_annotation_canvas_init($pid) {
   $results = array();
   $pid_final;
   if (isset($page_object)) {
-    //TODO: Add function in islandora_page_content to do this
+    // TODO: Add function in islandora_page_content to do this.
     $page_object_of_relationship = $page_object->relationships->get(ISLANDORA_RELS_EXT_URI, 'isPageOf');
     $book_object = islandora_object_load($page_object_of_relationship[0]['object']['value']);
     $pid_final = $page_object->id;

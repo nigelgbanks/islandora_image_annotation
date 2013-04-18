@@ -145,7 +145,7 @@ function islandora_image_annotation_admin($form, &$form_state) {
     '#states' => array(
       // Hide the settings when the cancel notify checkbox is disabled.
       'invisible' => array(
-       ':input[name="annotation_use_title_vocabulary"]' => array('checked' => FALSE),
+        ':input[name="annotation_use_title_vocabulary"]' => array('checked' => FALSE),
       ),
     ),
   );
@@ -157,7 +157,7 @@ function islandora_image_annotation_admin($form, &$form_state) {
     '#states' => array(
       // Hide the settings when the cancel notify checkbox is disabled.
       'invisible' => array(
-       ':input[name="annotation_use_title_vocabulary"]' => array('checked' => FALSE),
+        ':input[name="annotation_use_title_vocabulary"]' => array('checked' => FALSE),
       ),
     ),
   );
