@@ -240,7 +240,7 @@ $(document).ready(function(){
     
     
     PID = $.urlParam('PID');
-    base = document.documentMode + document.domain + window.parent.Drupal.settings.basePath + 'islandora/anno/setup/' + PID//window.parent.Drupal.settings.islandora_image_annotation.basepath;
+    base = window.parent.Drupal.settings.basePath + 'islandora/anno/setup/' + PID;//window.parent.Drupal.settings.islandora_image_annotation.basepath;
     alert(base);
     $.ajax({
         url: base,
