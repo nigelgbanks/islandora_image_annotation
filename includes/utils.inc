@@ -66,7 +66,7 @@ function islandora_image_annotation_get_dsid_from_model($pid) {
  *   The Fedora object id to supply the data for
  *
  */
-function islandora_image_annotation_canvas_setup($pid) {
+function islandora_image_annotation_canvas_init($pid) {
 
   module_load_include('inc', 'islandora_image_annotation', 'includes/build_streams');
   module_load_include('inc', 'islandora_image_annotation', 'includes/callbacks');

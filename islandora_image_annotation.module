@@ -154,7 +154,7 @@ function islandora_image_annotation_theme($existing, $type, $theme, $path) {
       'template' => 'theme/islandora-image-annotation',
       'variables' => array('islandora_objects' => NULL),
     ),
-    'islandora_annotation_table' => array(
+    'islandora_image_annotation_admin_table' => array(
       'render element' => 'form',
     ),
   );
@@ -173,12 +173,6 @@ function islandora_image_annotation_view($object) {
   global $base_url;
   $output = theme('islandora_image_annotation_view', array('islandora_object' => $object));
   
-  // Make the '$base_url' variable available in javascript to avoid nasty string
-  // splicing to get the base url.
-  $my_settings = array(
-    'basepath' => $base_url
-  );
-  drupal_add_js(array('islandora_image_annotation' => $my_settings), 'setting');
   return $output;
 }
 

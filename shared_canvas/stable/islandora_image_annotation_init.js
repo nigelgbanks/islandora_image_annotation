@@ -240,10 +240,9 @@ $(document).ready(function(){
     
     
     PID = $.urlParam('PID');
-    base = window.parent.Drupal.settings.basePath + 'islandora/anno/setup/' + PID;//window.parent.Drupal.settings.islandora_image_annotation.basepath;
-    alert(base);
+    base = window.parent.Drupal.settings.basePath;
     $.ajax({
-        url: base,
+        url: base + 'islandora/anno/setup/' + PID,
         async:false,
         success: function(data, status, xhr) {
             islandora_canvas_params = data;

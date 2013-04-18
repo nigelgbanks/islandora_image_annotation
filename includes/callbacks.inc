@@ -16,7 +16,7 @@
  */
 function islandora_image_annotation_canvas_setup($pid) {
   module_load_include('inc', 'islandora_image_annotation', 'includes/utils');
-  echo islandora_image_annotation_canvas_setup($pid);
+  echo islandora_image_annotation_canvas_init($pid);
 }
 
 /**

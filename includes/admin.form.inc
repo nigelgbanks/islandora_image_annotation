@@ -43,7 +43,7 @@ function islandora_image_annotation_admin($form, &$form_state) {
     '#title' => t('Enable annotating'),
     '#description' => t('Allow annotation of objects associated with these content models.'),
     '#tree' => TRUE,
-    '#theme' => 'islandora_annotation_table',
+    '#theme' => 'islandora_image_annotation_admin_table',
   );
 
   foreach ($coptions as $pid => $label) {
