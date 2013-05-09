@@ -57,8 +57,6 @@ function islandora_image_annotation_canvas_setup($pid) {
   else {
     $categories = islandora_image_annotation_get_type_terms();
   }
-
-  $image_url = url("islandora/object/$pid/datastream/$dsid");
   $pages = array();
   $results = array();
   $pid_final;
@@ -100,7 +98,6 @@ function islandora_image_annotation_canvas_setup($pid) {
   $results['islandora_anno_use_title_vocab'] = variable_get('annotation_use_title_vocabulary', FALSE);
   $results['islandora_anno_stroke_width'] = $stroke_width;
   $results['islandora_anno_stroke_widths'] = variable_get('annotation_stroke_widths', '.3 .6. .9  1.2 1.5');
-  $results['image_url'] = $image_url;
   $results['can_choose'] = !$optimized;
 
   drupal_json_output($results);
