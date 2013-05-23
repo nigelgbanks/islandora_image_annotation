@@ -158,7 +158,9 @@ QUERY;
     $pids['pids'][] = $itemdata;
     $pids['types'][] = $object['type']['value'];
   }
-  $pids['types'] = array_values(array_unique($pids['types']));
+  if (!empty($pids)) {
+    $pids['types'] = array_values(array_unique($pids['types']));
+  }
   $json = json_encode($pids);
   echo $json;
 }
