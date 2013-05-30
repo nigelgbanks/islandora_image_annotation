@@ -27,7 +27,13 @@ function islandora_image_annotation_add_annotation($pid) {
   global $user;
   module_load_include('inc', 'islandora', 'includes/utilities');
   $data = $_POST['data'];
-  $stroke_width = $_POST['strokeWidth'];
+  $stroke_width;
+  if(isset($_POST['strokeWidth'])) {
+    $stroke_width = $_POST['strokeWidth'];
+  } else {
+    $stroke_width = 0;
+  }
+   
   $annotation_xml = islandora_image_annotation_shared_transform_annotation_list(urldecode($_POST['data']), 'html');
 
   $color = $_POST['color'];
