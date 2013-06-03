@@ -6,8 +6,10 @@
  */
 
 /**
- * Ajax callback for Shared Canvas. Supplies the basic data, including manifest
- * URI. Returns JSON to be echoed to the client.
+ * Ajax callback for Shared Canvas.
+ *
+ * Supplies the basic data, including manifest URI.
+ * Returns JSON to be echoed to the client.
  *
  * @param string $pid
  *   The PID of a object.
@@ -16,6 +18,7 @@ function islandora_image_annotation_canvas_setup($pid) {
   module_load_include('inc', 'islandora_image_annotation', 'includes/utils');
   drupal_json_output(islandora_image_annotation_canvas_init($pid));
 }
+
 
 /**
  * Creates annotation objects from html supplied by Shared Canvas.
@@ -31,12 +34,13 @@ function islandora_image_annotation_add_annotation($pid) {
   // by adding the 'stroke width' option to the annotation jquery dialog
   // box (as a combo box selection).
   $stroke_width;
-  if(isset($_POST['strokeWidth'])) {
+  if (isset($_POST['strokeWidth'])) {
     $stroke_width = $_POST['strokeWidth'];
-  } else {
+  }
+  else {
     $stroke_width = 0;
   }
-   
+
   $annotation_xml = islandora_image_annotation_shared_transform_annotation_list(urldecode($_POST['data']), 'html');
 
   $color = $_POST['color'];
