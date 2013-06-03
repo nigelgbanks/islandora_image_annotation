@@ -27,6 +27,9 @@ function islandora_image_annotation_add_annotation($pid) {
   global $user;
   module_load_include('inc', 'islandora', 'includes/utilities');
   $data = $_POST['data'];
+  // todo: In the future, the following fix could be eliminated
+  // by adding the 'stroke width' option to the annotation jquery dialog
+  // box (as a combo box selection).
   $stroke_width;
   if(isset($_POST['strokeWidth'])) {
     $stroke_width = $_POST['strokeWidth'];
