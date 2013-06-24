@@ -194,37 +194,48 @@ function init_ui() {
     // Refresh Canvas if browser is resized
     // We're called as per move... so need wait till finished resizing
     $(window).resize(function() {
-        closeAndEndAnnotating();
-        var w = $('body').width();
-        topinfo['bodyWidth'] = w;
-        if (toid != null) {
-            // Be considerate and clear previous timeout
-            window.clearTimeout(toid)
-        }
-        toid = window.setTimeout(maybeResize, 1000)
+    	resizeCanvas();
     });
 }
 
-function maybeResize() {
-    var w = $('body').width();
-    // Allow for slight tweak on size from original for scrollbars
-    if (w == topinfo['bodyWidth'] && Math.abs(topinfo['origBodyWidth']-w) > 20) {
-        // We've been stationary for 1 second
-        toid = null;
-        var b = topinfo['origBodyWidth'];
-        topinfo['bodyWidth'] = 0;
-        if (w != b) {
-            initCanvas(topinfo['numCanvases']);
-            showPages();
-        }
-    }
+var timeout = false;
+var delta = 200;
+function resizeCanvas() {
+  // Updated fix to prevent needless server calls
+  var w = $('#canvas-body').width();
+  topinfo['bodyWidth'] = w;
+  if(timeout === false) {
+    timeout = true;
+    closeAndEndAnnotating();
+    window.setTimeout(maybeResize, delta);
+  }
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }
 
-
-
+function maybeResize() {
+  // Updated fix to prevent needless server calls
+  if(w == topinfo['bodyWidth'] && Math.abs(topinfo['origBodyWidth']-w) > 20) {
+    initCanvas(topinfo['numCanvases']);
+  } else {
+    timeout = false;
+    var baseid = '#' + $('.base_img').attr('id');
+    var imgid = '#' + $('.base_img').children(":first").attr('id');
+    var w = $('#canvas-body').width();
+    toid = null;
+    var b = topinfo['origBodyWidth'];
+    topinfo['bodyWidth'] = 0;
+    if (w != b) {
+      initCanvas(topinfo['numCanvases']);
+      $(imgid).width(w);
+      $(imgid).css("height", "auto");
+      $(baseid).css("height", $(imgid).height());
+      $('#canvas_0').css("width", (w));
+    }
+  }
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
 
 // Let's start it up!
-
 $(document).ready(function(){
     // gets setup information from Islandora
     $.ajax({
