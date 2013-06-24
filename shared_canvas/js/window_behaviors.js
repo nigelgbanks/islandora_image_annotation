@@ -5,6 +5,7 @@
       $('#full-window-button').click(function() {
 
         $('.islandora-anno-wrapper').toggleClass('islandora-anno-fullwindow');
+        resizeCanvas();
 
         if ($(this).val() == Drupal.t('Full Window')) {
           $(this).val(Drupal.t('Exit Full Window'));

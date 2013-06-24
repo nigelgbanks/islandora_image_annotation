@@ -193,7 +193,7 @@ function init_ui() {
     // Refresh Canvas if browser is resized
     // We're called as per move... so need wait till finished resizing
     $(window).resize(function() {
-    	resizeCanvas();
+        resizeCanvas();
     });
 }
 
@@ -381,12 +381,12 @@ $(document).ready(function(){
                             $('#anno_text').val(mads_text);
                         });
            
-                    });  
+                    });
                 }
             });
         }
            
-    });  
+    });
     
     var stroke_widths = islandora_canvas_params.islandora_anno_stroke_widths.split(" ");
     var s_options = "";
