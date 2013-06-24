@@ -1,4 +1,4 @@
-//adapted from sc_init
+// Adapted from sc_init of the shared canvas project.
 
 var toid = null;
 var startDate = 0;
