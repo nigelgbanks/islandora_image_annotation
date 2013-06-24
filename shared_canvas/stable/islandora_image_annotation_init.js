@@ -68,7 +68,6 @@ var opts = {
     }
 };
 
-
 function initCanvas(nCanvas) {
   
     var w = $('body').width();
@@ -201,7 +200,6 @@ function init_ui() {
 var timeout = false;
 var delta = 200;
 function resizeCanvas() {
-  // Updated fix to prevent needless server calls
   var w = $('#canvas-body').width();
   topinfo['bodyWidth'] = w;
   if(timeout === false) {
@@ -209,11 +207,9 @@ function resizeCanvas() {
     closeAndEndAnnotating();
     window.setTimeout(maybeResize, delta);
   }
-  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }
 
 function maybeResize() {
-  // Updated fix to prevent needless server calls
   if(w == topinfo['bodyWidth'] && Math.abs(topinfo['origBodyWidth']-w) > 20) {
     initCanvas(topinfo['numCanvases']);
   } else {
@@ -232,7 +228,6 @@ function maybeResize() {
       $('#canvas_0').css("width", (w));
     }
   }
-  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }
 
 // Let's start it up!
@@ -429,13 +424,11 @@ $(document).ready(function(){
         }
     }
     topinfo['uriParams'] = uriparams
- 
 
     // Initialize UI
     init_ui();
     // Setup a basic Canvas with explicit width to scale to from browser width
     initCanvas(nCanvas);
-   
 
     // Manifest Initialization
     var manuri = islandora_canvas_params.manifest_url;
