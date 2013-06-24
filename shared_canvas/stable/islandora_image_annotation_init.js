@@ -430,13 +430,8 @@ $(document).ready(function(){
     // Setup a basic Canvas with explicit width to scale to from browser width
     initCanvas(nCanvas);
 
-    // Manifest Initialization
-    var manuri = islandora_canvas_params.manifest_url;
-    if (manuri != undefined) {
-        fetchTriples(manuri, rdfbase, cb_process_manifest);
-    } else {
-        repouri = $('#repository').attr('href');
-        fetchTriples(repouri, rdfbase, cb_process_repository);
-    }
-
+    // Manifest initialization.
+    fetchTriples(islandora_canvas_params.manifest_url,
+                 rdfbase,
+                 cb_process_manifest);
 });
