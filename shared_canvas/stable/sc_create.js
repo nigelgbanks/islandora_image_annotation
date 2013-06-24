@@ -195,8 +195,6 @@ function destroyAll(canvas) {
         $(r).remove();
     }
     topinfo['raphaels']['comment'][canvas] = undefined;
-    // There was a call here, 'islandora_getList()', that was 
-    // doubling up server requests, and found it unnecessary.
 }
 
 function saveAnnotation() {
