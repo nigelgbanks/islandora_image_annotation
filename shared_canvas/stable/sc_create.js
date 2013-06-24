@@ -101,6 +101,8 @@ function saveAndEndAnnotating() {
     var okay = saveAnnotation();
     if (okay) {
         closeAndEndAnnotating();
+        // After rebuild, resize.
+        resizeCanvas();
     }
 }
 
