@@ -85,15 +85,15 @@ function initCanvas(nCanvas) {
     var h = $(window).height() - 50;
     h = h/rows;
 
-    for (var x=0;x<nCanvas;x++) {
+    for (var x=0; x<nCanvas; x++) {
         $('#canvases').append('<div id="canvas_' + x + '" class="canvas"></div>')
-        $('#canvas_'+x).width(w);
-        $('#canvas_'+x).height(h);
+        $('#canvas_' + x).width(w);
+        $('#canvas_' + x).height(h);
         if (x != 0) {
             if (x % perrow == 0) {
                 // below previous first in row
-                $('#canvas_'+x).position({
-                    'of':'#canvas_' + (x-perrow),
+                $('#canvas_' + x).position({
+                    'of':'#canvas_' + (x - perrow),
                     'my':'left top',
                     'at':'left bottom',
                     'collision':'none',
