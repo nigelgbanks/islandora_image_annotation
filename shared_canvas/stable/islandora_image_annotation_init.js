@@ -68,47 +68,15 @@ var opts = {
 
 function initCanvas(nCanvas) {
 
-    var w = $('body').width();
-    topinfo['origBodyWidth'] = w;
+    var w = $('#canvas-body').width();
+    var h = $('#canvas-body').height();
+    
     $('#top_menu_bar').width(w - 5);
 
-
-    // Make n canvases.  Multiple row logic:
-    // 1:  1x1      2: 1x2      3: 1x3
-    // 4:  2x2      5: 1x3+1x2  6: 2x3
-    // 7:  1x4+1x3  8: 2x4      9: 3x3  (etc)
-
-    var rows = Math.floor(Math.sqrt(nCanvas));
-    var perrow = Math.ceil(nCanvas/rows);
-    // @XXX Not sure what these lines were doing but broke scaling by breaking width.
-    //var w = w/perrow - (5*perrow);
-    var h = $(window).height() - 50;
-    h = h/rows;
-
-    for (var x=0; x<nCanvas; x++) {
+    for (var x = 0; x < nCanvas; x++) {
         $('#canvases').append('<div id="canvas_' + x + '" class="canvas"></div>')
         $('#canvas_' + x).width(w);
         $('#canvas_' + x).height(h);
-        if (x != 0) {
-            if (x % perrow == 0) {
-                // below previous first in row
-                $('#canvas_' + x).position({
-                    'of':'#canvas_' + (x - perrow),
-                    'my':'left top',
-                    'at':'left bottom',
-                    'collision':'none',
-                    'offset': '0 10'
-                });
-            } else {
-                $('#canvas_' + x).position({
-                    'of':'#canvas_' + (x - 1),
-                    'my':'left top',
-                    'at':'right top',
-                    'collision':'none',
-                    'offset': '10 0'
-                });
-            }
-        }
     }
     topinfo['canvasWidth'] = w;
     topinfo['numCanvases'] = nCanvas;
@@ -200,7 +168,6 @@ var timeout = false;
 var delta = 300;
 function resizeCanvas() {
   var w = $('#canvas-body').width();
-  topinfo['bodyWidth'] = w;
   if(timeout === false) {
     timeout = true;
     closeAndEndAnnotating();
@@ -211,8 +178,6 @@ function resizeCanvas() {
 function maybeResize() {
     timeout = false;
     var w = $('#canvas-body').width();
-    var b = topinfo['origBodyWidth'];
-    topinfo['bodyWidth'] = 0;
     var image_element = $('.base_img').children(":first");
     initCanvas(topinfo['numCanvases']);
     image_element.width(w);
@@ -308,7 +273,6 @@ $(document).ready(function(){
         $(islandora_canvas_params.categories).each(function() {
             value = this.toString();
             sel.append($("<option>").attr('value',value).text(value));
-        // titles.append($("<option>").attr('value',value).text(value));
         });
     }
     else{
@@ -332,7 +296,7 @@ $(document).ready(function(){
                 id : $(this).val(),
                 ajax : 'true'
             }, function(j){
-                var options = '<option value="nothing">--Select from ' + id +'--</option>';
+                var options = '<option value="nothing">--Select from ' + id + '--</option>';
                 for (var i = 0; i < j.length; i++){
                     var fieldName, objectPid;
                     $.each(j[i], function (key, val){
