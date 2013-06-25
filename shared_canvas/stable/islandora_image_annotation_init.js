@@ -193,10 +193,11 @@ function init_ui() {
     $(window).resize(function() {
         resizeCanvas();
     });
+
 }
 
 var timeout = false;
-var delta = 200;
+var delta = 300;
 function resizeCanvas() {
   var w = $('#canvas-body').width();
   topinfo['bodyWidth'] = w;
@@ -208,23 +209,16 @@ function resizeCanvas() {
 }
 
 function maybeResize() {
-  if(w == topinfo['bodyWidth'] && Math.abs(topinfo['origBodyWidth']-w) > 20) {
-    initCanvas(topinfo['numCanvases']);
-  } else {
     timeout = false;
-    var baseid = '#' + $('.base_img').attr('id');
-    var imgid = '#' + $('.base_img').children(":first").attr('id');
     var w = $('#canvas-body').width();
     var b = topinfo['origBodyWidth'];
     topinfo['bodyWidth'] = 0;
-    if (w != b) {
-      initCanvas(topinfo['numCanvases']);
-      $(imgid).width(w);
-      $(imgid).css("height", "auto");
-      $(baseid).css("height", $(imgid).height());
-      $('#canvas_0').css("width", (w));
-    }
-  }
+    var image_element = $('.base_img').children(":first");
+    initCanvas(topinfo['numCanvases']);
+    image_element.width(w);
+    image_element.css("height", "auto");
+    $('.base_img').css("height", image_element.height());
+    $('#canvas_0').css("width", w);
 }
 
 // Let's start it up!
@@ -429,4 +423,5 @@ $(document).ready(function(){
     fetchTriples(islandora_canvas_params.manifest_url,
                  rdfbase,
                  cb_process_manifest);
+
 });
