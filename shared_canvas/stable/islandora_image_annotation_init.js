@@ -319,18 +319,17 @@ $(document).ready(function(){
     if(islandora_canvas_params.islandora_anno_use_title_vocab == 1){
         $('#islandora_titles').empty();
         $('<label for="anno_title">Title:</label>').appendTo('#islandora_titles');
-        var titles = $('<select  id="anno_title">').appendTo('#islandora_titles');  
+        var titles = $('<select  id="anno_title">').appendTo('#islandora_titles');
         titles.append($("<option>").attr('value','--Choose a type--').text('--Choose a type above to populate--'));
     }
-    
-   
-    $("#anno_classification").change(function()  
-    {           
+
+    $("#anno_classification").change(function()
+    {
         if(islandora_canvas_params.islandora_anno_use_title_vocab == 1){
-            var id=$(this).val();   
+            var id=$(this).val();
             var base_url = islandora_canvas_params.islandora_base_url + 'islandora/anno/solr/title/terms/';
             $.getJSON(base_url + id,{
-                id : $(this).val(), 
+                id : $(this).val(),
                 ajax : 'true'
             }, function(j){
                 var options = '<option value="nothing">--Select from ' + id +'--</option>';
@@ -349,24 +348,24 @@ $(document).ready(function(){
                     $('#islandora_titles').empty();
                     $('#islandora_titles').append('<label for"anno_title">Title:</label>');
                     $('#islandora_titles').append('<input id="anno_title" type="text" size="28"/>');
-                    
-                } else {
+                }
+                else {
                     $('#islandora_titles').empty();
                     $('<label for="anno_title">Title:</label>').appendTo('#islandora_titles');
-                    var titles = $('<select  id="anno_title">').appendTo('#islandora_titles');  
-                    titles.append($("<option>").attr('value','--Choose a type--').text('--Choose a type above to populate--'));            
+                    var titles = $('<select  id="anno_title">').appendTo('#islandora_titles');
+                    titles.append($("<option>").attr('value','--Choose a type--').text('--Choose a type above to populate--'));
                     $('#anno_title').html(options);
-                    $("#anno_title").change(function()  
-                    {                
-                        var id=$(this).val();             
-                        var mads_url = islandora_canvas_params.islandora_base_url + 'islandora/anno/mads/';           
+                    $("#anno_title").change(function()
+                    {
+                        var id = $(this).val();
+                        var mads_url = islandora_canvas_params.islandora_base_url + 'islandora/anno/mads/';
                         $.getJSON(mads_url+id,{
-                            id : $(this).val(), 
+                            id : $(this).val(),
                             ajax : 'true'
-                        }, function(mads){               
+                        }, function(mads){
                             var mads_text = "";
                             $.each(mads, function(i, val) {
-                                mads_text += i +': ' +val + '\n\n';                   
+                                mads_text += i +': ' +val + '\n\n';
                             });
                             $('#anno_text').val(mads_text);
                         });
@@ -423,5 +422,4 @@ $(document).ready(function(){
     fetchTriples(islandora_canvas_params.manifest_url,
                  rdfbase,
                  cb_process_manifest);
-
 });
