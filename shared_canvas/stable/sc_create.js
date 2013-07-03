@@ -60,11 +60,13 @@ function startAnnotating() {
         color:'#808080'
     });
     $('#create_annotation').empty().append('Annotating');
-    $('#create_annotation_box').show();
-    $('#create_annotation_box').position({
-        top:200,
-        left:35
-    });
+    $('#create_annotation_box').dialog('open');
+    $('.ui-widget-overlay').remove();
+//    $('#create_annotation_box').show();
+//    $('#create_annotation_box').position({
+//        top:200,
+//        left:35
+//    });
 	
     $('#canvases .canvas').each(function() {
         var cnv = $(this).attr('canvas');
@@ -82,11 +84,9 @@ function startEditting(title, annotation, annoType, urn) {
         color:'#808080'
     });
     $('#create_annotation').empty().append('Annotating');
-    $('#create_annotation_box').show();
-    $('#create_annotation_box').position({
-        top:200,
-        left:35
-    });
+    $('#create_annotation_box').dialog('open');
+    $('.ui-widget-overlay').remove();
+    
     $('#anno_title').val(title);
     $('#anno_text').val(annotation);
     $('#anno_classification').val(annoType);
@@ -129,8 +129,8 @@ function closeAndEndAnnotating() {
     $('.mycolor').each(function(i, el) {                        
                         $(el).hide();                         
                     }); 
-	
-    $('#create_annotation_box').hide();
+    $('#create_annotation_box').dialog('close');
+    //$('#create_annotation_box').hide();
     // empty fields
     $('#anno_title').val('');
     $('#anno_text').val('');
@@ -156,7 +156,7 @@ function initForCreate(canvas) {
     var prt = r.wrapperElem;
 	
     // Ensure we're above all painting annos
-    $(prt).css('z-index', 5000);
+    $(prt).css('z-index', 1001);
 	
     var bg = r.rect(0,0,cw,ch);
     bg.attr({
@@ -267,9 +267,14 @@ function saveAnnotation() {
         });
     }
     
-  
+    // Updated backport fix. Add's click handler to new annotations,
+    // Making them available.
     islandora_postData(tgt, rdfa, type, color);
+    $(".islandora_comment_type_title").off();
 
+    $(".islandora_comment_type_title").ready().on("click", function(){
+      $(this).siblings('.islandora_comment_type_content').toggle();
+    });
     return 1;
 }
 

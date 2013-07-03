@@ -90,6 +90,9 @@ function initCanvas(nCanvas) {
 
 function init_ui() {
 
+  var anno_d = annotation_dialog();
+  anno_d.dialog('close');
+
     $('.dragBox').draggable().resizable();
     $('.dragBox').hide();
 

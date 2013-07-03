@@ -897,12 +897,15 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
       if(islandora_canvas_params.mappings['urn:uuid:' + annoId] != '' && islandora_canvas_params.can_choose){
         col = islandora_canvas_params.mappings[['urn:uuid:' + annoId]];
       }
-      if(islandora_canvas_params.strokeWidth['urn:uuid:' + annoId] != ''){
+      if(islandora_canvas_params.islandora_anno_stroke_width != null) {
+        strokeWidth = islandora_canvas_params.islandora_anno_stroke_width;
+      } else if(islandora_canvas_params.strokeWidth['urn:uuid:' + annoId] != ''){
         strokeWidth = islandora_canvas_params.strokeWidth[['urn:uuid:' + annoId]];
       } else {
         strokeWidth = $('#stroke_width').val();
       }
-    
+      
+
       $(ttldiv).append('<span color="' + col + '" class="mycolor" style="margin-right: 2px; margin-top: 2px; background: '+col+';float:right;width:15px;height:15px;">&nbsp;</span>');
       for (var t = 0, tgt; tgt = anno.targets[t]; t++) {
         if (tgt.partOf != null) {
