@@ -116,7 +116,7 @@ function islandora_image_annotation_canvas_init($pid) {
   $results['islandora_anno_use_title_vocab'] = variable_get('annotation_use_title_vocabulary', FALSE);
   $results['islandora_anno_stroke_width'] = $stroke_width;
   $results['islandora_anno_stroke_widths'] = variable_get('annotation_stroke_widths', '.3 .6. .9  1.2 1.5');
-  $results['can_choose'] = TRUE;//!$optimized;
+  $results['can_choose'] = TRUE;
 
   return $results;
 }
