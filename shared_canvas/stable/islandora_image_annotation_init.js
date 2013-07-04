@@ -158,7 +158,10 @@ function init_ui() {
     // XXX Remove annotation button and shape menu
 
     }
-
+    $('#color-picker-wrapper').click(function(){
+        $('#anno_color_activated').attr('value', 'active');
+      });
+      $('.color-picker').miniColors();
     // Refresh Canvas if browser is resized
     // We're called as per move... so need wait till finished resizing
     $(window).resize(function() {
