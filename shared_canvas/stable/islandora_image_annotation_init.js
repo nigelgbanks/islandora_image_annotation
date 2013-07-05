@@ -67,7 +67,7 @@ var opts = {
 };
 
 function initCanvas(nCanvas) {
-
+    console.log("Number of canvases: " + nCanvas);
     var w = $('#canvas-body').width();
     var h = $('#canvas-body').height();
     
@@ -185,6 +185,7 @@ function maybeResize() {
     timeout = false;
     var w = $('#canvas-body').width();
     var image_element = $('.base_img').children(":first");
+    console.log("maby resize numCanvases: " + topinfo['numCanvases']);
     initCanvas(topinfo['numCanvases']);
     image_element.width(w);
     image_element.css("height", "auto");
@@ -379,6 +380,7 @@ $(document).ready(function(){
                 nCanvas = parseInt(val);
                 uriparams['n'] = nCanvas;
             }
+            console.log("nCanvas value: " + nCanvas);
         }
     }
     topinfo['uriParams'] = uriparams

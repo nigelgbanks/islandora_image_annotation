@@ -62,12 +62,6 @@ function startAnnotating() {
     $('#create_annotation').empty().append('Annotating');
     $('#create_annotation_box').dialog('open');
     $('.ui-widget-overlay').remove();
-//    $('#create_annotation_box').show();
-//    $('#create_annotation_box').position({
-//        top:200,
-//        left:35
-//    });
-	
     $('#canvases .canvas').each(function() {
         var cnv = $(this).attr('canvas');
         initForCreate(cnv);
@@ -266,7 +260,7 @@ function saveAnnotation() {
             source: islandora_canvas_params.categories
         });
     }
-    
+
     // Updated backport fix. Add's click handler to new annotations,
     // Making them available.
     islandora_postData(tgt, rdfa, type, color);

@@ -845,9 +845,9 @@ function paint_commentAnno(anno, canvasId) {
   block += '<div class="comment_text">' + '<div class="comment_type">' + annoType + '</div><div class="comment_content">' + txt + '</div></div>';
   block += '</div>';
   
-
   selectBlock = "#islandora_annoType_content_" + fixed_annotype;
-  $(selectBlock).append(block);
+  if($(selectBlock).append(block)) {
+  }
   $('#anno_' + myid).attr('canvas', canvasId);
 
   $('#delete_anno_'+myid).click(function(e){
