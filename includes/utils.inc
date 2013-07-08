@@ -141,7 +141,7 @@ function islandora_image_annotation_include_common_js() {
   drupal_add_js($image_annotation_module_path . '/shared_canvas/js/uuid.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/js/jquery/jquery.miniColors.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/dialog_annotate.js');
-  
+
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/sc_ui.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/sc_utils.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/sc_rdf.js');
@@ -149,4 +149,3 @@ function islandora_image_annotation_include_common_js() {
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/sc_create.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/sc_pastebin.js');
 }
-
