@@ -122,10 +122,10 @@ function islandora_image_annotation_canvas_init($pid) {
 }
 
 /**
- * Load shared dependencies.
+ * A library function for loading Javascript dependencies of shared Canvas.
  *
- * In one place, load the shared dependencies
- * of image annotation and critical editions.
+ * This can be used to support shared canvases in other modules.  They need
+ * only call this function rather than include all the Javascript themselves.
  */
 function islandora_image_annotation_include_common_js() {
   $image_annotation_module_path = drupal_get_path('module', 'islandora_image_annotation');
