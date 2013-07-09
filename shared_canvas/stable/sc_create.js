@@ -124,7 +124,7 @@ function closeAndEndAnnotating() {
                         $(el).hide();                         
                     }); 
     $('#create_annotation_box').dialog('close');
-    //$('#create_annotation_box').hide();
+
     // empty fields
     $('#anno_title').val('');
     $('#anno_text').val('');

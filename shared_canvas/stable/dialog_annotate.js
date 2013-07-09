@@ -1,13 +1,18 @@
-
+/**
+ * Produces a jQuery dialog box, used for
+ * creating an image annotations in the
+ * image annotation module and the critical
+ * edition module.
+ * @returns
+ */
 function annotation_dialog() {
- // var img_base_path = Drupal.settings.islandora_critical_edition.images_path;
-	var img_base_path = Drupal.settings.basePath + 'sites/all/modules/islandora_image_annotation/shared_canvas';
+  var img_base_path = Drupal.settings.islandora_image_annotation.images_path;
   $(document.body).append(''+
  '<div id="create_annotation_box">'+
     '<div style="display:inline; margin-top: 3px; padding-left: 5px;">'+
-      '<img id="annoShape_rect" class="annoShape" src="' + img_base_path + '/imgs/draw_rect.png" style="padding-left: 2px; padding-top: 1px;"/>'+
-      '<img id="annoShape_circ" class="annoShape" src="' + img_base_path + '/imgs/draw_circ.png" style="padding-left: 1px;"/>'+
-      '<img id="annoShape_poly" class="annoShape" src="' + img_base_path + '/imgs/draw_poly.png" style="padding: 2px;"/>'+
+      '<img id="annoShape_rect" class="annoShape" src="' + img_base_path + '/draw_rect.png" style="padding-left: 2px; padding-top: 1px;"/>'+
+      '<img id="annoShape_circ" class="annoShape" src="' + img_base_path + '/draw_circ.png" style="padding-left: 1px;"/>'+
+      '<img id="annoShape_poly" class="annoShape" src="' + img_base_path + '/draw_poly.png" style="padding: 2px;"/>'+
       '<hr style="margin: 0px; padding: 0px; height: 1px;"/>'+
     '</div>'+
     '<div id="create_annos_block" class="dragBlock">'+

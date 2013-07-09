@@ -1,3 +1,24 @@
+// Toggle full window shared canvas.
+(function ($) {
+  Drupal.behaviors.islandorAnnoFullWindow = {
+    attach: function (context, settings) {
+      $('#full-window-button').click(function() {
+
+        $('.islandora-anno-wrapper').toggleClass('islandora-anno-fullwindow');
+        resizeCanvas();
+
+        if ($(this).val() == Drupal.t('Full Window')) {
+          $(this).val(Drupal.t('Exit Full Window'));
+        }
+        else {
+          $(this).val(Drupal.t('Full Window'));
+        }
+      });
+    }
+  };
+})(jQuery);
+
+
 // Adapted from sc_init of the shared canvas project.
 var startDate = 0;
 
@@ -67,7 +88,6 @@ var opts = {
 };
 
 function initCanvas(nCanvas) {
-    console.log("Number of canvases: " + nCanvas);
     var w = $('#canvas-body').width();
     var h = $('#canvas-body').height();
     
