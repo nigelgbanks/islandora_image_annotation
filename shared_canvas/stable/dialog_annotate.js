@@ -64,3 +64,4 @@ function annotation_dialog() {
   }
   });
 };
+
