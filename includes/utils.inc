@@ -122,8 +122,10 @@ function islandora_image_annotation_canvas_init($pid) {
 }
 
 /**
- * Load shared dependencies in one place between
- * image annotation and critical editions.
+ * A library function for loading Javascript dependencies of shared Canvas.
+ *
+ * This can be used to support shared canvases in other modules.  They need
+ * only call this function rather than include all the Javascript themselves.
  */
 function islandora_image_annotation_include_common_js() {
   $image_annotation_module_path = drupal_get_path('module', 'islandora_image_annotation');
@@ -141,7 +143,7 @@ function islandora_image_annotation_include_common_js() {
   drupal_add_js($image_annotation_module_path . '/shared_canvas/js/uuid.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/js/jquery/jquery.miniColors.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/dialog_annotate.js');
-  
+
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/sc_ui.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/sc_utils.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/sc_rdf.js');
@@ -149,4 +151,3 @@ function islandora_image_annotation_include_common_js() {
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/sc_create.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/sc_pastebin.js');
 }
-
