@@ -3,7 +3,7 @@
  * creating an image annotations in the
  * image annotation module and the critical
  * edition module.
- * @returns
+ * @returns DialogBox(jQuery)
  */
 function annotation_dialog() {
   var img_base_path = Drupal.settings.islandora_image_annotation.images_path;
