@@ -150,4 +150,22 @@ function islandora_image_annotation_include_common_js() {
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/sc_rdfjson.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/sc_create.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/sc_pastebin.js');
+  
+  drupal_add_css($image_annotation_module_path . '/shared_canvas/js/ContextMenu/jquery.contextMenu.css');
+  drupal_add_css($image_annotation_module_path . '/shared_canvas/css/jquery.miniColors.css');
+}
+
+/**
+ * A library function for loading CSS dependencies of shared Canvas.
+ *
+ * This can be used to support shared canvases in other modules.  They need
+ * only call this function rather than include all the CSS themselves.
+ */
+function islandora_image_annotation_include_common_css() {
+  $image_annotation_module_path = drupal_get_path('module', 'islandora_image_annotation');
+  
+  drupal_add_css($image_annotation_module_path . '/shared_canvas/js/ContextMenu/jquery.contextMenu.css');
+  drupal_add_css($image_annotation_module_path . '/shared_canvas/css/jquery.miniColors.css');
+  drupal_add_css($image_annotation_module_path . '/shared_canvas/css/sc.css');
+  drupal_add_css($image_annotation_module_path . '/shared_canvas/css/smoothness/jquery-ui-1.8.16.custom.css');
 }
