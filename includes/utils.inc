@@ -150,9 +150,7 @@ function islandora_image_annotation_include_common_js() {
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/sc_rdfjson.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/sc_create.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/stable/sc_pastebin.js');
-  
-  drupal_add_css($image_annotation_module_path . '/shared_canvas/js/ContextMenu/jquery.contextMenu.css');
-  drupal_add_css($image_annotation_module_path . '/shared_canvas/css/jquery.miniColors.css');
+
 }
 
 /**
