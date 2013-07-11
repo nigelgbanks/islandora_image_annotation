@@ -98,6 +98,7 @@ function saveAndEndAnnotating() {
         // After rebuild, resize.
         resizeCanvas();
     }
+    return okay;
 }
 
 function closeAndEndAnnotating() {
