@@ -586,7 +586,7 @@ function mkPoly(what, x,y) {
     var outer = r.path("M" +x + ',' + y);
     // $(outer.node).addClass('outsideSvg')
     var outsideStyle = islandora_getOutsideStyle();
-  
+    console.log("outside color: " + JSON.stringify(outsideStyle));
     outer.attr(outsideStyle);
     outer.attr()
     outer.addPoint = addPointFn;
@@ -731,17 +731,17 @@ function mkRect(what, x,y) {
 }
 
 function islandora_getOutsideStyle(){
-    var color = 'black';
-
-    //check to see if color box has been activated
-    if($('#anno_color_activated').attr('value') == 'active'){
-        color = $('#anno_color').attr('value');
-    }
-     var outsideStyle = {
+//    var color = 'black';
+//
+//    //check to see if color box has been activated
+//    if($('#anno_color_activated').attr('value') == 'active'){
+//        color = $('#anno_color').attr('value');
+//    }
+    var outsideStyle = {
         fill: 'none',
         opacity: 'none',
         'stroke-width': + $('#stroke_width').val() + '%' ,
-        stroke: color
+        stroke: $('#anno_color').attr('value')
     };
     //if (color != ''){
     //    outsideStyle.color = color;
