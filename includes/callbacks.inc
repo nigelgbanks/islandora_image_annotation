@@ -71,7 +71,6 @@ function islandora_image_annotation_add_annotation($pid) {
   $item->relationships->add(ISLANDORA_RELS_EXT_URI, 'targetedBy', $user->name, TRUE);
   $item->relationships->add(ISLANDORA_RELS_EXT_URI, 'targets', $pid);
   if ($color) {
-    dsm($color);
     $item->relationships->add(ISLANDORA_RELS_EXT_URI, 'hasColor', $color, TRUE);
   }
   $item->relationships->add(FEDORA_RELS_EXT_URI, 'isAnnotationOf', $pid);
