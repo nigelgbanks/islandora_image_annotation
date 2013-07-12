@@ -69,14 +69,17 @@ function startAnnotating() {
 }
 
 function startEditting(title, annotation, annoType, urn) {
+	console.log("anno: " + JSON.stringify(annotation));
+	console.log("annot: " + JSON.stringify(annoType));
+	console.log("annou: " + JSON.stringify(urn));
     $('#anno_color_activated').attr('value', '');
     if ($('#create_annotation').text() == 'Annotating') {
         return;
     }
 
-    $('#create_annotation').css({
-        color:'#808080'
-    });
+//    $('#create_annotation').css({
+//        color:'#808080'
+//    });
     $('#create_annotation').empty().append('Annotating');
     $('#create_annotation_box').dialog('open');
     $('.ui-widget-overlay').remove();
@@ -88,6 +91,7 @@ function startEditting(title, annotation, annoType, urn) {
     $('#saveAnno').attr('urn', urn);
     $('#canvases .canvas').each(function() {
         var cnv = $(this).attr('canvas');
+        console.log("cnv: " + JSON.stringify(cnv));
         initForCreate(cnv);
     });
 }

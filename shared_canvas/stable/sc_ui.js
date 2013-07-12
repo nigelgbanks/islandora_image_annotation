@@ -287,7 +287,6 @@ function paint_annos() {
   // Step through all displayed canvases and paint all finished, unpainted annos
   // Do it this way as can't predict when annos will be available due to
   // different AJAX speeds
-
   for (canvas in topinfo['canvasDivHash']) {
     var div = topinfo['canvasDivHash'][canvas];
     for (typ in topinfo['annotations']) {
@@ -433,7 +432,6 @@ function show_zpr(what) {
 }
 
 function paint_imageAnno(anno, canvasId) {
-
   var canvas = $('#' + canvasId).attr('canvas');
   var info = topinfo['sequenceInfo'][canvas];
   var cvsw = info[1];
@@ -942,11 +940,6 @@ function paint_svgArea(svgc, annoId, col, svg, strokeWidth) {
   pthelm.setAttribute('class', 'svg_' + annoId);
   svgc.canvas.appendChild(pthelm);
 }
-
-
-
-
-
 
 // UI Callbacks:  Navigation
 

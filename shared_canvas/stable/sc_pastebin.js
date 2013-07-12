@@ -66,6 +66,18 @@ function islandora_getList() {
 	                islandora_getAnnotation(pid);
                     var type = temp;
                 }
+            if( listdata!= null && pids != null){
+                for (var i=0,info;i < pids.length;i++){
+                  console.log("Test Color: " + pids[i]['color']);
+                  console.log("Test Color Data: " + JSON.stringify(pids[i]));
+                  islandora_canvas_params.mappings[pids[i]['urn']] = pids[i]['color'];
+                  // There was a for each loop here, part of the 
+                  // excessive server post request fix.
+                  var pid = pids[i]['id'];
+                  islandora_getAnnotation(pids[i]['id']);
+                  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                }
+              }
             }
 
             $(".islandora_comment_type_title").off();
@@ -75,7 +87,6 @@ function islandora_getList() {
             });
         },
         error: function(data,status,xhr) {
-        // alert('Failed to retrieve List')
         }
 
     });

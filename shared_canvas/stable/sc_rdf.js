@@ -294,7 +294,6 @@ function fetch_annotations(which, canvas) {
 
 var ancCnt = 0;
 function cb_process_annoList(qry, uri) {
- 
   ping_progressBar('recv:'+uri);
   
   var nss = opts.namespaces;

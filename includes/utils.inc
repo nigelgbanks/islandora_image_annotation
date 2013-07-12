@@ -77,7 +77,8 @@ function islandora_image_annotation_canvas_init($pid) {
   $mappings = variable_get('islandora_annotation_mappings', array());
   $optimized = variable_get('islandora_annotation_optimized', TRUE);
   $dropdown = variable_get('islandora_annotation_enforce_taxonomy', TRUE);
-
+  $colour;
+  
   $item = islandora_object_load($pid);
   $rels = $item->relationships->get();
   foreach ($rels as $relationship) {
@@ -85,6 +86,7 @@ function islandora_image_annotation_canvas_init($pid) {
       $cmodel = $relationship['object']['value'];
     }
   }
+  $colour = $item->relationships;//->get(ISLANDORA_RELS_EXT_URI, 'hasColor');
   $vid = isset($mappings[$cmodel]['TAX']) ? $mappings[$cmodel]['TAX'] : NULL;
 
   if ($dropdown) {
@@ -98,7 +100,7 @@ function islandora_image_annotation_canvas_init($pid) {
     $categories = islandora_image_annotation_get_type_terms();
   }
   $results = array();
-
+  $results['colour'] = $colour;
   $results['object_base'] = url("islandora/object/$pid");
   $results['no_edit'] = !user_access(ISLANDORA_IMAGE_ANNOTATION_CREATE);
   $results['categories'] = $categories;

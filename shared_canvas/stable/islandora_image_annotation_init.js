@@ -205,7 +205,7 @@ function maybeResize() {
     timeout = false;
     var w = $('#canvas-body').width();
     var image_element = $('.base_img').children(":first");
-    console.log("maby resize numCanvases: " + topinfo['numCanvases']);
+    
     initCanvas(topinfo['numCanvases']);
     image_element.width(w);
     image_element.css("height", "auto");
