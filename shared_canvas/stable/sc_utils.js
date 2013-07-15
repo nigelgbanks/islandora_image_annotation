@@ -102,7 +102,6 @@ function fetchTriples(uri, qry, fn) {
     success: function(data, status, xhr) {
       try {
         var resp = qry.databank.load(data);
-                       
       } catch(e) {
         alert('Broken RDF/XML: ' + e)
       }

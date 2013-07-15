@@ -864,6 +864,7 @@ function paint_commentAnno(anno, canvasId) {
       var canvas = $(this).attr('canvas');
       paint_commentAnnoTargets(this, canvas, id, annoType);
     } else {
+      
       $('.svg_' + myid).remove();
       var c = $(this).find('.mycolor');
       svgAreaColors.push(c.attr('color'));
@@ -892,7 +893,7 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
       } else {
         var col = svgAreaColors.splice(0,1)[0];
       }
-      if(islandora_canvas_params.mappings['urn:uuid:' + annoId] != '' && islandora_canvas_params.can_choose){
+      if(islandora_canvas_params.mappings['urn:uuid:' + annoId] != ''){
         col = islandora_canvas_params.mappings[['urn:uuid:' + annoId]];
       }
       if(islandora_canvas_params.islandora_anno_stroke_width != null) {

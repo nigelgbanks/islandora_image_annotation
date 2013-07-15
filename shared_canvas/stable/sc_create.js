@@ -80,7 +80,7 @@ function startEditting(title, annotation, annoType, urn) {
     $('#create_annotation').empty().append('Annotating');
     $('#create_annotation_box').dialog('open');
     $('.ui-widget-overlay').remove();
-    
+
     $('#anno_title').val(title);
     $('#anno_text').val(annotation);
     $('#anno_classification').val(annoType);
@@ -205,9 +205,9 @@ function saveAnnotation() {
     var color = '';
 
     //check to see if color box has been activated
-    if($('#anno_color_activated').attr('value') == 'active'){
-        color = $('#anno_color').attr('value');
-    }
+    //if($('#anno_color_activated').attr('value') == 'active'){
+    color = $('#anno_color').attr('value');
+    //}
   
     if($('#saveAnno').text() == 'Update Annotation'){
         urn = $('#saveAnno').attr('urn');
@@ -410,7 +410,7 @@ function create_rdfAnno() {
                 for (s in stuff) {
                     target = cnv;
                     var svgxml = nodeToXml(stuff[s].node);
-                    //svgxml = svgxml.replace("stroke='#000000'" , "stroke='" + color +  "'")
+                    svgxml = svgxml.replace("stroke='#000000'" , "stroke='" + color +  "'")
                     //if(strokeWidth == ''){
                     //   svgxml = svgxml.replace("stroke-width='.3%'" , "stroke-width= ." + strokeWidth +  "%")
                     //}

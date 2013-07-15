@@ -400,7 +400,6 @@ $(document).ready(function(){
                 nCanvas = parseInt(val);
                 uriparams['n'] = nCanvas;
             }
-            console.log("nCanvas value: " + nCanvas);
         }
     }
     topinfo['uriParams'] = uriparams
