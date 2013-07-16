@@ -207,7 +207,7 @@ function islandora_image_annotation_preprocess_islandora_image_annotation_view(&
 
   islandora_image_annotation_include_common_js();
   islandora_image_annotation_include_common_css();
-  
+
   drupal_add_js($module_path . '/shared_canvas/stable/islandora_image_annotation_init.js');
 }
 

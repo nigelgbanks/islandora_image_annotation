@@ -77,7 +77,7 @@ function islandora_image_annotation_canvas_init($pid) {
   $mappings = variable_get('islandora_annotation_mappings', array());
   $optimized = variable_get('islandora_annotation_optimized', TRUE);
   $dropdown = variable_get('islandora_annotation_enforce_taxonomy', TRUE);
-  
+
   $item = islandora_object_load($pid);
   $rels = $item->relationships->get();
   foreach ($rels as $relationship) {
@@ -160,7 +160,7 @@ function islandora_image_annotation_include_common_js() {
  */
 function islandora_image_annotation_include_common_css() {
   $image_annotation_module_path = drupal_get_path('module', 'islandora_image_annotation');
-  
+
   drupal_add_css($image_annotation_module_path . '/shared_canvas/js/ContextMenu/jquery.contextMenu.css');
   drupal_add_css($image_annotation_module_path . '/shared_canvas/css/jquery.miniColors.css');
   drupal_add_css($image_annotation_module_path . '/shared_canvas/css/sc.css');
