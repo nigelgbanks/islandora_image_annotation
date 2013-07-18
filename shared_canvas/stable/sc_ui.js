@@ -523,7 +523,7 @@ function paint_imageAnno(anno, canvasId) {
     
     imge.width(sw)
     imge.height(sh)
-    div.width(sw)
+    //div.width(sw)
     div.height(sh);
     div.css('z-index', topinfo['zOrders']['image']);
 
@@ -599,7 +599,7 @@ function paint_imageAnno(anno, canvasId) {
     var div = $('#' + myid);
     div.css('z-index', zIdx);
     div.height(divh);
-    div.width(divw);
+   // div.width(divw);
 
     img = $('#img_' + myid);
 
