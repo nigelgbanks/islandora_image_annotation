@@ -27,9 +27,9 @@ function fetch_comment_annotations() {
 }
 
 function maybe_config_create_annotation() {
-		
+		//TODO: this is for the dialog box, as of yet, unmade.
     $('#create_annotation').click(startAnnotating);
-    $('.diabutton').button();
+   // $('.diabutton').button();
     $('#cancelAnno').click(closeAndEndAnnotating);
     $('#saveAnno').click(saveAndEndAnnotating);
 
@@ -43,14 +43,18 @@ function maybe_config_create_annotation() {
 	
     var shp = $('.annoShape').filter(':first');
     shp.css('border', '1px solid black');
-    topinfo['svgAnnoShape'] = shp.attr('id').substr(10,5);
-	
+    if(shp != null) {
+      topinfo['svgAnnoShape'] = shp.attr('id').substr(10,5);
+    }
+   
+
 // Install PasteBin
 //islandora_init();
 
 }
 
 function startAnnotating() {
+	console.log("Start annotating on click");
     $('#anno_color_activated').attr('value', '');
     if ($('#create_annotation').text() == 'Annotating') {
         return;
@@ -143,7 +147,6 @@ function closeAndEndAnnotating() {
 //converting between page clicks and canvas clicks
 
 function initForCreate(canvas) {
-	
     var r = mk_raphael('comment', canvas, topinfo['canvasDivHash'][canvas])
     var invScale = 1.0 / r.newScale;
     var ch = Math.floor(r.height * invScale);
@@ -152,23 +155,21 @@ function initForCreate(canvas) {
 	
     // Ensure we're above all painting annos
     $(prt).css('z-index', 1001);
-	
     var bg = r.rect(0,0,cw,ch);
     bg.attr({
         'fill': 'white',
         'opacity': 0.15
     });
-    // bg.toBack();
     bg.creating = null;
     bg.invScale = invScale;
     bg.myPaper = r;
     bg.myShapes = [];
     r.annotateRect = bg;
-	
+	console.log("initForCreate");
     bg.drag(function(dx,dy) {
-        this.creating.resizeFn(dx, dy)
+        this.creating.resizeFn(dx, dy);
+        console.log('initForCreate resize');
     }, switchDown, switchUp);
-	
 }
 
 function destroyAll(canvas) {

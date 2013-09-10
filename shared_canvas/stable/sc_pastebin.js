@@ -28,7 +28,6 @@ function islandora_postData(title, data, type, color) {
 //
 
 function islandora_getList() {
- 
     islandora_canvas_params.mappings = new Array();
     islandora_canvas_params.strokeWidth = new Array;
     $.ajax({
