@@ -27,6 +27,7 @@ function fetch_comment_annotations() {
 }
 
 function maybe_config_create_annotation() {
+	console.log("Click in maby_config_create_annotations");
 		//TODO: this is for the dialog box, as of yet, unmade.
     $('#create_annotation').click(startAnnotating);
    // $('.diabutton').button();

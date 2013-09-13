@@ -501,9 +501,11 @@ function islandora_image_annotation_islandora_serve($pid, $stream, $width = NULL
   global $base_url;
   module_load_include('inc', 'islandora_image_annotation', 'includes/utils');
   $dsid = islandora_image_annotation_get_dsid_from_model($pid);
-  $doc_url = "$base_url/islandora/object/$pid/datastream/$dsid/view";
+  // TODO: doc_url needs a dynamic data stream id instead of JPG.
+  $doc_url = "$base_url/islandora/object/$pid/datastream/JPG/view";
   $doc_path_url = "$base_url/islandora/anno/serve/$pid";
 
+  
   if ($stream == 'Manifest') {
     $manifest = islandora_image_annotation_get_manifest($doc_url, $doc_path_url);
     echo $manifest;
