@@ -163,5 +163,5 @@ function islandora_image_annotation_include_common_css() {
   drupal_add_css($image_annotation_module_path . '/shared_canvas/js/ContextMenu/jquery.contextMenu.css');
   drupal_add_css($image_annotation_module_path . '/shared_canvas/css/jquery.miniColors.css');
   drupal_add_css($image_annotation_module_path . '/shared_canvas/css/sc.css');
-  drupal_add_css($image_annotation_module_path . '/shared_canvas/css/smoothness/jquery-ui-1.8.16.custom.css');
+  //drupal_add_css($image_annotation_module_path . '/shared_canvas/css/smoothness/jquery-ui-1.8.16.custom.css');
 }

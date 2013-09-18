@@ -304,10 +304,13 @@ function paint_annos() {
 
 
 function mk_raphael(typ, canvas, canvasId) {
+// TODO: This commented out code will eventually be required.
+// Comented out to fix image scaling in the cwrcwriter prototype.
 
-  if (topinfo['raphaels'][typ][canvas] != undefined) {
-    return topinfo['raphaels'][typ][canvas];
-  } else {
+//  if (topinfo['raphaels'][typ][canvas] != undefined) {
+//	  console.log('!=undefined in mk_raphaels');
+//    return topinfo['raphaels'][typ][canvas];
+//  } else {
     var info = topinfo['sequenceInfo'][canvas];
     if (info == undefined) {
       info = extract_canvas_size(topinfo['query'], canvas)
@@ -315,7 +318,6 @@ function mk_raphael(typ, canvas, canvasId) {
     }
     var cvsw = info[1];
     var cvsh = info[0];
-
     var scale = topinfo['canvasWidth'] / cvsw;
     var sh = cvsh * scale;
     var sw = cvsw * scale;
@@ -342,7 +344,7 @@ function mk_raphael(typ, canvas, canvasId) {
     }
     topinfo['raphaels'][typ][canvas] = svgcanvas;
     return svgcanvas;
-  }
+  //}
 
 }
 
@@ -862,9 +864,10 @@ function paint_commentAnno(anno, canvasId) {
       pm.empty().append('- ');
       var id = $(this).attr('id').substring(5,100);
       var canvas = $(this).attr('canvas');
+      console.log('painting anno targets');
       paint_commentAnnoTargets(this, canvas, id, annoType);
     } else {
-      
+    	console.log('svgAreaColors');
       $('.svg_' + myid).remove();
       var c = $(this).find('.mycolor');
       svgAreaColors.push(c.attr('color'));
@@ -911,6 +914,9 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
           if (tgt.constraint != null) {
             // paint SVG
             svgc = mk_raphael('comment', canvas, canvasId);
+            console.log('svgc: ');
+            console.log(svgc);
+            console.log('painting svgArea');
             paint_svgArea(svgc, anno.id.substring(9, 100), col, tgt.constraint.value, strokeWidth);
           } else if (tgt.fragmentInfo == 'rect') {
         // paint html box
