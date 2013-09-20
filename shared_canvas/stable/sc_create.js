@@ -136,7 +136,6 @@ function closeAndEndAnnotating() {
     $('#anno_text').val('');
     $('#anno_aboutCanvas').prop('checked', false);
     $('#anno_isResource').prop('checked', false);
-    $('#annotation_tab').tabs('select', 0);
     var tabs = $('#tabs').tabs();
     tabs.tabs('select', 3);
 
