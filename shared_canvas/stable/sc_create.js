@@ -7,12 +7,7 @@
 
 
 var outsideStyle = islandora_getOutsideStyle()
-//{
-//    fill: 'none',
-//    opacity: 'none',
-    
- //   stroke: 'black'
-//};
+
 var insideStyle = {
     fill: '#FFFFFF',
     opacity: 0.3,
@@ -27,13 +22,9 @@ function fetch_comment_annotations() {
 }
 
 function maybe_config_create_annotation() {
-	console.log("Click in maby_config_create_annotations");
-		//TODO: this is for the dialog box, as of yet, unmade.
     $('#create_annotation').click(startAnnotating);
-   // $('.diabutton').button();
     $('#cancelAnno').click(closeAndEndAnnotating);
     $('#saveAnno').click(saveAndEndAnnotating);
-
 
     $('.annoShape').click(function() {
         var typ = $(this).attr('id').substr(10,5);
@@ -47,11 +38,6 @@ function maybe_config_create_annotation() {
     if(shp != null) {
       topinfo['svgAnnoShape'] = shp.attr('id').substr(10,5);
     }
-   
-
-// Install PasteBin
-//islandora_init();
-
 }
 
 function startAnnotating() {
