@@ -212,7 +212,7 @@ function maybeResize() {
     $('.base_img').css("height", image_element.height());
     $('#canvas_0').css("width", w);
 }
-var $ = jQuery;
+
 // Let's start it up!
 $(document).ready(function(){
     // gets setup information from Islandora
