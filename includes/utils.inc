@@ -128,13 +128,7 @@ function islandora_image_annotation_canvas_init($pid) {
  */
 function islandora_image_annotation_include_common_js() {
   $image_annotation_module_path = drupal_get_path('module', 'islandora_image_annotation');
-  
-//   drupal_add_js($image_annotation_module_path . '/shared_canvas/js/jquery/jquery-1.7.js');
-//   drupal_add_js($image_annotation_module_path . '/shared_canvas/js/jquery/jquery-ui-1.8.13.custom.min.js');
-//   drupal_add_js($image_annotation_module_path . '/shared_canvas/js/jquery/jquery.contextmenu.js');
-//   drupal_add_js($image_annotation_module_path . '/shared_canvas/js/jquery/jquery.watermark.min.js');
-//   drupal_add_js($image_annotation_module_path . '/shared_canvas/js/ContextMenu/jquery.contextMenu.js');
-  
+
   drupal_add_js($image_annotation_module_path . '/shared_canvas/js/jquery/jquery.svg.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/js/jquery.rdfquery.rdfa.min-1.1.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/js/jquery.rdf.turtle.js');
@@ -165,5 +159,5 @@ function islandora_image_annotation_include_common_css() {
   drupal_add_css($image_annotation_module_path . '/shared_canvas/js/ContextMenu/jquery.contextMenu.css');
   drupal_add_css($image_annotation_module_path . '/shared_canvas/css/jquery.miniColors.css');
   drupal_add_css($image_annotation_module_path . '/shared_canvas/css/sc.css');
-  //drupal_add_css($image_annotation_module_path . '/shared_canvas/css/smoothness/jquery-ui-1.8.16.custom.css');
+  drupal_add_css($image_annotation_module_path . '/shared_canvas/css/smoothness/jquery-ui-1.8.16.custom.css');
 }

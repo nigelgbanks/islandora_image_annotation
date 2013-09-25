@@ -41,7 +41,6 @@ function maybe_config_create_annotation() {
 }
 
 function startAnnotating() {
-	console.log("Start annotating on click");
     $('#anno_color_activated').attr('value', '');
     if ($('#create_annotation').text() == 'Annotating') {
         return;
@@ -151,10 +150,8 @@ function initForCreate(canvas) {
     bg.myPaper = r;
     bg.myShapes = [];
     r.annotateRect = bg;
-	console.log("initForCreate");
     bg.drag(function(dx,dy) {
         this.creating.resizeFn(dx, dy);
-        console.log('initForCreate resize');
     }, switchDown, switchUp);
 }
 
@@ -180,7 +177,6 @@ function destroyAll(canvas) {
 }
 
 function saveAnnotation() {
- 
     // Basic Sanity Check
     var title = $('#anno_title').val();
     if($("#anno_title").get(0).tagName == 'SELECT'){
@@ -192,10 +188,8 @@ function saveAnnotation() {
     var color = '';
 
     //check to see if color box has been activated
-    //if($('#anno_color_activated').attr('value') == 'active'){
     color = $('#anno_color').attr('value');
-    //}
-  
+
     if($('#saveAnno').text() == 'Update Annotation'){
         urn = $('#saveAnno').attr('urn');
         islandora_updateAnno(urn, title, annoType, content, color);
@@ -223,7 +217,6 @@ function saveAnnotation() {
         format:'text/turtle',
         serialize:true
     });
-    // var data = $(rdfa).rdf().databank.dump({format:'application/rdf+xml',serialize:true});
     var type = $('#anno_classification').val();
     // add category to annoblock before saving annotation.  Fixes concurrency errors
 
@@ -272,7 +265,6 @@ function nodeToXml(what) {
     xml += ("></svg:" + what.nodeName+'>');
     return xml;
 }
-
 
 function create_rdfAnno() {
 
@@ -385,7 +377,6 @@ function create_rdfAnno() {
     var target = null;
     $('#canvases .canvas').each(function() {
         var cnv = $(this).attr('canvas');
-        // var cnv = islandora_canvas_params.object_base +'/Canvas';
         if(cnv){
             if (tgtsCanvas == true) {
                 target = cnv;
@@ -398,9 +389,6 @@ function create_rdfAnno() {
                     target = cnv;
                     var svgxml = nodeToXml(stuff[s].node);
                     svgxml = svgxml.replace("stroke='#000000'" , "stroke='" + color +  "'")
-                    //if(strokeWidth == ''){
-                    //   svgxml = svgxml.replace("stroke-width='.3%'" , "stroke-width= ." + strokeWidth +  "%")
-                    //}
                     svgxml = svgxml.replace('<', '&lt;');
                     svgxml = svgxml.replace('<', '&lt;');
                     svgxml = svgxml.replace('>', '&gt;');
@@ -472,9 +460,6 @@ function fixXY(what, x, y) {
     y-= offsetTop;
     x -= offsetLeft;
 	
-    // And for scroll in window
-    /*var pageOffsetTop = $('body').scrollTop();
-    var pageOffsetLeft = $('body').scrollLeft();*/
     // Change made to support embeding shared canvas.
     var pageOffsetTop = $(window).scrollTop();
     var pageOffsetLeft = $(window).scrollLeft();
@@ -571,7 +556,6 @@ function mkPoly(what, x,y) {
     var r = what.myPaper;
     var s = r.set();
     var outer = r.path("M" +x + ',' + y);
-    // $(outer.node).addClass('outsideSvg')
     var outsideStyle = islandora_getOutsideStyle();
     outer.attr(outsideStyle);
     outer.attr()
@@ -617,14 +601,12 @@ function mkCircle(what, x,y) {
     var r = what.myPaper;
     var st = r.set();
     var outer = r.circle(x,y,innerSize);
-    // $(outer.node).addClass('outsideSvg')
     var outsideStyle = islandora_getOutsideStyle();
     outer.attr(outsideStyle);
     outer.start = [x,y,innerSize];
     outer.set = st;
 	
     var inner = r.circle(x, y, 0);
-    // $(inner.node).addClass('insideSvg');
     inner.attr(insideStyle);
     inner.toFront();
     inner.set = st;
@@ -693,12 +675,10 @@ function mkRect(what, x,y) {
     var outer = r.rect(x,y, innerSize,innerSize);
     var outsideStyle = islandora_getOutsideStyle();
     outer.attr(outsideStyle);
-    // $(outer.node).addClass('outsideSvg')
     outer.set = st;
 	
     var inner = r.rect(x,y, innerSize+1,innerSize+1);
     inner.attr(insideStyle);
-    // $(inner.node).addClass('insideSvg')
     inner.toFront();
     inner.set = st;
 
