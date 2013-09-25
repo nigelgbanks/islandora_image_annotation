@@ -504,7 +504,6 @@ function islandora_image_annotation_islandora_serve($pid, $stream, $width = NULL
   $doc_url = "$base_url/islandora/object/$pid/datastream/$dsid/view";
   $doc_path_url = "$base_url/islandora/anno/serve/$pid";
 
-  
   if ($stream == 'Manifest') {
     $manifest = islandora_image_annotation_get_manifest($doc_url, $doc_path_url);
     echo $manifest;
