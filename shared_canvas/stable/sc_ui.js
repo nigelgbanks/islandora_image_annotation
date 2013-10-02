@@ -273,12 +273,12 @@ function showCanvas(canvas, canvasId) {
   }
 
   // Start sucking down annotations
+  fetch_comment_annotations();
   fetch_annotations('zone', canvas);
   fetch_annotations('image', canvas);
   fetch_annotations('text', canvas);
   fetch_annotations('audio', canvas);
   fetch_annotations('comment', canvas);
-  fetch_comment_annotations();
 
 }
 
