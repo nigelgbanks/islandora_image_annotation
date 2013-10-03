@@ -248,8 +248,6 @@ $(document).ready(function(){
             $.contextMenu({
                 selector : '.comment_title',
                 callback : function(key, options) {
-                   console.log('context callback');
-                   console.trace();
                     var urn = $(this).attr('id');
                     urn = urn.substring(5,100);
                     var title = $(this).text().substring(2,100);
