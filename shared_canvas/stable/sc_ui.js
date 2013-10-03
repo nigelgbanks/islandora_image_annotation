@@ -279,9 +279,8 @@ function showCanvas(canvas, canvasId) {
   fetch_annotations('text', canvas);
   fetch_annotations('audio', canvas);
   fetch_annotations('comment', canvas);
-
+  fetch_comment_annotations();
 }
-
 
 function paint_annos() {
   // Step through all displayed canvases and paint all finished, unpainted annos

@@ -32,7 +32,7 @@ function islandora_getList() {
     islandora_canvas_params.strokeWidth = new Array;
     $.ajax({
         type:'GET',
-        async:false,
+        async:true,
         url: islandora_canvas_params.get_annotation_list_url,
         success: function(data,status,xhr) {
             var listdata = $.parseJSON(data);

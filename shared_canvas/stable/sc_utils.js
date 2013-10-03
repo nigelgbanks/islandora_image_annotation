@@ -95,7 +95,7 @@ function fetchTriples(uri, qry, fn) {
 
   $.ajax({
     type:'POST',
-
+    async:false,
     url: uri,
     // + '?' + new Date().toString(),
     // accepts: "application/rdf+xml",
