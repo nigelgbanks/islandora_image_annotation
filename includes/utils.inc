@@ -129,6 +129,10 @@ function islandora_image_annotation_canvas_init($pid) {
 function islandora_image_annotation_include_common_js() {
   $image_annotation_module_path = drupal_get_path('module', 'islandora_image_annotation');
 
+  drupal_add_js($image_annotation_module_path . '/shared_canvas/js/jquery/jquery.contextmenu.js');
+  drupal_add_js($image_annotation_module_path . '/shared_canvas/js/jquery/jquery.watermark.min.js');
+  drupal_add_js($image_annotation_module_path . '/shared_canvas/js/ContextMenu/jquery.contextMenu.js');
+
   drupal_add_js($image_annotation_module_path . '/shared_canvas/js/jquery/jquery.svg.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/js/jquery.rdfquery.rdfa.min-1.1.js');
   drupal_add_js($image_annotation_module_path . '/shared_canvas/js/jquery.rdf.turtle.js');
