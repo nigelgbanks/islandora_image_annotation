@@ -806,7 +806,6 @@ function paint_textAnno(anno, canvasId) {
 // when selected, paint targets (if any)
 
 function paint_commentAnno(anno, canvasId) {
-
   var title = anno.title;
   var annoType = anno.annoType;
   // remove illegal characters
@@ -829,10 +828,10 @@ function paint_commentAnno(anno, canvasId) {
   
   var entity_link = '';
   if(Drupal.settings.islandora_image_annotation.enable_entity) {
-    if(islandora_canvas_params.entities[anno.id]) {
+    if(anno.relation) {
       entity_link = '<div class="comment_entity">' + '<a href="' + Drupal.settings.islandora_image_annotation.entity_link_path +
-        islandora_canvas_params.entities[anno.id]['pid'] +'">' + 
-        islandora_canvas_params.entities[anno.id]['label'] + '</a>' + '</div>';
+        anno.relation +'">' + 
+        anno.hasPart + '</a>' + '</div>';
     }
   }
   

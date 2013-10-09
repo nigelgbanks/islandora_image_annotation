@@ -137,7 +137,7 @@ function islandora_image_annotation_shared_get_annotation_pids($pid) {
     PREFIX io: <http://islandora.ca/ontology/relsext#>
     PREFIX fm: <info:fedora/fedora-system:def/model#>
 
-    SELECT ?id ?type ?urn ?strokeWidth ?color ?hasEntity from <#ri>
+    SELECT ?id ?type ?urn ?strokeWidth ?color from <#ri>
     WHERE {
       ?id io:targets <info:fedora/$pid> ;
       io:hasURN ?urn;
@@ -149,9 +149,6 @@ function islandora_image_annotation_shared_get_annotation_pids($pid) {
       }
       OPTIONAL{
         ?id io:hasColor ?color;
-      }
-      OPTIONAL{
-        ?id io:hasEntity ?hasEntity;
       }
     }
     ORDER BY ASC(?type)
@@ -168,14 +165,6 @@ QUERY;
       'strokeWidth' => $object['strokeWidth']['value'],
       'urn' => $object['urn']['value'],
     );
-    // If an entity is present, fetch is required data.
-    if ($object['hasEntity']['value']) {
-      $item = islandora_object_load($object['hasEntity']['value']);
-      $itemdata['hasEntity'] = array(
-        'pid' => $object['hasEntity']['value'],
-        'label' => $item->label,
-      );
-    }
     $pids['pids'][] = $itemdata;
     $pids['types'][] = $object['type']['value'];
   }

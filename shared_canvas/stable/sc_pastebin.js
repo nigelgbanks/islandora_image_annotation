@@ -26,11 +26,9 @@ function islandora_postData(title, data, type, color) {
 
 // Adds divs for each type
 //
-
 function islandora_getList() {
     islandora_canvas_params.mappings = new Array();
     islandora_canvas_params.strokeWidth = new Array();
-    islandora_canvas_params.entities = new Array();
     $.ajax({
         type:'GET',
         async:false,
@@ -42,9 +40,6 @@ function islandora_getList() {
                 for (var i=0,info;i < pids.length;i++){
                     islandora_canvas_params.mappings[pids[i]['urn']] = pids[i]['color'];
                     islandora_canvas_params.strokeWidth[pids[i]['urn']] = pids[i]['strokeWidth'];
-                    if(pids[i]['hasEntity']) {
-                      islandora_canvas_params.entities[pids[i]['urn']] = pids[i]['hasEntity'];
-                    }
                     info=pids[i]['id'];
                     var pid = info;
                     var temp = pids[i]['type'];
@@ -63,18 +58,12 @@ function islandora_getList() {
                         }
                     }
                     var cnv = $(this).attr('canvas');
-	               // islandora_getAnnotation(pid);
                     var type = temp;
                 }
             if( listdata!= null && pids != null){
                 for (var i=0,info;i < pids.length;i++){
                   islandora_canvas_params.mappings[pids[i]['urn']] = pids[i]['color'];
-                  
-                  // There was a for each loop here, part of the 
-                  // excessive server post request fix.
-                  //var pid = pids[i]['id'];
                   islandora_getAnnotation(pids[i]['id']);
-                  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 }
               }
             }

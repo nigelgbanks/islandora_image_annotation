@@ -302,7 +302,6 @@ function create_rdfAnno() {
     }
     var color = $('#anno_color').attr('value');
     
-    
     if(Drupal.settings.islandora_image_annotation.enable_entity) {
       // Parse out the entity pid from the inner anchor.
       var image_entity = $('#hidden_entity').data('entity');
@@ -310,15 +309,9 @@ function create_rdfAnno() {
       wrapper.innerHTML= image_entity.data;
       var div= wrapper.firstChild;
       var image_entity_id = div.innerHTML;
-      // Update local islandora_canvas_params with the new 
-      // entity, to be drawn in sc_ui.
       if(image_entity_id != null) {
-        var entity_obj = {
-          pid : image_entity_id,
-          label : image_entity.label
-        };
-        islandora_canvas_params.entities['urn:uuid:' + annoUU] = entity_obj;
         rdfa += '<span property="dcterms:relation" content="' + image_entity_id + '"></span>';
+        rdfa += '<span property="dcterms:hasPart" content="' + image_entity.label + '"></span>';
       }
     }
     
