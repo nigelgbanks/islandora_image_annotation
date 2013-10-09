@@ -809,13 +809,11 @@ function paint_commentAnno(anno, canvasId) {
 
   var title = anno.title;
   var annoType = anno.annoType;
- 
   // remove illegal characters
   var fixed_annotype = annoType.replace(/[^\w]/g,'');
   var txt = anno.body.value;
   var myid = anno.id.substring(9, 100);
   var tgttxt = '';
-
   for (var x=0,tgt;tgt=anno.targets[x];x++) {
     if (tgt.partOf != null) {
       tgt = tgt.partOf.id;
@@ -828,11 +826,20 @@ function paint_commentAnno(anno, canvasId) {
     }
   }
   txt = txt.replace(/\n/g, '<br/>');
-
+  
+  var entity_link = '';
+  if(Drupal.settings.islandora_image_annotation.enable_entity) {
+    if(islandora_canvas_params.entities[anno.id]) {
+      entity_link = '<div class="comment_entity">' + '<a href="' + Drupal.settings.islandora_image_annotation.entity_link_path +
+        islandora_canvas_params.entities[anno.id]['pid'] +'">' + 
+        islandora_canvas_params.entities[anno.id]['label'] + '</a>' + '</div>';
+    }
+  }
+  
   //block contains complete annotation
   block = '<div class = "canvas_annotation" ' + 'urn ="' + myid + '" '+ ' >';
   block += '<div class="comment_title" id="anno_' + myid + '"><span class="comment_showhide">+ </span>' + title + '</div>';
-  block += '<div class="comment_text">' + '<div class="comment_type">' + annoType + '</div><div class="comment_content">' + txt + '</div></div>';
+  block += '<div class="comment_text">' + '<div class="comment_type">' + annoType + '</div><div class="comment_content">' + txt + '</div>' + entity_link + '</div>';
   block += '</div>';
   
   selectBlock = "#islandora_annoType_content_" + fixed_annotype;

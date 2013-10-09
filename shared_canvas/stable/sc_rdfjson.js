@@ -4,7 +4,6 @@ function buildAllAnnos(query, type) {
   query.reset();
 
   var dump = query.databank.dump();
-
   if (type != undefined) {
     var typres = query.where('?anno a ' + type);
   }

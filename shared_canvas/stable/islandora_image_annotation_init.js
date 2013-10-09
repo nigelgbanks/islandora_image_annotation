@@ -412,4 +412,5 @@ $(document).ready(function(){
     fetchTriples(islandora_canvas_params.manifest_url,
                  rdfbase,
                  cb_process_manifest);
+    resizeCanvas();
 });
