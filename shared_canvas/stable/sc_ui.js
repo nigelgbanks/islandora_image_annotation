@@ -893,6 +893,7 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
       } else {
         strokeWidth = $('#stroke_width').val();
       }
+      
       // Fix for google chrome not getting the color.
       if(typeof col == 'undefined'){
         col = $('#anno_color').attr('value');
