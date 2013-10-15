@@ -302,7 +302,10 @@ function create_rdfAnno() {
     }
     var color = $('#anno_color').attr('value');
     
-    if(Drupal.settings.islandora_image_annotation.enable_entity) {
+    // Check to be sure islandora_entities is enabled for tagging, and
+    // that entity linking is enabled.
+    if(Drupal.settings.islandora_image_annotation.enable_entity &&
+       Drupal.settings.islandora_image_annotation.allow_entity_linking) {
       // Parse out the entity pid from the inner anchor.
       var image_entity = $('#hidden_entity').data('entity');
       var wrapper= document.createElement('a');

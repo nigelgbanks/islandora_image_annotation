@@ -75,7 +75,7 @@ function islandora_image_annotation_add_annotation($pid) {
   $item->relationships->add(ISLANDORA_RELS_EXT_URI, 'hasURN', $urn, TRUE);
   $item->relationships->add(ISLANDORA_RELS_EXT_URI, 'strokeWidth', $stroke_width, TRUE);
   if ($entity) {
-    $item->relationships->add(ISLANDORA_RELS_EXT_URI, 'hasEntity', (string) $entity[0], TRUE);
+    $item->relationships->add(ISLANDORA_RELS_EXT_URI, 'isEntity', (string) $entity[0], TRUE);
   }
   $new_ds = $item->constructDatastream('OAC', 'X');
   $new_ds->label = 'OAC';
@@ -148,7 +148,7 @@ function islandora_image_annotation_shared_get_annotation_pids($pid) {
         ?id io:strokeWidth ?strokeWidth;
       }
       OPTIONAL{
-        ?id io:hasColor ?color;
+        ?id io:hasColor ?color
       }
     }
     ORDER BY ASC(?type)

@@ -124,9 +124,17 @@ function islandora_image_annotation_admin($form, &$form_state) {
       can include a decimal.  For instance .5 is valid.  You can Enter several values here seperated by a space.'),
     '#required' => TRUE,
   );
+  if (module_exists('islandora_entities')) {
+    $form['annotation_entity_linking'] = array(
+      '#title' => 'Allow entity tagging on images.',
+      '#type' => 'checkbox',
+      '#default_value' => variable_get('annotation_use_entity_tagging', TRUE),
+      '#description' => t('If checked, users will be able to tag image annotations with an entity.'),
+    );
+  }
   $form['annotation_controlled_titles'] = array(
     '#title' => 'Controlled vocabulary for titles',
-    '#type' => 'fieldset',
+    '#type' => 'checkbox',
     '#collapsed' => FALSE,
   );
   $form['annotation_controlled_titles']['annotation_use_title_vocabulary'] = array(
@@ -199,4 +207,7 @@ function islandora_image_annotation_admin_submit($form, &$form_state) {
   variable_set('annotation_genre_search_field', $form_state['values']['annotation_genre_search_field']);
   variable_set('annotation_type_search_field', $form_state['values']['annotation_type_search_field']);
   variable_set('image_annotation_annotation_stroke_width', $form_state['values']['image_annotation_annotation_stroke_width']);
+  if (module_exists('islandora_entities')) {
+    variable_set('annotation_use_entity_tagging', $form_state['values']['annotation_entity_linking']);
+  }
 }

@@ -187,7 +187,6 @@ function init_ui() {
     $(window).resize(function() {
         resizeCanvas();
     });
-  resizeCanvas();
 }
 
 var timeout = false;

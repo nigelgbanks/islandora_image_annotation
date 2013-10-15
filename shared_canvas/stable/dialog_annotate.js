@@ -50,7 +50,6 @@ function annotation_dialog() {
   '<div id="entity_wrapper" class="element-wrap">'+
     '<label for="cboAddEntity">Entity</label>'+
     '<select id="cboAddEntity" class="easyui-combobox" name="Add Entity" style="width:100px;">'+
-      '<option>Entity</option>'+
       '<option>Tag Person</option>'+
       '<option>Tag Event</option>'+
       '<option>Tag Place</option>'+
@@ -66,27 +65,30 @@ function annotation_dialog() {
   // Only allow entity look up if the entity solution pack is installed
   // and enabled.
   if(Drupal.settings.islandora_image_annotation.enable_entity) {
-    $('#islandora_classification').append(entity_combobox);
-    $('#cboEntityLookup').autocomplete({
-      source: function(request,response){
-        // lookup_entity is shared by image annotation and critical editions,
-        // so it has been exposed to both via 'lookup_entity() function in
-        // entity_search.js.
-        var result = lookup_entity($('#cboAddEntity').find('option:selected').text() + '/' + '?entities_query=' + request.term);
-        response($.map(result, function(item){
-          return {
-            label: item.identifier,
-            value: item.identifier,
-            data: item.Object,
-          };
-        }));
-      },
-      select: function(event, ui) {
-        // Add the selected entity data to the hidden
-        // 'hidden_entity' field.
-        $('#hidden_entity').data('entity',ui.item);
-      },
-    });
+    // Optionally allow/disallow users from tagging entities.
+    if (Drupal.settings.islandora_image_annotation.allow_entity_linking) {
+      $('#islandora_classification').append(entity_combobox);
+      $('#cboEntityLookup').autocomplete({
+        source: function(request,response){
+          // lookup_entity is shared by image annotation and critical editions,
+          // so it has been exposed to both via 'lookup_entity() function in
+          // entity_search.js.
+          var result = lookup_entity($('#cboAddEntity').find('option:selected').text() + '/' + '?entities_query=' + request.term);
+          response($.map(result, function(item){
+            return {
+              label: item.identifier,
+              value: item.identifier,
+              data: item.Object,
+            };
+          }));
+        },
+        select: function(event, ui) {
+          // Add the selected entity data to the hidden
+          // 'hidden_entity' field.
+          $('#hidden_entity').data('entity',ui.item);
+        },
+      });
+    }
   }
   var annotation_dialog = $('#create_annotation_box');
   return annotation_dialog.dialog({
