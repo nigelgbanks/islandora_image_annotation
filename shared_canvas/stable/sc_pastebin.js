@@ -59,7 +59,6 @@ function islandora_getList() {
                         }
                     }
                     var cnv = $(this).attr('canvas');
-	                //islandora_getAnnotation(pid);
                     var type = temp;
                 }
             if( listdata!= null && pids != null){
