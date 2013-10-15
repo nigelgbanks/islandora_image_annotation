@@ -132,7 +132,7 @@ function islandora_image_annotation_admin($form, &$form_state) {
   );
   $form['annotation_controlled_titles'] = array(
     '#title' => 'Controlled vocabulary for titles',
-    '#type' => 'checkbox',
+    '#type' => 'fieldset',
     '#collapsed' => FALSE,
   );
   $form['annotation_controlled_titles']['annotation_use_title_vocabulary'] = array(
