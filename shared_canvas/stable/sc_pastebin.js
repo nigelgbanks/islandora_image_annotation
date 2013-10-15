@@ -90,7 +90,6 @@ function islandora_getAnnotation(pid) {
             load_commentAnno(data);
         },
         error: function(data,status,xhr) {
-        //alert('error loading anno for '+pid);
         }
     });
 }
@@ -118,7 +117,6 @@ function islandora_deleteAnno(urn) {
 
         },
         error: function(data,status,xhr) {
-        //   alert('Failed to delete annotation')
         }
     });
 }
