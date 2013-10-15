@@ -827,17 +827,12 @@ function paint_commentAnno(anno, canvasId) {
   txt = txt.replace(/\n/g, '<br/>');
   
   var entity_link = '';
-  // So long as islandora_entities module is installed and enabled,
-  // allow existing entity linked tags to display regardless of the
-  // setting that allows their creation.
-  if(Drupal.settings.islandora_image_annotation.enable_entity) {
-    if(anno.relation) {
-      entity_link = '<div class="comment_entity">' + '<a href="' + Drupal.settings.islandora_image_annotation.entity_link_path +
-        anno.relation +'">' + 
-        anno.hasPart + '</a>' + '</div>';
-    }
+
+  if(anno.relation) {
+    entity_link = '<div class="comment_entity">' + '<a href="' + Drupal.settings.islandora_image_annotation.entity_link_path +
+      anno.relation +'">' + 
+      anno.hasPart + '</a>' + '</div>';
   }
-  
   //block contains complete annotation
   block = '<div class = "canvas_annotation" ' + 'urn ="' + myid + '" '+ ' >';
   block += '<div class="comment_title" id="anno_' + myid + '"><span class="comment_showhide">+ </span>' + title + '</div>';
