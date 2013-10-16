@@ -892,10 +892,6 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
       }
       if(islandora_canvas_params.mappings['urn:uuid:' + annoId] != ''){
         col = islandora_canvas_params.mappings[['urn:uuid:' + annoId]];
-      } else {
-        if(Drupal.settings.islandora_image_annotation.can_choose == 1) {
-          col = get_random_color();
-        }
       }
       if(islandora_canvas_params.islandora_anno_stroke_width != null) {
         strokeWidth = islandora_canvas_params.islandora_anno_stroke_width;
@@ -904,11 +900,13 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
       } else {
         strokeWidth = $('#stroke_width').val();
       }
+      if(Drupal.settings.islandora_image_annotation.can_choose == 1) {
+          col = get_random_color();
+      }
       // Fix for google chrome not getting the color.
       if(typeof col == 'undefined'){
         col = $('#anno_color').attr('value');
       }
-      
       $(ttldiv).append('<span color="' + col + '" class="mycolor" style="margin-right: 2px; margin-top: 2px; background: '+col+';float:right;width:15px;height:15px;">&nbsp;</span>');
       for (var t = 0, tgt; tgt = anno.targets[t]; t++) {
         if (tgt.partOf != null) {
