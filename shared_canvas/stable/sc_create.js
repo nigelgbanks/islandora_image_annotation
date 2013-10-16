@@ -189,11 +189,8 @@ function saveAnnotation() {
 
     //check to see if color box has been activated
     color = $('#anno_color').attr('value');
-    console.log("hidden_annotation_type text: " + $('#hidden_annotation_type').attr('anno_type'));
     if($('#hidden_annotation_type').attr('anno_type') == 'Update Annotation'){
         urn = $('#hidden_annotation_type').attr('urn');
-        console.log("updating annotation, in saveAnnotation");
-        console.log("urn: " + urn);
         islandora_updateAnno(urn, title, annoType, content, color);
         return;
     }
