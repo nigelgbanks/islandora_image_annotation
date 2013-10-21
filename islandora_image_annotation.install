@@ -11,7 +11,7 @@
 function islandora_image_annotation_requirements($phase) {
   $requirements = array();
   if ($phase == 'install') {
-    module_load_include('inc', 'islandora', 'includes  uque');
+    module_load_include('inc', 'islandora', 'includes/tuque');
     if (!IslandoraTuque::exists()) {
       $requirements['tuque_library'] = array(
         'title' => 'Tuque',
