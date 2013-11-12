@@ -194,7 +194,6 @@ function saveAnnotation() {
         islandora_updateAnno(urn, title, annoType, content, color);
         return;
     }
-
     if (!content || (!title && typ == 'comment')) {
         alert('An annotation needs both title and content');
         return 0;
@@ -224,7 +223,11 @@ function saveAnnotation() {
     var type_class = "annoType_" + fixed_cat;
     var blockId = 'islandora_annoType_'+ fixed_cat;
     var contentId = 'islandora_annoType_content_'+ fixed_cat;
+    
+    var dt = data.split("<urn:uuid:");
+    var split_dt = dt[1].split('>');
     var idSelector = '#' + blockId;
+    
     if($(idSelector).length == 0){
         header =  '<div class = "islandora_comment_type" id = "'+ blockId + '">';
         header += '<div class = "islandora_comment_type_title">' + type + '</div>';
@@ -244,11 +247,16 @@ function saveAnnotation() {
     // Making them available.
     islandora_postData(tgt, rdfa, type, color);
     $(".islandora_comment_type_title").off();
-
     $(".islandora_comment_type_title").ready().on("click", function(){
       $(this).siblings('.islandora_comment_type_content').toggle();
     });
-    return 1;
+    
+    var data = {};
+	data.Target = tgt;
+	data.Type = type;
+	data.Colour = color;
+	data.uuid = split_dt[0];
+    return data;
 }
 
 function nodeToXml(what) {
@@ -305,16 +313,17 @@ function create_rdfAnno() {
     if(Drupal.settings.islandora_image_annotation.allow_entity_linking) {
       // Parse out the entity pid from the inner anchor.
       var image_entity = $('#hidden_entity').data('entity');
-      var wrapper= document.createElement('a');
-      wrapper.innerHTML= image_entity.data;
-      var div= wrapper.firstChild;
-      var image_entity_id = div.innerHTML;
-      if(image_entity_id != null) {
-        rdfa += '<span property="dcterms:relation" content="' + image_entity_id + '"></span>';
-        rdfa += '<span property="dcterms:hasPart" content="' + image_entity.label + '"></span>';
+      if(image_entity) {
+        var wrapper= document.createElement('a');
+        wrapper.innerHTML= image_entity.data;
+        var div= wrapper.firstChild;
+        var image_entity_id = div.innerHTML;
+          if(image_entity_id != null) {
+          rdfa += '<span property="dcterms:relation" content="' + image_entity_id + '"></span>';
+          rdfa += '<span property="dcterms:hasPart" content="' + image_entity.label + '"></span>';
+        }
       }
     }
-    
     if (title != '') {
         rdfa += '<span property="dc:title" content="' + title + '"></span>';
     }
