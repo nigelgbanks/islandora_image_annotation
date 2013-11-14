@@ -236,7 +236,6 @@ function showNavLinks(canvas, which, wCanvas, seq) {
 }
 
 function showCanvas(canvas, canvasId) {
-
   var info = topinfo['sequenceInfo'][canvas];
   var cvsh = info[0];
   var cvsw = info[1];
@@ -907,7 +906,9 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
       if(typeof col == 'undefined'){
         col = $('#anno_color').attr('value');
       }
-      $(ttldiv).append('<span color="' + col + '" class="mycolor" style="margin-right: 2px; margin-top: 2px; background: '+col+';float:right;width:15px;height:15px;">&nbsp;</span>');
+      if(ttldiv != null || ttldiv != "") {
+        $(ttldiv).append('<span color="' + col + '" class="mycolor" style="margin-right: 2px; margin-top: 2px; background: '+col+';float:right;width:15px;height:15px;">&nbsp;</span>');
+      }
       for (var t = 0, tgt; tgt = anno.targets[t]; t++) {
         if (tgt.partOf != null) {
           if (tgt.constraint != null) {
