@@ -299,8 +299,10 @@ function paint_annos() {
   }
 }
 
-
 function mk_raphael(typ, canvas, canvasId) {
+  if (topinfo['raphaels'][typ][canvas] != undefined) {
+    return topinfo['raphaels'][typ][canvas];
+    } else {
     var info = topinfo['sequenceInfo'][canvas];
     if (info == undefined) {
       info = extract_canvas_size(topinfo['query'], canvas)
@@ -334,6 +336,7 @@ function mk_raphael(typ, canvas, canvasId) {
     }
     topinfo['raphaels'][typ][canvas] = svgcanvas;
     return svgcanvas;
+  }
 }
 
 function paint_anno(typ, anno, div) {
