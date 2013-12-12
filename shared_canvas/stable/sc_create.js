@@ -132,7 +132,11 @@ function closeAndEndAnnotating() {
 //converting between page clicks and canvas clicks
 
 function initForCreate(canvas) {
-    var r = mk_raphael('comment', canvas, topinfo['canvasDivHash'][canvas])
+	console.log("canvas initcreate");
+	console.log(canvas);
+	console.log("cdivhas: ");
+	console.log(topinfo['canvasDivHash']);
+    var r = mk_raphael('comment', canvas, topinfo['canvasDivHash'][canvas]);
     var invScale = 1.0 / r.newScale;
     var ch = Math.floor(r.height * invScale);
     var cw = Math.floor(r.width * invScale);
