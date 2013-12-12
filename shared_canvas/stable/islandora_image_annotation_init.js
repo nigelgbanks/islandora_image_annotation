@@ -367,7 +367,6 @@ $(document).ready(function(){
     });
     
     var stroke_widths = islandora_canvas_params.islandora_anno_stroke_widths.split(" ");
-    console.log(islandora_canvas_params);
     var s_options = "";
     for (var i = 0; i < stroke_widths.length; i++) {
       s_options += '<option value="'+ stroke_widths[i] + '">' + stroke_widths[i] + '</option>';
@@ -405,8 +404,6 @@ $(document).ready(function(){
     topinfo['uriParams'] = uriparams
     // Initialize UI
     init_ui();
-    console.log("ncanvas");
-    console.log(nCanvas);
     // Setup a basic Canvas with explicit width to scale to from browser width
     initCanvas(nCanvas);
 

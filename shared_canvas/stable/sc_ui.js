@@ -156,7 +156,6 @@ function showPages() {
 
   // Initialize to first Canvas div
   topinfo['currentCanvas'] = 0;
-  console.log(topinfo['numCanvases']);
   // Show canvases
   for (var x=0;x<topinfo['numCanvases'];x++) {
     topinfo['currentCanvas'] = x;
@@ -300,11 +299,8 @@ function paint_annos() {
   }
 }
 
-var dnvdkdkd = 0;
-
 function mk_raphael(typ, canvas, canvasId) {
   if (topinfo['raphaels'][typ][canvas] != undefined) {
-    console.log('!=undefined in mk_raphaels');
     return topinfo['raphaels'][typ][canvas];
     } else {
     var info = topinfo['sequenceInfo'][canvas];
@@ -320,7 +316,6 @@ function mk_raphael(typ, canvas, canvasId) {
 
     var svgWrap = $('#svg_wrapper');
     svgWrap.append('<div class="svg_canvas_wrapper" id="svg_annos_' + typ + '_' + canvasId + '"></div>');
-    dnvdkdkd =  dnvdkdkd + 1;
     var svg = $('#svg_annos_' + typ + '_' + canvasId);
     svg.height(sh);
     svg.width(sw);
