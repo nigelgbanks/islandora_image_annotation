@@ -3,6 +3,7 @@
 
 function islandora_postData(title, data, type, color) {
     data = encodeURI(data);
+    console.log(islandora_canvas_params.islandora_post_url);
     $.ajax({
         type:'POST',
         async:false,
@@ -27,73 +28,37 @@ function islandora_postData(title, data, type, color) {
 // Adds divs for each type
 //
 function islandora_getList() {
-    islandora_canvas_params.mappings = new Array();
-    islandora_canvas_params.strokeWidth = new Array();
-    $.ajax({
-        type:'GET',
-        async:false,
-        url: islandora_canvas_params.get_annotation_list_url,
-        success: function(data,status,xhr) {
-            var listdata = $.parseJSON(data);
-            var pids = listdata.pids;
-            if( pids != null){
-                for (var i=0,info;i < pids.length;i++){
-                    islandora_canvas_params.mappings[pids[i]['urn']] = pids[i]['color'];
-                    islandora_canvas_params.strokeWidth[pids[i]['urn']] = pids[i]['strokeWidth'];
-                    info=pids[i]['id'];
-                    var pid = info;
-                    var temp = pids[i]['type'];
-                    var fixed_cat = temp.replace(/[^\w]/g,'');
-                    if(temp != type){
-                        var type_class = "annoType_" + fixed_cat;
-                        var blockId = 'islandora_annoType_'+ fixed_cat;
-                        var contentId = 'islandora_annoType_content_'+ fixed_cat;
-                        var idSelector = '#' + blockId;
-                        if($(idSelector).length == 0){
-                            header =  '<div class = "islandora_comment_type" id = "'+ blockId + '">';
-                            header += '<div class = "islandora_comment_type_title">' + temp + '</div>';
-                            header += '<div class = "islandora_comment_type_content" style = "display:none" id = "'+ contentId + '"></div>';
-                            header += '</div>';
-                            $('#comment_annos_block').append(header);
-                        }
-                    }
-                    var cnv = $(this).attr('canvas');
-                    var type = temp;
-                }
-            if( listdata!= null && pids != null){
-                for (var i=0,info;i < pids.length;i++){
-                  islandora_canvas_params.mappings[pids[i]['urn']] = pids[i]['color'];
-                  islandora_getAnnotation(pids[i]['id']);
-                }
-              }
-            }
-            $(".islandora_comment_type_title").off();
-            $(".islandora_comment_type_title").ready().on("click", function(){
-                $(this).siblings('.islandora_comment_type_content').toggle();
-            });
-        },
-        error: function(data,status,xhr) {
-        }
-
-    });
- 
+  islandora_canvas_params.mappings = new Array();
+  islandora_canvas_params.strokeWidth = new Array();
+    for (var key in islandora_canvas_params.anno_data){
+      islandora_canvas_params.anno_data[key].obj_data.urn
+      islandora_canvas_params.mappings[islandora_canvas_params.anno_data[key].obj_data.urn] = islandora_canvas_params.anno_data[key].obj_data.color;
+      islandora_canvas_params.strokeWidth[islandora_canvas_params.anno_data[key].obj_data.urn] = islandora_canvas_params.anno_data[key].obj_data.strokeWidth;
+      var type_class = "annoType_" + islandora_canvas_params.anno_data[key].obj_data.type;
+      var blockId = 'islandora_annoType_'+ islandora_canvas_params.anno_data[key].obj_data.type;
+      var contentId = 'islandora_annoType_content_'+ islandora_canvas_params.anno_data[key].obj_data.type;
+      var idSelector = '#' + blockId;
+      if($(idSelector).length == 0){
+        header =  '<div class = "islandora_comment_type" id = "'+ blockId + '">';
+        header += '<div class = "islandora_comment_type_title">' + islandora_canvas_params.anno_data[key].obj_data.type + '</div>';
+        header += '<div class = "islandora_comment_type_content" style = "display:none" id = "'+ contentId + '"></div>';
+        header += '</div>';
+        $('#comment_annos_block').append(header);
+      }
+      islandora_getAnnotation(islandora_canvas_params.anno_data[key].anno_data);
+    }
+  $(".islandora_comment_type_title").off();
+  $(".islandora_comment_type_title").ready().on("click", function(){
+    $(this).siblings('.islandora_comment_type_content').toggle();
+  });
 }
 
 
 // get annotation data from Fedora and send it to load_comment_anno to be displayed
 
-function islandora_getAnnotation(pid) {
-    $.ajax({
-        type:'GET',
-        url: islandora_canvas_params.islandora_get_annotation + pid,
-        success: function(data,status,xhr) {
-            load_commentAnno(data);
-        },
-        error: function(data,status,xhr) {
-        }
-    });
+function islandora_getAnnotation(data) {
+  load_commentAnno(data);
 }
-
 
 function islandora_deleteAnno(urn) {
 
