@@ -172,7 +172,7 @@ QUERY;
     $pids['types'] = array_values(array_unique($pids['types']));
   }
   $json = json_encode($pids);
-  echo $json;
+  return $pids;
 }
 
 /**
@@ -215,7 +215,7 @@ function islandora_image_annotation_shared_get_annotation($pid, $urn = NULL) {
   // Remove the doc type declarations.
   $results = preg_replace('/<\?xml.*?\?>/', '', $results);
   $results = preg_replace('/<!DOCTYPE.*?>/', '', $results);
-  echo $results;
+  return $results;
 }
 
 /**
