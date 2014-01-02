@@ -3,7 +3,6 @@
 
 function islandora_postData(title, data, type, color) {
     data = encodeURI(data);
-    console.log(islandora_canvas_params.islandora_post_url);
     $.ajax({
         type:'POST',
         async:false,
@@ -55,7 +54,6 @@ function islandora_getList() {
 
 
 // get annotation data from Fedora and send it to load_comment_anno to be displayed
-
 function islandora_getAnnotation(data) {
   load_commentAnno(data);
 }
