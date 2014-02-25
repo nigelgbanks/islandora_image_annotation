@@ -110,11 +110,11 @@ function islandora_image_annotation_menu() {
 function islandora_image_annotation_permission() {
   return array(
     ISLANDORA_IMAGE_ANNOTATION_VIEW => array(
-      'title' => t(ISLANDORA_IMAGE_ANNOTATION_VIEW),
+      'title' => t('View image annotations'),
       'description' => t('View image annotations.'),
     ),
     ISLANDORA_IMAGE_ANNOTATION_CREATE => array(
-      'title' => t(ISLANDORA_IMAGE_ANNOTATION_CREATE),
+      'title' => t('Create image annotations'),
       'description' => t('Create image Annotations'),
     ),
   );
