@@ -1,7 +1,7 @@
 BUILD STATUS
 ------------
 Current build status:
-[![Build Status](https://travis-ci.org/discoverygarden/islandora_image_annotation.png?branch=7.x)](https://travis-ci.org/discoverygarden/islandora_image_annotation)
+[![Build Status](https://travis-ci.org/Islandora/islandora_image_annotation.png?branch=7.x)](https://travis-ci.org/Islandora/islandora_image_annotation)
 
 CI Server:
 http://jenkins.discoverygarden.ca
