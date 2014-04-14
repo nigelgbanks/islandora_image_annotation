@@ -107,16 +107,13 @@ function islandora_image_annotation_canvas_init($pid) {
   $results['islandora_post_url'] = url("islandora/anno/add_annotation/$pid");
   $results['get_annotation_list_url'] = url("islandora/anno/get_urns/$pid");
 
-  // TODO: 
   $my_data = islandora_image_annotation_shared_get_annotation_pids($pid);
-  // FOr each pid in the list, gather its data
-//   islandora_image_annotation_shared_get_annotation();
-  $results['my_data'] = $my_data['pids'];//$my_data;
-  $ch = 0;
+
   foreach ($my_data['pids'] as $anno_item) {
     $results['anno_data'][$anno_item['id']]['anno_data'] = islandora_image_annotation_shared_get_annotation($anno_item['id']);
     $results['anno_data'][$anno_item['id']]['obj_data'] = $anno_item;
   }
+
   $results['islandora_get_annotation'] = url("islandora/anno/get_annotation/");
   $results['islandora_delete_annotation'] = url("islandora/anno/delete_annotation/$pid/");
   $results['islandora_update_annotation'] = url("islandora/anno/update_annotation/");

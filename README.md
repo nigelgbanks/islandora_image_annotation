@@ -1,11 +1,11 @@
-CONTENTS OF THIS FILE
----------------------
+BUILD STATUS
+------------
+Current build status:
+[![Build Status](https://travis-ci.org/Islandora/islandora_image_annotation.png?branch=7.x)](https://travis-ci.org/Islandora/islandora_image_annotation)
 
- * summary
- * configuration
- * customization
- * faq
- 
+CI Server:
+http://jenkins.discoverygarden.ca
+
 SUMMARY
 -------
 
@@ -21,9 +21,9 @@ section and choose Image Annotation.  From there you can choose which CModels
 you want to integrate the annotation tool with.  You will need to tell it what
 datastream to use as well, You should choose a datastream with a mimetype of
 image/jpeg or image/png.  The Taxonomy Column allows the annotation tool to use
-taxonomy terms for categories. 
+taxonomy terms for categories.
 
-Annotation categories also depend on the selected radio button under Annotation 
+Annotation categories also depend on the selected radio button under Annotation
 Categories.  If you want to depend on taxonomies choose administrator defined.
 
 
