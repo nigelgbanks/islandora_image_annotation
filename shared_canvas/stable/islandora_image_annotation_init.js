@@ -222,7 +222,8 @@ $(document).ready(function(){
         success: function(data, status, xhr) {
             islandora_canvas_params = data;
         },
-        error: function() {
+        error: function(data, status, xhd) {
+        	islandora_canvas_params = data;
             alert("Please Login to site");
         },
         dataType: 'json'

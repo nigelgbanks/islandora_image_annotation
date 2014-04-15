@@ -79,16 +79,16 @@ function islandora_getList() {
 
 
 // get annotation data from Fedora and send it to load_comment_anno to be displayed
-function islandora_getAnnotation(data) {
-	$.ajax({
-		         type:'GET',
-		         url: islandora_canvas_params.islandora_get_annotation + pid,
-		         success: function(data,status,xhr) {
-		             load_commentAnno(data);
-		         },
-		         error: function(data,status,xhr) {
-		         }
-		     });
+function islandora_getAnnotation(pid) {
+  $.ajax({
+    type:'GET',
+    url: islandora_canvas_params.islandora_get_annotation + pid,
+    success: function(data,status,xhr) {
+      load_commentAnno(data);
+    },
+    error: function(data,status,xhr) {
+    }
+  });
 }
 
 function islandora_deleteAnno(urn) {
@@ -156,7 +156,7 @@ function islandora_updateAnno(urn, title,annoType, content, color){
                 destroyAll(cnv);
             });
             //reset all the annos in the columns so things are consistent.
-           	
+             
             $('#create_annotation_box').hide();   
             
             $('.comment_text').each(function(i, el) {                        

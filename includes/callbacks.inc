@@ -172,7 +172,7 @@ QUERY;
     $pids['types'] = array_values(array_unique($pids['types']));
   }
   $json = json_encode($pids);
-  echo $pids;
+  echo $json;
 }
 
 /**
