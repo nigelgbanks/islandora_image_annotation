@@ -54,7 +54,7 @@ function islandora_image_annotation_uninstall() {
     'annotation_genre_field',
     'islandora_solr_url',
     'islandora_solr_content_model_field',
-    'islandora_image_annotation_datastreams'
+    'islandora_image_annotation_datastreams',
   );
   array_walk($variables, 'variable_del');
   // Uninstall callback.
