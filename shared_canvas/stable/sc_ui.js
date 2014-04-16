@@ -890,7 +890,7 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
       if (!svgAreaColors) {
         col = '#a0f060';
       } else {
-        col = get_random_color();//svgAreaColors.splice(0,1)[0];
+        col = get_random_color();
       }
       if(islandora_canvas_params.islandora_anno_stroke_width != null) {
         strokeWidth = islandora_canvas_params.islandora_anno_stroke_width;
@@ -900,10 +900,12 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
         strokeWidth = $('#stroke_width').val();
       }
       if(Drupal.settings.islandora_image_annotation.can_choose == 1) {
-          col = get_random_color();
+        col = get_random_color();
       }
-      if(islandora_canvas_params.mappings['urn:uuid:' + annoId] != ''){
-        col = islandora_canvas_params.mappings[['urn:uuid:' + annoId]];
+      if(typeof islandora_canvas_params.mappings['urn:uuid:' + annoId] != 'undefined') {
+        if(islandora_canvas_params.mappings['urn:uuid:' + annoId] != ''){
+          col = islandora_canvas_params.mappings[['urn:uuid:' + annoId]];
+        }
       }
       // Fix for google chrome not getting the color.
       if(typeof col == 'undefined'){

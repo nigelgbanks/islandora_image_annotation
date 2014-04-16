@@ -171,8 +171,7 @@ QUERY;
   if (!empty($pids)) {
     $pids['types'] = array_values(array_unique($pids['types']));
   }
-  $json = json_encode($pids);
-  return $pids;
+  drupal_json_output($pids);
 }
 
 /**
@@ -215,7 +214,7 @@ function islandora_image_annotation_shared_get_annotation($pid, $urn = NULL) {
   // Remove the doc type declarations.
   $results = preg_replace('/<\?xml.*?\?>/', '', $results);
   $results = preg_replace('/<!DOCTYPE.*?>/', '', $results);
-  return $results;
+  echo $results;
 }
 
 /**
