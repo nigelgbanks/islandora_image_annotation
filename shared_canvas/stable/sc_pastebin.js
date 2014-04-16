@@ -14,8 +14,8 @@ function islandora_postData(title, data, type, color) {
             color:color,
             strokeWidth: $('#stroke_width').val()
         },
-        success: function(data,status,xhr) {
-            islandora_getAnnotation(data);
+        success: function(pid,status,xhr) {
+            islandora_getAnnotation(pid);
         },
         error: function(data,status,xhr) {
             alert('Failed to post')
@@ -34,14 +34,12 @@ function islandora_getList() {
         async:false,
         url: islandora_canvas_params.get_annotation_list_url,
         success: function(data,status,xhr) {
-            var listdata = $.parseJSON(data);
+            var listdata = data;
             var pids = listdata.pids;
             if( pids != null){
-                for (var i=0,info;i < pids.length;i++){
+                for (var i=0;i < pids.length;i++){
                     islandora_canvas_params.mappings[pids[i]['urn']] = pids[i]['color'];
                     islandora_canvas_params.strokeWidth[pids[i]['urn']] = pids[i]['strokeWidth'];
-                    info=pids[i]['id'];
-                    var pid = info;
                     var temp = pids[i]['type'];
                     var fixed_cat = temp.replace(/[^\w]/g,'');
                     if(temp != type){
@@ -61,7 +59,7 @@ function islandora_getList() {
                     var type = temp;
                 }
             if( listdata!= null && pids != null){
-                for (var i=0,info;i < pids.length;i++){
+                for (var i=0;i < pids.length;i++){
                   islandora_canvas_params.mappings[pids[i]['urn']] = pids[i]['color'];
                   islandora_getAnnotation(pids[i]['id']);
                 }

@@ -902,11 +902,10 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
       if(Drupal.settings.islandora_image_annotation.can_choose == 1) {
         col = get_random_color();
       }
-      if(islandora_canvas_params.mappings['urn:uuid:' + annoId] != ''){
-        col = islandora_canvas_params.mappings[['urn:uuid:' + annoId]];
-      }
-      if(islandora_canvas_params.mappings['urn:uuid:' + annoId] != ''){
-        col = islandora_canvas_params.mappings[['urn:uuid:' + annoId]];
+      if(typeof islandora_canvas_params.mappings['urn:uuid:' + annoId] != 'undefined') {
+        if(islandora_canvas_params.mappings['urn:uuid:' + annoId] != ''){
+          col = islandora_canvas_params.mappings[['urn:uuid:' + annoId]];
+        }
       }
       // Fix for google chrome not getting the color.
       if(typeof col == 'undefined'){

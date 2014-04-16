@@ -171,8 +171,7 @@ QUERY;
   if (!empty($pids)) {
     $pids['types'] = array_values(array_unique($pids['types']));
   }
-  $json = json_encode($pids);
-  echo $json;
+  drupal_json_output($pids);
 }
 
 /**
