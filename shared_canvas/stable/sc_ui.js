@@ -899,6 +899,8 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
       } else {
         strokeWidth = $('#stroke_width').val();
       }
+     // console.log('right stroke:')
+     // console.log(islandora_canvas_params.strokeWidth[['urn:uuid:' + annoId]]);
       if(Drupal.settings.islandora_image_annotation.can_choose == 1) {
         col = get_random_color();
       }
@@ -907,22 +909,28 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
           col = islandora_canvas_params.mappings[['urn:uuid:' + annoId]];
         }
       }
+     // console.log(islandora_canvas_params);
       // Fix for google chrome not getting the color.
       if(typeof col == 'undefined'){
         col = $('#anno_color').attr('value');
       }
-      if(ttldiv != null || ttldiv != "") {
-        $(ttldiv).append('<span color="' + col + '" class="mycolor" style="margin-right: 2px; margin-top: 2px; background: '+col+';float:right;width:15px;height:15px;">&nbsp;</span>');
-      }
+//      if(ttldiv != null || ttldiv != "") {
+//        $(ttldiv).append('<span color="' + col + '" class="mycolor" style="margin-right: 2px; margin-top: 2px; background: '+col+';float:right;width:15px;height:15px;">&nbsp;</span>');
+//      }
       for (var t = 0, tgt; tgt = anno.targets[t]; t++) {
         if (tgt.partOf != null) {
           if (tgt.constraint != null) {
+        	var str = $(anno.targets[t].constraint.value);
             // paint SVG
+        	  if(ttldiv != null || ttldiv != "") {
+        	        $(ttldiv).append('<span color="' + str.attr('stroke') + '" class="mycolor" style="margin-top: 2px; background: '+str.attr('stroke')+';float:right;width:15px;height:15px;">&nbsp;</span>');
+        	      }
+            
             svgc = mk_raphael('comment', canvas, canvasId);
-            paint_svgArea(svgc, anno.id.substring(9, 100), col, tgt.constraint.value, strokeWidth);
+            paint_svgArea(svgc, anno.id.substring(9, 100), str.attr('stroke'), tgt.constraint.value, str.attr('stroke-width'));
           } else if (tgt.fragmentInfo == 'rect') {
-        // paint html box
-        }
+            // paint html box
+          }
         }
       }
       break;
@@ -941,6 +949,7 @@ function paint_svgArea(svgc, annoId, col, svg, strokeWidth) {
     npth.setAttribute(attr.nodeName, attr.nodeValue);
   }
   pthelm = npth;
+  console.log(strokeWidth, "sw");
   //changed by UPEI we override the style so after editing we don't have to 
   //reload the anno from fedora.  this should be addressed when saving the anno
   pthelm.setAttribute('style', 'fill:none;opacity:none;stroke:'+col+

@@ -40,6 +40,7 @@ function islandora_getList() {
                 for (var i=0;i < pids.length;i++){
                     islandora_canvas_params.mappings[pids[i]['urn']] = pids[i]['color'];
                     islandora_canvas_params.strokeWidth[pids[i]['urn']] = pids[i]['strokeWidth'];
+                    console.log(pids);
                     var temp = pids[i]['type'];
                     var fixed_cat = temp.replace(/[^\w]/g,'');
                     if(temp != type){

@@ -2,8 +2,8 @@
 
 #full-window-button
 {
-  float: left;
-  margin: 5px 5px 5px 0px;
+  float: right;
+  margin: 5px 5px 5px 15px;
 }
 
 
@@ -30,9 +30,21 @@
   left: 0px;
   right: 0px;
   top: 30px;
-
+  height: auto;
   width: 100%;
   z-index: 60;
   
   background: #fff;
+}
+
+.message_cont {
+    position: fixed;
+    width:100%;
+}
+
+.message_cont div {
+    padding: 10px;
+    background: #A9A9A9;
+    color: #fff;
+    font-size: 16px;
 }

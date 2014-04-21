@@ -471,11 +471,11 @@ div.mceDropDown {
 /* Header */
 #islandora_shared_canvas_header
 {
-  height: 35px;
+/*   height: 35px; */
   padding: 0px 0px 0px 0px;
   color: #eee;
   background-color: #000;
-  border-bottom: 1px solid #ccc;
+/*   border-bottom: 1px solid #ccc; */
   clear: both;
   float: left;
   width: 100%;
@@ -750,6 +750,10 @@ div.mceDropDown {
           border-radius: 0px 0px 5px 5px; /* Opera 10.5, IE9, Saf5, Chrome, FF4+, iOS 4, Android 2.1+ */
 }
 
+.mycolor
+{
+	float:right;
+}
 #tabs #comment_annos_block .mycolor
 {
   position: absolute;
