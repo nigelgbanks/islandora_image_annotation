@@ -884,7 +884,6 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
   var col;
   var canvas = $('#' + canvasId).attr('canvas');
   var annos = topinfo['annotations']['comment'][canvas];
-  console.log(ttldiv);
   for (var a = 0, anno; anno = annos[a]; a++) {
     if (anno.id == 'urn:uuid:' + annoId) {
       // Paint it up
@@ -946,7 +945,6 @@ function paint_svgArea(svgc, annoId, col, svg, strokeWidth) {
     npth.setAttribute(attr.nodeName, attr.nodeValue);
   }
   pthelm = npth;
-  console.log(strokeWidth, "sw");
   //changed by UPEI we override the style so after editing we don't have to 
   //reload the anno from fedora.  this should be addressed when saving the anno
   pthelm.setAttribute('style', 'fill:none;opacity:none;stroke:'+col+
