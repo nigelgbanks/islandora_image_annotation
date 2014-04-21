@@ -12,6 +12,7 @@
   position: fixed;
   bottom: 0px;
   left: 0px;
+  overflow:auto;
   right: 0px;
   top: 0px;
   z-index: 601;
@@ -33,7 +34,6 @@
   height: auto;
   width: 100%;
   z-index: 60;
-  
   background: #fff;
 }
 

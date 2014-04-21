@@ -884,6 +884,7 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
   var col;
   var canvas = $('#' + canvasId).attr('canvas');
   var annos = topinfo['annotations']['comment'][canvas];
+  console.log(ttldiv);
   for (var a = 0, anno; anno = annos[a]; a++) {
     if (anno.id == 'urn:uuid:' + annoId) {
       // Paint it up
@@ -899,8 +900,6 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
       } else {
         strokeWidth = $('#stroke_width').val();
       }
-     // console.log('right stroke:')
-     // console.log(islandora_canvas_params.strokeWidth[['urn:uuid:' + annoId]]);
       if(Drupal.settings.islandora_image_annotation.can_choose == 1) {
         col = get_random_color();
       }
@@ -909,24 +908,22 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
           col = islandora_canvas_params.mappings[['urn:uuid:' + annoId]];
         }
       }
-     // console.log(islandora_canvas_params);
       // Fix for google chrome not getting the color.
       if(typeof col == 'undefined'){
         col = $('#anno_color').attr('value');
       }
-//      if(ttldiv != null || ttldiv != "") {
-//        $(ttldiv).append('<span color="' + col + '" class="mycolor" style="margin-right: 2px; margin-top: 2px; background: '+col+';float:right;width:15px;height:15px;">&nbsp;</span>');
-//      }
+      //$(ttldiv).append('<div id="anno_span_col" style="float:right;overflow:scroll;width:100%;height:100%;"></div>');
       for (var t = 0, tgt; tgt = anno.targets[t]; t++) {
         if (tgt.partOf != null) {
           if (tgt.constraint != null) {
-        	var str = $(anno.targets[t].constraint.value);
-            // paint SVG
-        	  if(ttldiv != null || ttldiv != "") {
-        	        $(ttldiv).append('<span color="' + str.attr('stroke') + '" class="mycolor" style="margin-top: 2px; background: '+str.attr('stroke')+';float:right;width:15px;height:15px;">&nbsp;</span>');
-        	      }
-            
+            var str = $(anno.targets[t].constraint.value);
+            // New, grabbing the colour for each annotation, not just the
+            // first one.
+            if(ttldiv != null || ttldiv != "") {
+              $(ttldiv).append('<span color="' + str.attr('stroke') + '" class="mycolor" style="margin-top: 2px; background: '+str.attr('stroke')+';float:right;width:15px;height:15px;">&nbsp;</span>');
+            }
             svgc = mk_raphael('comment', canvas, canvasId);
+            // paint SVG
             paint_svgArea(svgc, anno.id.substring(9, 100), str.attr('stroke'), tgt.constraint.value, str.attr('stroke-width'));
           } else if (tgt.fragmentInfo == 'rect') {
             // paint html box

@@ -18,7 +18,7 @@ function islandora_postData(title, data, type, color) {
             islandora_getAnnotation(pid);
         },
         error: function(data,status,xhr) {
-            alert('Failed to post')
+            alert('Failed to post');
         }
     });
 
