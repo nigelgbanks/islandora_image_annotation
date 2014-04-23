@@ -911,7 +911,6 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
       if(typeof col == 'undefined'){
         col = $('#anno_color').attr('value');
       }
-      //$(ttldiv).append('<div id="anno_span_col" style="float:right;overflow:scroll;width:100%;height:100%;"></div>');
       for (var t = 0, tgt; tgt = anno.targets[t]; t++) {
         if (tgt.partOf != null) {
           if (tgt.constraint != null) {

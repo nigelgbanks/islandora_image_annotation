@@ -471,11 +471,9 @@ div.mceDropDown {
 /* Header */
 #islandora_shared_canvas_header
 {
-/*   height: 35px; */
   padding: 0px 0px 0px 0px;
   color: #eee;
   background-color: #000;
-/*   border-bottom: 1px solid #ccc; */
   clear: both;
   float: left;
   width: 100%;
@@ -755,7 +753,6 @@ div.mceDropDown {
 }
 #tabs #comment_annos_block .mycolor
 {
-/*   position: absolute; */
   right: 8px;
   top: 8px;
 
