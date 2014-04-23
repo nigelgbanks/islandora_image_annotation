@@ -25,7 +25,7 @@ you want to integrate the annotation tool with.  You will need to tell it what d
 
 Annotation categories also depend on the selected radio button under Annotation Categories. If you want to depend on taxonomies choose administrator defined.
 
-![Configuration](http://i.imgur.com/CH0zVs8.png)
+![Configuration](https://camo.githubusercontent.com/3c2af45923ee5ec1608098ea26fc09c107a82175/687474703a2f2f692e696d6775722e636f6d2f4348307a5673382e706e67)
 
 ### Customization
 
