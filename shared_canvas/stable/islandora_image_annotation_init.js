@@ -248,7 +248,6 @@ function maybeResize() {
     if($('#admin-menu-wrapper').length > 0) {
       $('.islandora-anno-wrapper').css('top', $('#admin-menu-wrapper').height());
     }
-    
 }
 
 // Let's start it up!
