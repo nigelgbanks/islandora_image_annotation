@@ -105,16 +105,18 @@ function annotation_dialog() {
     width: 380,
     buttons: {
     'Save': function() {
-        saveAndEndAnnotating();
+      var ret = saveAndEndAnnotating();
+      if (ret != 0) {
         closeAndEndAnnotating();
         // Reset hidden data for the next time this 
         // dialog is used.
-        if($('#hidden_entity')) {
+        if ($('#hidden_entity')) {
           $('#hidden_entity').data('entity','');
         }
         $('#hidden_annotation_type').attr('anno_type','');
         $('#hidden_annotation_type').attr('urn','');
         annotation_dialog.dialog('close');
+      }
     },
     'Cancel': function() {
       closeAndEndAnnotating();
