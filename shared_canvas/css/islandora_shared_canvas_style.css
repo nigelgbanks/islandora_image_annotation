@@ -1033,9 +1033,3 @@ div.mceDropDown {
   width: 0px !important;
   height: 0px !important;
 }
-
-.svg_canvas_wrapper {
-	/* @XXX hack to not refactor more shared canvas code*/
-  width:100% !important;
-  height:100% !important;
-}

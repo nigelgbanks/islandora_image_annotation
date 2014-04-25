@@ -137,7 +137,6 @@ function initForCreate(canvas) {
     var ch = Math.floor(r.height * invScale);
     var cw = Math.floor(r.width * invScale);
     var prt = r.wrapperElem;
-	
     // Ensure we're above all painting annos
     $(prt).css('z-index', 1001);
     var bg = r.rect(0,0,cw,ch);

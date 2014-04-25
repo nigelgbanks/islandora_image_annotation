@@ -313,7 +313,6 @@ function mk_raphael(typ, canvas, canvasId) {
     var scale = topinfo['canvasWidth'] / cvsw;
     var sh = cvsh * scale;
     var sw = cvsw * scale;
-
     var svgWrap = $('#svg_wrapper');
     svgWrap.append('<div class="svg_canvas_wrapper" id="svg_annos_' + typ + '_' + canvasId + '"></div>');
     var svg = $('#svg_annos_' + typ + '_' + canvasId);
