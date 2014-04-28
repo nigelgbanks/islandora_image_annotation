@@ -13,7 +13,7 @@ define('ISLANDORA_IMAGE_ANNOTATION_CREATE', 'create image annotations');
  */
 function islandora_image_annotation_menu() {
   $items = array();
-  $items['admin/islandora/tools/image_annotation'] = array(
+  $items['admin/islandora/image_annotation'] = array(
     'title' => 'Image annotation',
     'description' => 'Configure the image annotation module.',
     'page callback' => 'drupal_get_form',

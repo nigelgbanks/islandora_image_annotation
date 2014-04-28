@@ -5,5 +5,4 @@ dependencies[] = islandora_solr
 dependencies[] = islandora_basic_collection
 package = Islandora Tools
 core = 7.x
-
-
+version = 7.x-1.3
