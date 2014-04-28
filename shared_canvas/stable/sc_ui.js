@@ -911,18 +911,21 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
       if(typeof col == 'undefined'){
         col = $('#anno_color').attr('value');
       }
-      if(ttldiv != null || ttldiv != "") {
-        $(ttldiv).append('<span color="' + col + '" class="mycolor" style="margin-right: 2px; margin-top: 2px; background: '+col+';float:right;width:15px;height:15px;">&nbsp;</span>');
-      }
       for (var t = 0, tgt; tgt = anno.targets[t]; t++) {
         if (tgt.partOf != null) {
           if (tgt.constraint != null) {
-            // paint SVG
+            var str = $(anno.targets[t].constraint.value);
+            // New, grabbing the colour for each annotation, not just the
+            // first one.
+            if(ttldiv != null || ttldiv != "") {
+              $(ttldiv).append('<span color="' + str.attr('stroke') + '" class="mycolor" style="margin-top: 2px; background: '+str.attr('stroke')+';float:right;width:15px;height:15px;">&nbsp;</span>');
+            }
             svgc = mk_raphael('comment', canvas, canvasId);
-            paint_svgArea(svgc, anno.id.substring(9, 100), col, tgt.constraint.value, strokeWidth);
+            // paint SVG
+            paint_svgArea(svgc, anno.id.substring(9, 100), str.attr('stroke'), tgt.constraint.value, str.attr('stroke-width'));
           } else if (tgt.fragmentInfo == 'rect') {
-        // paint html box
-        }
+            // paint html box
+          }
         }
       }
       break;

@@ -3,7 +3,7 @@ description = Image annotation for Islandora.
 dependencies[] = islandora
 dependencies[] = islandora_solr
 dependencies[] = islandora_basic_collection
-package = Islandora
+package = Islandora Tools
 core = 7.x
 
 
