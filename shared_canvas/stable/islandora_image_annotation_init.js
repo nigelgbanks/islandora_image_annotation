@@ -3,21 +3,51 @@
   Drupal.behaviors.islandorAnnoFullWindow = {
     attach: function (context, settings) {
       $('#full-window-button').click(function() {
-
-        $('.islandora-anno-wrapper').toggleClass('islandora-anno-fullwindow');
-        resizeCanvas();
-
-        if ($(this).val() == Drupal.t('Full Window')) {
-          $(this).val(Drupal.t('Exit Full Window'));
-        }
-        else {
-          $(this).val(Drupal.t('Full Window'));
-        }
+        window_change_view_size();
       });
     }
   };
+  $(document).keyup(function(e) {
+    if (e.keyCode == 27) {
+      // Only preform the 'ESC' functionality if in full screen.
+      if ($('#full-window-button').html() != Drupal.t('Full Window')) {
+        window_change_view_size();
+      }
+    }
+  });
+  // Add the 'ESC' key press exit full screen.
+  function window_change_view_size() {
+    $('.islandora-anno-wrapper').toggleClass('islandora-anno-fullwindow');
+    resizeCanvas();
+    if ($('#full-window-button').html() == Drupal.t('Full Window')) {
+      $('#full-window-button').html(Drupal.t('Exit Full Window'));
+      $('#islandora_shared_canvas_header').css('height', '0');
+      
+      $('.islandora-anno-wrapper').css('top', $('#admin-menu-wrapper').height());
+      
+      // Add a message to notify user of the 'ESC' button.
+      $messageCont = $('<div class="message_cont">');
+      $message = $('<div>Press ESC to exit full screen</div>').hide();
+      $messageCont.append($message);
+      $('#colright').prepend($messageCont);
+      $message.fadeIn(400, function() {
+          setTimeout(function(){
+              $messageCont.fadeOut(400, function(){
+                $('.message_cont').remove();
+              });
+          }, 3000);
+      })
+    }
+    else {
+      $('#full-window-button').html(Drupal.t('Full Window'));
+      $('#islandora_shared_canvas_header').css('height', '0');
+      if ($('.message_cont').length > 0) {
+        $('.message_cont').remove();
+      }
+      
+    }
+  }
 })(jQuery);
-
 
 // Adapted from sc_init of the shared canvas project.
 var startDate = 0;
@@ -210,6 +240,15 @@ function maybeResize() {
     image_element.css("height", "auto");
     $('.base_img').css("height", image_element.height());
     $('#canvas_0').css("width", w);
+    
+    // Set the top to zero.
+    $('.islandora-anno-wrapper').css('top', 0);
+    
+    // Resize incase we have the admin menu available.
+    if($('#admin-menu-wrapper').length > 0) {
+      $('.islandora-anno-wrapper').css('top', $('#admin-menu-wrapper').height());
+    }
+    
 }
 
 // Let's start it up!

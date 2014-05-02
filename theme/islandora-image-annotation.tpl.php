@@ -8,11 +8,12 @@
 
 <div class="islandora-anno-wrapper">
 
-  <input id="full-window-button" type="button" value="<?php print t('Full Window'); ?>" />
+
   <div class="islandora-image-annotation-wrapper">
 
     <!-- Header -->
     <div id="islandora_shared_canvas_header">
+
     </div>
     <!-- Body -->
       <div class="colmask threecol">
@@ -33,6 +34,7 @@
         <!--<div id="column-separator"></div>-->
         <div class="col1">
           <button id="create_annotation" class="menu_button">Annotate</button>
+          <button id="full-window-button" class="menu_button"><?php print t('Full Window'); ?></button>
           <div class="image-annotation-wrapper">
             <!-- Persist a single player and build new interface to it -->
             <div id="canvas-body-wrapper">
