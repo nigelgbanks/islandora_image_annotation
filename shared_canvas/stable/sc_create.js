@@ -435,7 +435,7 @@ function create_rdfAnno() {
     return [rdfa, target, color];
 }
 
-switchDown = function(x,y) {
+function switchDown(x,y) {
     var fixedxy = fixXY(this,x,y);
     var x = fixedxy[0];
     var y = fixedxy[1];
@@ -457,7 +457,7 @@ switchDown = function(x,y) {
     }
 }
 
-switchUp = function(x, y) {
+function switchUp(x, y) {
     var which = topinfo['svgAnnoShape'];
     if (which == 'circ') {
         this.creating.start=[];
