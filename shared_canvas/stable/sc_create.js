@@ -718,8 +718,8 @@ function islandora_getOutsideStyle(){
     var outsideStyle = {
         fill: 'none',
         opacity: 'none',
-        'stroke-width': ".24%",//+ $('#stroke_width').val() + '%' ,
-        stroke: "#663300",//$('#anno_color').attr('value')
+        'stroke-width': $('#stroke_width').val() + '%' ,
+        stroke: $('#anno_color').attr('value')
     };
     return outsideStyle;
 }

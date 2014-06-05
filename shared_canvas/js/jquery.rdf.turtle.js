@@ -621,7 +621,6 @@
       }
       return result;
     };
-  console.log($);
   $.rdf.parsers['text/turtle'] = {
     parse: function (data) {
       return data;
