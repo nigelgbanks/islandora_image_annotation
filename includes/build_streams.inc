@@ -396,10 +396,7 @@ function islandora_image_annotation_get_image_dimensions_drupal($pid, $dsid, $up
   if (empty($dsid)) {
     throw Exception('Could not find a datastream id to load for image height and width');
   }
-  dsm($pid, "pid");
-  dsm($dsid, "dsid");
   $object = islandora_object_load($pid);
-  dsm($object, "object");
 
   $image_file = file_save_data($object[$dsid]->content, 'temporary://');
   $real_path = drupal_realpath($image_file->uri);

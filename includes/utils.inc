@@ -68,7 +68,6 @@ function islandora_image_annotation_get_dsid_from_model($pid) {
  *   The Fedora object id to supply the data for.
  */
 function islandora_image_annotation_canvas_init($pid) {
-  dsm($pid, "canvas init pid");
   module_load_include('inc', 'islandora_image_annotation', 'includes/build_streams');
   module_load_include('inc', 'islandora_image_annotation', 'includes/callbacks');
   module_load_include('module', 'taxonomy', 'module');
@@ -125,7 +124,6 @@ function islandora_image_annotation_canvas_init($pid) {
  */
 function islandora_image_annotation_include_common_js() {
   $image_annotation_module_path = drupal_get_path('module', 'islandora_image_annotation');
-dsm(array(), "Common js");
   $allow_entity_linking = variable_get('islandora_image_annotation_use_entity_tagging', TRUE);
   $can_choose = variable_get('islandora_annotation_optimized', TRUE);
   drupal_add_js(array('islandora_image_annotation' => array('allow_entity_linking' => $allow_entity_linking)), 'setting');

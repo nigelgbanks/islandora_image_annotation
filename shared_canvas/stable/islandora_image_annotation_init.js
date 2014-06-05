@@ -47,6 +47,7 @@
       
     }
   }
+  
 })(jQuery);
 
 // Adapted from sc_init of the shared canvas project.
@@ -214,9 +215,9 @@ function init_ui() {
       $('.color-picker').miniColors();
     // Refresh Canvas if browser is resized
     // We're called as per move... so need wait till finished resizing
-    $(window).resize(function() {
-        resizeCanvas();
-    });
+//    $(window).resize(function() {
+//        resizeCanvas();
+//    });
 }
 
 var timeout = false;
