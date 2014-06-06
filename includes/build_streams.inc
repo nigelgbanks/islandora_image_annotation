@@ -469,7 +469,8 @@ XML;
   else {
     // We assume entries do not exist as we have just tried to load this info.
     $rels_ds = $item['RELS-INT'];
-    $doc = DomDocument::loadXML($rels_ds->content);
+    $doc = new DOMDocument();
+    $doc->loadXML($rels_ds->content);
     $rdf = $doc->documentElement;
     $description = $doc->createElement('rdf:Description');
     $about = $doc->createAttribute('rdf:about');

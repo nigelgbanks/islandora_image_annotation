@@ -29,20 +29,20 @@ function islandora_image_annotation_canvas_setup($pid) {
 function islandora_image_annotation_add_annotation($pid) {
   global $user;
   module_load_include('inc', 'islandora', 'includes/utilities');
-  $data = $_POST['data'];
+  $data = check_plain($_POST['data']);
   // todo: In the future, the following fix could be eliminated
   // by adding the 'stroke width' option to the annotation jquery dialog
   // box (as a combo box selection).
   $stroke_width;
   if (isset($_POST['strokeWidth'])) {
-    $stroke_width = $_POST['strokeWidth'];
+    $stroke_width = check_plain($_POST['strokeWidth']);
   }
   else {
     $stroke_width = 0;
   }
-  $annotation_xml = islandora_image_annotation_shared_transform_annotation_list(urldecode($_POST['data']), 'html');
-  $color = $_POST['color'];
-  $type = $_POST['type'];
+  $annotation_xml = islandora_image_annotation_shared_transform_annotation_list(urldecode(check_plain($_POST['data'])), 'html');
+  $color = check_plain($_POST['color']);
+  $type = check_plain($_POST['type']);
   if (!$type) {
     $type = 'unclassified';
   }
@@ -278,12 +278,12 @@ and \$urn <mulgara:is> 'urn:uuid:$urn'";
 function islandora_image_annotation_canvas_update_annotation() {
   $changed = FALSE;
   // Retrieve variables from POST.
-  $urn = urldecode($_POST['urn']);
-  $title = urldecode($_POST['title']);
-  $content = urldecode($_POST['content']);
-  $type = urldecode($_POST['annoType']);
-  $new_color = urldecode($_POST['color']);
-  $new_stroke_width = urldecode($_POST['strokeWidth']);
+  $urn = urldecode(check_plain($_POST['urn']));
+  $title = urldecode(check_plain($_POST['title']));
+  $content = urldecode(check_plain($_POST['content']));
+  $type = urldecode(check_plain($_POST['annoType']));
+  $new_color = urldecode(check_plain($_POST['color']));
+  $new_stroke_width = urldecode(check_plain($_POST['strokeWidth']));
   $pid = islandora_image_annotation_canvas_get_pid_from_urn($urn);
   $fedora_object = islandora_object_load($pid);
 

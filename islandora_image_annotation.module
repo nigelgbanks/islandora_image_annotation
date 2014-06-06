@@ -162,7 +162,7 @@ function islandora_image_annotation_theme($existing, $type, $theme, $path) {
     ),
     'islandora_anno_image_pane' => array(
       'template' => 'theme/islandora-img-pane',
-      'variables' => array('islandora_object' => NULL)
+      'variables' => array('islandora_object' => NULL),
     ),
   );
 }
@@ -201,7 +201,7 @@ function islandora_image_annotation_preprocess_islandora_image_annotation_view(&
   drupal_add_css($module_path . '/shared_canvas/css/islandora_shared_canvas_style.css');
   drupal_add_css($module_path . '/shared_canvas/css/smoothness/jquery-ui-1.8.16.custom.css');
 
-//   // Add JavaScript
+  // Add JavaScript.
   drupal_add_js($module_path . '/shared_canvas/js/jquery/jquery-1.7.js');
   drupal_add_js($module_path . '/shared_canvas/js/jquery/jquery-ui-1.8.13.custom.min.js');
 
