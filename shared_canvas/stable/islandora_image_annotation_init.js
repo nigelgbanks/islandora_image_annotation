@@ -47,6 +47,7 @@
       
     }
   }
+  
 })(jQuery);
 
 // Adapted from sc_init of the shared canvas project.
