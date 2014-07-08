@@ -26,6 +26,7 @@
 /**
  * @ignore
  */
+
 (function ($) {
   var
     wsRegex = /^(\u0009|\u000A|\u000D|\u0020|#([^\u000A\u000D])*)+/,
@@ -620,7 +621,6 @@
       }
       return result;
     };
-
   $.rdf.parsers['text/turtle'] = {
     parse: function (data) {
       return data;
@@ -633,4 +633,3 @@
   };
 
 })(jQuery);
-

@@ -335,36 +335,36 @@ function create_rdfAnno() {
         rdfa += '<span property="dc:type" content="' + type + '"></span>';
     }
    
-    try {
-        // XXX Gdata specific, but can send to other services
-        var which = $('#create_body input[name="blog_radio"]:radio:checked').attr('id');
-        var bFO = topinfo['blogs'][which][2];
-        var authors = bFO.author;
-        for (var a=0, auth; auth=authors[a]; a++) {
-            var email = auth.email.getValue(); // check for noreply@blogger.com
-            var name = auth.name.getValue();
-            var uri = auth.uri.getValue();
-            rdfa += '<a rel="dcterms:creator" href="' + uri + '"></a> ';
-            rdfa += '<div about="' + uri + '"> ';
-            rdfa += '<a rel="rdf:type" href="http://xmlns.com/foaf/0.1/Agent"></a>';
-            rdfa += '<span property="foaf:name" content="' + name + '"></span> ';
-            if (email != 'noreply@blogger.com') {
-                rdfa += '<span property="foaf:mbox" content="' + email + '"></span> ';
-            }
-            rdfa += '</div> '; // Close Creator
-        }
-	
-        var rights = bFO.getRights();
-        if (rights != undefined) {
-            var rtxt = rights.getText();
-            var ruri = rights.getUri();
-            if (rtxt) {
-                rdfa += '<span property="dc:rights" content="' + rtxt + '"></span> ';
-            } else {
-                rdfa += '<a rel="dcterms:rights" href="' + ruri + '"></a> ';
-            }
-        }
-    } catch (e) {};
+//    try {
+//        // XXX Gdata specific, but can send to other services
+//        var which = $('#create_body input[name="blog_radio"]:radio:checked').attr('id');
+//        var bFO = topinfo['blogs'][which][2];
+//        var authors = bFO.author;
+//        for (var a=0, auth; auth=authors[a]; a++) {
+//            var email = auth.email.getValue(); // check for noreply@blogger.com
+//            var name = auth.name.getValue();
+//            var uri = auth.uri.getValue();
+//            rdfa += '<a rel="dcterms:creator" href="' + uri + '"></a> ';
+//            rdfa += '<div about="' + uri + '"> ';
+//            rdfa += '<a rel="rdf:type" href="http://xmlns.com/foaf/0.1/Agent"></a>';
+//            rdfa += '<span property="foaf:name" content="' + name + '"></span> ';
+//            if (email != 'noreply@blogger.com') {
+//                rdfa += '<span property="foaf:mbox" content="' + email + '"></span> ';
+//            }
+//            rdfa += '</div> '; // Close Creator
+//        }
+//	
+//        var rights = bFO.getRights();
+//        if (rights != undefined) {
+//            var rtxt = rights.getText();
+//            var ruri = rights.getUri();
+//            if (rtxt) {
+//                rdfa += '<span property="dc:rights" content="' + rtxt + '"></span> ';
+//            } else {
+//                rdfa += '<a rel="dcterms:rights" href="' + ruri + '"></a> ';
+//            }
+//        }
+//    } catch (e) {};
     
     // Build Body
     var isResc = $('#anno_isResource').prop('checked');
@@ -435,7 +435,7 @@ function create_rdfAnno() {
     return [rdfa, target, color];
 }
 
-switchDown = function(x,y) {
+function switchDown(x,y) {
     var fixedxy = fixXY(this,x,y);
     var x = fixedxy[0];
     var y = fixedxy[1];
@@ -457,7 +457,7 @@ switchDown = function(x,y) {
     }
 }
 
-switchUp = function(x, y) {
+function switchUp(x, y) {
     var which = topinfo['svgAnnoShape'];
     if (which == 'circ') {
         this.creating.start=[];
@@ -718,7 +718,7 @@ function islandora_getOutsideStyle(){
     var outsideStyle = {
         fill: 'none',
         opacity: 'none',
-        'stroke-width': + $('#stroke_width').val() + '%' ,
+        'stroke-width': $('#stroke_width').val() + '%' ,
         stroke: $('#anno_color').attr('value')
     };
     return outsideStyle;

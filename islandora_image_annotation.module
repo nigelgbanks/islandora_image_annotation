@@ -162,6 +162,7 @@ function islandora_image_annotation_theme($existing, $type, $theme, $path) {
     ),
     'islandora_anno_image_pane' => array(
       'template' => 'theme/islandora-img-pane',
+      'variables' => array('islandora_object' => NULL),
     ),
   );
 }
@@ -188,27 +189,29 @@ function islandora_image_annotation_view($object) {
  *   An array of variables passed from the theme function.
  */
 function islandora_image_annotation_preprocess_islandora_image_annotation_view(&$variables) {
-  $islandora_object = $variables['islandora_object'];
-  module_load_include('inc', 'islandora_image_annotation', 'includes/utils');
-  $module_path = drupal_get_path('module', 'islandora_image_annotation');
-
   // Set preprocessor variables, for use in JavaScript.
   $variables['anno_list_pane'] = theme('islandora_anno_list_pane');
   $variables['anno_img_pane'] = theme('islandora_anno_image_pane');
+
+  module_load_include('inc', 'islandora_image_annotation', 'includes/utils');
+  $module_path = drupal_get_path('module', 'islandora_image_annotation');
 
   // Add css.
   drupal_add_css($module_path . '/shared_canvas/css/window_behaviors.css');
   drupal_add_css($module_path . '/shared_canvas/css/islandora_shared_canvas_style.css');
   drupal_add_css($module_path . '/shared_canvas/css/smoothness/jquery-ui-1.8.16.custom.css');
-  // Add JavaScript.
-  drupal_add_js(array('islandora_image_annotation' => array('PID' => $islandora_object->id)), 'setting');
 
+  // Add JavaScript.
   drupal_add_js($module_path . '/shared_canvas/js/jquery/jquery-1.7.js');
   drupal_add_js($module_path . '/shared_canvas/js/jquery/jquery-ui-1.8.13.custom.min.js');
 
+  // Include common JavaScript/CSS.
   islandora_image_annotation_include_common_js();
   islandora_image_annotation_include_common_css();
 
+  // Add JavaScript.
+  drupal_add_js(array('islandora_image_annotation' => array('PID' => $variables['islandora_object']->id)), 'setting');
+  $module_path = drupal_get_path('module', 'islandora_image_annotation');
   drupal_add_js($module_path . '/shared_canvas/stable/islandora_image_annotation_init.js');
 }
 
@@ -216,7 +219,6 @@ function islandora_image_annotation_preprocess_islandora_image_annotation_view(&
  * Implements hook_islandora_required_objects().
  */
 function islandora_image_annotation_islandora_required_objects(IslandoraTuque $connection) {
-
   $module_path = drupal_get_path('module', 'islandora_image_annotation');
   // OAC Content Model.
   $oac_content_model = $connection->repository->constructObject('islandora:OACCModel');

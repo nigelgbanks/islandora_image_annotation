@@ -397,6 +397,7 @@ function islandora_image_annotation_get_image_dimensions_drupal($pid, $dsid, $up
     throw Exception('Could not find a datastream id to load for image height and width');
   }
   $object = islandora_object_load($pid);
+
   $image_file = file_save_data($object[$dsid]->content, 'temporary://');
   $real_path = drupal_realpath($image_file->uri);
   $info = image_get_info($real_path);
@@ -468,7 +469,8 @@ XML;
   else {
     // We assume entries do not exist as we have just tried to load this info.
     $rels_ds = $item['RELS-INT'];
-    $doc = DomDocument::loadXML($rels_ds->content);
+    $doc = new DOMDocument();
+    $doc->loadXML($rels_ds->content);
     $rdf = $doc->documentElement;
     $description = $doc->createElement('rdf:Description');
     $about = $doc->createAttribute('rdf:about');
