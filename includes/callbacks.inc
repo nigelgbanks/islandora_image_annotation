@@ -210,7 +210,7 @@ function islandora_image_annotation_get_annotation_data($pid) {
  * @param urn $urn
  *   Urn.
  */
-function islandora_image_annotation_shared_get_annotation($pid, $urn = NULL) {
+function islandora_image_annotation_shared_get_annotation($pid, $urn = NULL, $echo = TRUE) {
   if (isset($urn)) {
     $pid = islandora_image_annotation_canvas_get_pid_from_urn($urn);
   }
@@ -220,7 +220,12 @@ function islandora_image_annotation_shared_get_annotation($pid, $urn = NULL) {
   // Remove the doc type declarations.
   $results = preg_replace('/<\?xml.*?\?>/', '', $results);
   $results = preg_replace('/<!DOCTYPE.*?>/', '', $results);
-  echo $results;
+  if ($echo) {
+    echo $results;
+  }
+  else {
+    return $results;
+  }
 }
 
 /**
