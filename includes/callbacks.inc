@@ -131,7 +131,7 @@ function islandora_image_annotation_shared_transform_annotation_list($xml_in, $i
  * @param array $pid
  *   An array of pids.
  */
-function islandora_image_annotation_shared_get_annotation_pids($pid) {
+function islandora_image_annotation_shared_get_annotation_pids($pid, $json_output = TRUE) {
 
   $query = <<<QUERY
     PREFIX io: <http://islandora.ca/ontology/relsext#>
@@ -171,7 +171,13 @@ QUERY;
   if (!empty($pids)) {
     $pids['types'] = array_values(array_unique($pids['types']));
   }
-  drupal_json_output($pids);
+  if ($json_output) {
+    drupal_json_output($pids);
+  }
+  else {
+    return $pids;
+  }
+
 }
 
 /**
