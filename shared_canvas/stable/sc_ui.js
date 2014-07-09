@@ -910,11 +910,8 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
       if(typeof col == 'undefined'){
         col = $('#anno_color').attr('value');
       }
-      console.log(anno);
       for (var t = 0, tgt; tgt = anno.targets[t]; t++) {
-    	  console.log("in for loop");
         if (tgt.partOf != null) {
-        	console.log("tgt part off not null");
           if (tgt.constraint != null) {
             var str = $(anno.targets[t].constraint.value);
             // New, grabbing the colour for each annotation, not just the
