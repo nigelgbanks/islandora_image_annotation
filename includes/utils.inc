@@ -29,6 +29,30 @@ function islandora_image_annotation_get_dsid($pid) {
 }
 
 /**
+ * Retrieves transforms annotation data for the editor.
+ *
+ * Called with /islandora/anno/get_annotation/.
+ *
+ * @param string $pid
+ *   The pid of an object
+ *
+ * @param urn $urn
+ *   Urn.
+ */
+function islandora_image_annotation_shared_get_annotation_data($pid, $urn = NULL, $echo = TRUE) {
+  module_load_include('inc', 'islandora_image_annotation', 'includes/callbacks');
+  if (isset($urn)) {
+    $pid = islandora_image_annotation_canvas_get_pid_from_urn($urn);
+  }
+  $xml = islandora_image_annotation_get_annotation_data($pid);
+
+  $results = islandora_image_annotation_shared_transform_annotation_list($xml, 'rdf');
+  // Remove the doc type declarations.
+  $results = preg_replace('/<\?xml.*?\?>/', '', $results);
+  $results = preg_replace('/<!DOCTYPE.*?>/', '', $results);
+  return $results;
+}
+/**
  * Checks our admin table for an allowed datastream.
  *
  * @param string $pid
