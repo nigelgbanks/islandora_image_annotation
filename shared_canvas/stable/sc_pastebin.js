@@ -5,7 +5,7 @@ function islandora_postData(title, data, type, color) {
     data = encodeURI(data);
     $.ajax({
         type:'POST',
-        async:false,
+        async:true,
         url:islandora_canvas_params.islandora_post_url,
         data: {
             title:title,
@@ -31,7 +31,7 @@ function islandora_getList() {
     islandora_canvas_params.strokeWidth = new Array();
     $.ajax({
         type:'GET',
-        async:false,
+        async:true,
         url: islandora_canvas_params.get_annotation_list_url,
         success: function(data,status,xhr) {
             var listdata = data;
