@@ -1,51 +1,26 @@
 <?php
+
 /**
  * @file
- *   islandora-image-annotation.tpl.php
+ * Displays the image annotations list canvas and dialog box.
  */
-
 ?>
-
-<div class="islandora-anno-wrapper">
-
-
-  <div class="islandora-image-annotation-wrapper">
-
-    <!-- Header -->
-    <div id="islandora_shared_canvas_header">
-
-    </div>
-    <!-- Body -->
-      <div class="colmask threecol">
-        <div class="colleft">
-         <div class="col2">
-            <!-- Tabs -->
-            <div id="tabs">
-            <ul>
-              <li id="annotation_tab"><a href="#image-annotations">Image Annotations</a></li>
-            </ul>
-         <?php print $anno_list_pane; ?>
-            </div>
-         </div>
-       </div>
-       <div id="colright" class="colright">
-
-        <!-- Column Separator -->
-        <!--<div id="column-separator"></div>-->
-        <div class="col1">
-          <button id="create_annotation" class="menu_button">Annotate</button>
-          <button id="full-window-button" class="menu_button"><?php print t('Full Window'); ?></button>
-          <div class="image-annotation-wrapper">
-            <!-- Persist a single player and build new interface to it -->
-            <div id="canvas-body-wrapper">
-              <?php print $anno_img_pane; ?>
-            </div>
-          </div>
-        </div>
+<div class="islandora-image-annotation-wrapper">
+  <div class="colmask">
+    <div class="colleft">
+      <div id="islandora-image-annotation-tabs">
+        <ul>
+          <li><a href="#islandora-image-annotation-list">Image Annotations</a></li>
+        </ul>
+        <?php print $list; ?>
       </div>
     </div>
-    <!-- Footer -->
-    <div id="islandora_shared_canvas_footer">
+    <div id="colright" class="colright">
+      <button id="create_annotation" class="menu_button">Annotate</button>
+      <button id="full-window-button" class="menu_button"><?php print t('Full Window'); ?></button>
+      <?php print $canvas; ?>
     </div>
   </div>
+  <!-- Initially hidden. -->
+  <?php print $dialog_box; ?>
 </div>

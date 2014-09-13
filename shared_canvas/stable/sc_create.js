@@ -1,5 +1,3 @@
-
-
 // XXX Need author info in annotations
 // Plus other XXXs (!)
 

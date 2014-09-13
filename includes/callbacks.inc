@@ -29,7 +29,7 @@ function islandora_image_annotation_canvas_setup($pid) {
 function islandora_image_annotation_add_annotation($pid) {
   global $user;
   module_load_include('inc', 'islandora', 'includes/utilities');
-  $data = check_plain($_POST['data']);
+
   // todo: In the future, the following fix could be eliminated
   // by adding the 'stroke width' option to the annotation jquery dialog
   // box (as a combo box selection).
@@ -365,39 +365,6 @@ function islandora_image_annotation_canvas_update_annotation() {
 }
 
 /**
- * Get type terms via solr.
- *
- * @return array
- *   Keys of the terms returned from solr.
- */
-function islandora_image_annotation_get_type_terms() {
-  $type_field = variable_get('annotation_type_search_field', 'anno_category_s');
-  $query = format_string('!field:("!content_model" OR "info:fedora/!content_model")', array(
-    '!field' => variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms'),
-    '!content_model' => 'islandora:OACCModel',
-  ));
-
-  $params = array(
-    'fl' => "$type_field, PID",
-    'start' => '0',
-    'rows' => '10000',
-    'qt' => variable_get('islandora_solr_request_handler', ''),
-  );
-
-  $results = islandora_image_annotation_query_solr($query, $params);
-  $terms = array();
-  if (isset($results['solr_doc'])) {
-    foreach ($results['solr_doc'] as $doc) {
-      if (array_key_exists($type_field, $doc)) {
-        $terms[$doc[$type_field][0]] = 1;
-      }
-    }
-  }
-
-  return array_keys($terms);
-}
-
-/**
  * Return each solr doc found.
  *
  * @type string
@@ -406,11 +373,11 @@ function islandora_image_annotation_get_type_terms() {
  *   JSON string.
  */
 function islandora_image_annotation_get_title_terms($type) {
-  $title_field = variable_get('annotation_title_search_field', 'mads_titles_sv');
+  $title_field = variable_get('islandora_image_annotation_title_search_field', 'mads_titles_sv');
   $solr = variable_get('islandora_solr_url', 'localhost:8080/solr');
   $data = array(
     'q' => format_string('!field:"!value"', array(
-      '!field' => variable_get('annotation_genre_field', 'mads_genre_it'),
+      '!field' => variable_get('islandora_image_annotation_genre_search_field', 'mads_genre_it'),
       '!value' => $type,
     )),
     'fl' => "$title_field, PID",
@@ -424,6 +391,12 @@ function islandora_image_annotation_get_title_terms($type) {
   $result_request = drupal_http_request($solr_url);
   $results = json_decode($result_request->data, TRUE);
   $docs = $results['response']['docs'];
+  // Normalize the return value, such that we always use the same name for the
+  // results.
+  foreach ($docs as &$doc) {
+    $doc['label'] = $doc[$title_field];
+    unset($doc[$title_field]);
+  }
   echo json_encode($docs);
   exit();
 }
@@ -465,32 +438,4 @@ function islandora_image_annotation_get_mads_as_json($pid) {
   }
   echo json_encode($arr);
   exit();
-}
-
-/**
- * Helper function to query solr.
- *
- * @param string $query
- *   A query string.
- *
- * @param array $params
- *   An associate array containing solr params.
- */
-function islandora_image_annotation_query_solr($query, $params) {
-  $query_processor = new IslandoraSolrQueryProcessor();
-  $query_processor->solrQuery = $query;
-  foreach ($params as $field => $value) {
-    if ($field == 'start') {
-      $query_processor->solrStart = $value;
-    }
-    elseif ($field == 'rows') {
-      $query_processor->solrLimit = $value;
-    }
-    else {
-      $query_processor->solrParams[$field] = $value;
-    }
-  }
-  $query_processor->executeQuery(FALSE);
-  $results = $query_processor->islandoraSolrResult;
-  return $results;
 }

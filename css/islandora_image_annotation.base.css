@@ -1,0 +1,21 @@
+/**
+ * @file
+ * Defines the base set of css required to view the image annotation tool.
+ */
+
+.colleft {
+  float: left;
+  width: 25%;
+  overflow: auto;
+}
+
+.colright {
+  width: 75%;
+  float: left;
+  background-color: #F4F4F4;
+  height: 100%;
+}
+
+.colmask {
+  top: 35px;
+}

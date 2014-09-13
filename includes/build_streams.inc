@@ -185,7 +185,7 @@ function islandora_image_annotation_get_normal_sequence($doc_url, $doc_path_url,
 }
 
 /**
- * Creates and returns Imageannotation Stream for new Shared Canvas.
+ * Creates and returns Image Annotation Stream for new Shared Canvas.
  *
  * @param URL $doc_url
  *   The URL of the document.
@@ -495,7 +495,6 @@ XML;
  *
  * @param string $pid
  *   The pid of a object.
- *
  * @param string $stream
  *   Which stream we are retrieving.
  */
@@ -530,23 +529,14 @@ function islandora_image_annotation_islandora_serve($pid, $stream, $width = NULL
 
 /**
  * Generates uuid.
- *
- * @return uuid
+ *git s
+ * @return string
  *   Returns the uuid.
  */
 function islandora_image_annotation_get_uuid() {
-  $data;
-  // Module islandora_basic_collection is now
-  // a dependency of islandora_image_annotation.
-  try {
-    $connection = islandora_get_tuque_connection();
-    $configuration['id'] = $connection->repository->getNextIdentifier(NULL, TRUE);
-    $data = explode(":", $configuration['id']);
-  }
-  catch (Exception $e) {
-    throw $e;
-  }
-
+  $connection = islandora_get_tuque_connection();
+  $configuration['id'] = $connection->repository->getNextIdentifier(NULL, TRUE);
+  $data = explode(":", $configuration['id']);
   // Return just the uuid portion of the identifier.
   return $data[1];
 }
