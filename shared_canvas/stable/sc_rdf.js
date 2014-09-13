@@ -210,7 +210,7 @@ function clickThruSequence(seq) {
 	
   var qry = topinfo['query'];
   var uri2 = getRemForAggr(seq, qry)
-  $('#seqSel').hide();
+  jQuery('#seqSel').hide();
   fetchTriples(uri2, qry, cb_process_sequence);
 	
 }
@@ -269,7 +269,7 @@ function fetch_annotations(which, canvas) {
   }
   if (tal != undefined && tal.length > 0) {
     // New databank per file, and delete after extracting annos
-    var q = $.rdf(opts);
+    var q = jQuery.rdf(opts);
     var topQuery = topinfo['query'];
     for (u in tal) {
       var uri = tal[u];
@@ -428,7 +428,7 @@ function cb_process_annoList(qry, uri) {
   for (var uri in xmlfiles) {
     ping_progressBar('req:'+uri)
 		
-    $.ajax(
+    jQuery.ajax(
     {
       url: uri,
       dataType: "xml",
@@ -444,9 +444,9 @@ function cb_process_annoList(qry, uri) {
               var sel = what.fragmentInfo[0];
               var txtsel = what.fragmentInfo[1];
               if (txtsel) {
-                var btxt = $(data).find(sel).text().substring(txtsel[0], txtsel[1]);
+                var btxt = jQuery(data).find(sel).text().substring(txtsel[0], txtsel[1]);
               } else {
-                var btxt = $(data).find(sel); // leave it up to Paint to deal with.
+                var btxt = jQuery(data).find(sel); // leave it up to Paint to deal with.
               }
             } else {
               var btxt = data;
@@ -470,11 +470,11 @@ function cb_process_annoList(qry, uri) {
 
 function load_commentAnno(data) {
   // RDFA
-  var lqry = $(data).rdf();
+  var lqry = jQuery(data).rdf();
   if (lqry.databank.size() == 0) {
     // Turtle or RDF/XML
     try {
-      lqry = $.rdf(opts).load(data);
+      lqry = jQuery.rdf(opts).load(data);
     } catch (e) {
      //alert('broken comment annotation: ' + data)
     }

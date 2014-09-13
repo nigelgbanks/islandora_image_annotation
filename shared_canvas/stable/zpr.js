@@ -1,6 +1,6 @@
 var zpr = function(viewFinderId, inputValues) {
 
-  var viewFinder = $('#' + viewFinderId); // viewFinder DOM element
+  var viewFinder = jQuery('#' + viewFinderId); // viewFinder DOM element
   var imgFrame   = undefined; // imgFrame DOM element
   var imgFrameId = viewFinderId + "-img-frame";
   
@@ -43,8 +43,8 @@ var zpr = function(viewFinderId, inputValues) {
     viewFinder.addClass('zpr-view-finder');
     
     // add imgFrame
-    viewFinder.append($('<div>', { 'id': imgFrameId, 'class': 'zpr-img-frame' }));        
-    imgFrame = $('#' + imgFrameId);
+    viewFinder.append(jQuery('<div>', { 'id': imgFrameId, 'class': 'zpr-img-frame' }));
+    imgFrame = jQuery('#' + imgFrameId);
     
     currentLevel = getLevelForContainer(viewFinder.width(), viewFinder.height());
     setImgFrameSize(currentLevel);
@@ -60,17 +60,17 @@ var zpr = function(viewFinderId, inputValues) {
     
     // add zoom/rotate controls
     viewFinder
-    .append($('<div>').attr({ 'class': 'zpr-controls' })
-      .append($('<img>')
+    .append(jQuery('<div>').attr({ 'class': 'zpr-controls' })
+      .append(jQuery('<img>')
         .attr({ 'id': viewFinderId + '-zoom-in', 'src': 'images/zpr-zoom-in.png' })
         .click(function() { zoom('in'); }))
-      .append($('<img>')
+      .append(jQuery('<img>')
         .attr({ 'id': viewFinderId + '-zoom-out', 'src': 'images/zpr-zoom-out.png' })
         .click(function() { zoom('out'); }))
-      .append($('<img>')
+      .append(jQuery('<img>')
         .attr({ 'id': viewFinderId + '-rotate-cw', 'src': 'images/zpr-rotate-cw.png' })
         .click(function() { rotate('cw'); }))
-      .append($('<img>')
+      .append(jQuery('<img>')
         .attr({ 'id': viewFinderId + '-rotate-ccw', 'src': 'images/zpr-rotate-ccw.png' })
         .click(function() { rotate('ccw'); }))
     );
@@ -269,10 +269,10 @@ var zpr = function(viewFinderId, inputValues) {
       attrs.src = jp2.djatokaURL + '&svc.level=' + currentLevel + '&svc.region=' + insetValueY + ',' + insetValueX + ',' + tileSize + ',' + tileSize + '&svc.rotate=' + currentRotation;
       
       visibleTilesMap[attrs.id] = true; // useful for removing unused tiles       
-      tile = $('#' + attrs.id);
+      tile = jQuery('#' + attrs.id);
                         
       if (tile.length == 0) {
-        tile = $(document.createElement('img'));
+        tile = jQuery(document.createElement('img'));
         
         tile.css({
           'position': 'absolute'
@@ -324,7 +324,7 @@ var zpr = function(viewFinderId, inputValues) {
   var removeUnusedTiles = function (visibleTilesMap) {    
     imgFrame.find('img').each(function(index) {
       if (/^tile-x/.test(this.id) && !visibleTilesMap[this.id]) {
-        $('#' + this.id).remove();       
+        jQuery('#' + this.id).remove();
       }       
     });    
   }
@@ -465,7 +465,7 @@ var zpr = function(viewFinderId, inputValues) {
     });
 
     imgFrame.ondragstart = function() { return false; } // for IE    
-    $(document).mouseup(function() { stopImgFrameMove();  });
+    jQuery(document).mouseup(function() { stopImgFrameMove();  });
 
     var stopImgFrameMove = function() {
       attrs.isDragged = false;      
@@ -487,7 +487,7 @@ var zpr = function(viewFinderId, inputValues) {
       start: { left: 0, top: 0 },
     };
  
-    var marquee = $('#' + marqueeId);   
+    var marquee = jQuery('#' + marqueeId);
  
     marquee.bind({
       mousedown: function(event) {        
@@ -535,7 +535,7 @@ var zpr = function(viewFinderId, inputValues) {
     });
 
     marquee.ondragstart = function() { return false; } // for IE    
-    //$(document).mouseup(function() { stopMarqueeMove();  });
+    //jQuery(document).mouseup(function() { stopMarqueeMove();  });
     marquee.mouseup(function() { stopMarqueeMove();  });
 
     var stopMarqueeMove = function() {
@@ -556,8 +556,8 @@ var zpr = function(viewFinderId, inputValues) {
     var marqueeBgId = viewFinderId + '-marquee-bg';    
     var marqueeId = viewFinderId + '-marquee';        
     
-    if ($('#' + marqueeBoxId).length != 0) {
-      $('#' + marqueeBoxId).remove();
+    if (jQuery('#' + marqueeBoxId).length != 0) {
+      jQuery('#' + marqueeBoxId).remove();
     }
     
     storeRelativeLocation();
@@ -569,11 +569,11 @@ var zpr = function(viewFinderId, inputValues) {
       '&svc.rotate=' + currentRotation;
       
     viewFinder
-    .append($('<div>', { 'id': marqueeBoxId, 'class': 'zpr-marquee-box' })
-      .append($('<div>', { 'id': marqueeBgId }))    
+    .append(jQuery('<div>', { 'id': marqueeBoxId, 'class': 'zpr-marquee-box' })
+      .append(jQuery('<div>', { 'id': marqueeBgId }))
     );    
       
-    var divMarqueeBgImg = $('#' + marqueeBgId);
+    var divMarqueeBgImg = jQuery('#' + marqueeBgId);
     
     divMarqueeBgImg.css({
       'height': (marqueeAttrs.imgHeight + 4) + 'px', // 4 = marquee border  
@@ -583,7 +583,7 @@ var zpr = function(viewFinderId, inputValues) {
     });
     
     // append marquee to div with marquee background image
-    divMarqueeBgImg.append($('<div>', { 
+    divMarqueeBgImg.append(jQuery('<div>', {
       'id': marqueeId, 
       'class': 'zpr-marquee'      
     }));
@@ -598,7 +598,7 @@ var zpr = function(viewFinderId, inputValues) {
     var left = Math.ceil((imgFrameAttrs.relativeLoc.x * marqueeAttrs.imgWidth) - (marqueeAttrs.width / 2));
     var top = Math.ceil((imgFrameAttrs.relativeLoc.y * marqueeAttrs.imgHeight) - (marqueeAttrs.height / 2));
     
-    $('#' + viewFinderId + '-marquee').css({
+    jQuery('#' + viewFinderId + '-marquee').css({
       'left': left + 'px',
       'top': top + 'px',
       'height': marqueeAttrs.height + 'px',

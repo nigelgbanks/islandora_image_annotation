@@ -2,47 +2,47 @@
 (function ($) {
   Drupal.behaviors.islandorAnnoFullWindow = {
     attach: function (context, settings) {
-      $('#full-window-button').click(function() {
+      jQuery('#full-window-button').click(function() {
         window_change_view_size();
       });
     }
   };
-  $(document).keyup(function(e) {
+  jQuery(document).keyup(function(e) {
     if (e.keyCode == 27) {
       // Only preform the 'ESC' functionality if in full screen.
-      if ($('#full-window-button').html() != Drupal.t('Full Window')) {
+      if (jQuery('#full-window-button').html() != Drupal.t('Full Window')) {
         window_change_view_size();
       }
     }
   });
   // Add the 'ESC' key press exit full screen.
   function window_change_view_size() {
-    $('.islandora-anno-wrapper').toggleClass('islandora-anno-fullwindow');
+    jQuery('.islandora-anno-wrapper').toggleClass('islandora-anno-fullwindow');
     resizeCanvas();
-    if ($('#full-window-button').html() == Drupal.t('Full Window')) {
-      $('#full-window-button').html(Drupal.t('Exit Full Window'));
-      $('#islandora_shared_canvas_header').css('height', '0');
+    if (jQuery('#full-window-button').html() == Drupal.t('Full Window')) {
+      jQuery('#full-window-button').html(Drupal.t('Exit Full Window'));
+      jQuery('#islandora_shared_canvas_header').css('height', '0');
       
-      $('.islandora-anno-wrapper').css('top', $('#admin-menu-wrapper').height());
+      jQuery('.islandora-anno-wrapper').css('top', jQuery('#admin-menu-wrapper').height());
       
       // Add a message to notify user of the 'ESC' button.
-      $messageCont = $('<div class="message_cont">');
-      $message = $('<div>Press ESC to exit full screen</div>').hide();
+      $messageCont = jQuery('<div class="message_cont">');
+      $message = jQuery('<div>Press ESC to exit full screen</div>').hide();
       $messageCont.append($message);
-      $('#colright').prepend($messageCont);
+      jQuery('#colright').prepend($messageCont);
       $message.fadeIn(400, function() {
           setTimeout(function(){
               $messageCont.fadeOut(400, function(){
-                $('.message_cont').remove();
+                jQuery('.message_cont').remove();
               });
           }, 3000);
       })
     }
     else {
-      $('#full-window-button').html(Drupal.t('Full Window'));
-      $('#islandora_shared_canvas_header').css('height', '0');
-      if ($('.message_cont').length > 0) {
-        $('.message_cont').remove();
+      jQuery('#full-window-button').html(Drupal.t('Full Window'));
+      jQuery('#islandora_shared_canvas_header').css('height', '0');
+      if (jQuery('.message_cont').length > 0) {
+        jQuery('.message_cont').remove();
       }
       
     }
@@ -119,22 +119,22 @@ var opts = {
 };
 
 function initCanvas(nCanvas) {
-    var w = $('#canvas-body').width();
-    var h = $('#canvas-body').height();
+    var w = jQuery('#canvas-body').width();
+    var h = jQuery('#canvas-body').height();
     
-    $('#top_menu_bar').width(w - 5);
+    jQuery('#top_menu_bar').width(w - 5);
 
     for (var x = 0; x < nCanvas; x++) {
-        $('#canvases').append('<div id="canvas_' + x + '" class="canvas"></div>')
-        $('#canvas_' + x).width(w);
-        $('#canvas_' + x).height(h);
+        jQuery('#canvases').append('<div id="canvas_' + x + '" class="canvas"></div>')
+        jQuery('#canvas_' + x).width(w);
+        jQuery('#canvas_' + x).height(h);
     }
     topinfo['canvasWidth'] = w;
     topinfo['numCanvases'] = nCanvas;
 
     if (nCanvas > 2) {
         // Default text off if lots of canvases
-        $('#check_show_text').attr('checked',false);
+        jQuery('#check_show_text').attr('checked',false);
     }
 };
 
@@ -144,14 +144,14 @@ function init_ui() {
   var anno_d = annotation_dialog();
   anno_d.dialog('close');
 
-    $('.dragBox').draggable().resizable();
-    $('.dragBox').hide();
+    jQuery('.dragBox').draggable().resizable();
+    jQuery('.dragBox').hide();
 
-    $('.dragShade').click(function() {
-        var sh = $(this);
+    jQuery('.dragShade').click(function() {
+        var sh = jQuery(this);
         if (sh.text() == '[-]') {
             sh.empty().append('[+]');
-            var p = $(this).parent(); // header
+            var p = jQuery(this).parent(); // header
             var h = p.height();
             var pp = p.parent(); // box
             var nh = pp.height();
@@ -169,7 +169,7 @@ function init_ui() {
         }
     });
 
-    $('#loadprogress').progressbar({
+    jQuery('#loadprogress').progressbar({
         value : 2
     }).css({
         height : 15,
@@ -177,7 +177,7 @@ function init_ui() {
         opacity : 1.0,
         'z-index' : 10000
     });
-    $('#loadprogress').position({
+    jQuery('#loadprogress').position({
         of : '#create_annotation',
         my : 'left top',
         at : 'right top',
@@ -185,13 +185,13 @@ function init_ui() {
         offset : '10 0'
     })
 
-    $(".menu_body li:even").addClass("alt");
+    jQuery(".menu_body li:even").addClass("alt");
 
     // Link to menus
-    $('.menu_head').click(function () {
+    jQuery('.menu_head').click(function () {
         // First find our id, and then use to find our menu
-        var id = $(this).attr('id');
-        var menubody = $('#' + id + '_body')
+        var id = jQuery(this).attr('id');
+        var menubody = jQuery('#' + id + '_body')
         menubody.slideToggle('medium');
         menubody.position({
             'of' : '#' + id,
@@ -209,13 +209,13 @@ function init_ui() {
     // XXX Remove annotation button and shape menu
 
     }
-    $('#color-picker-wrapper').click(function(){
-        $('#anno_color_activated').attr('value', 'active');
+    jQuery('#color-picker-wrapper').click(function(){
+        jQuery('#anno_color_activated').attr('value', 'active');
       });
-      $('.color-picker').miniColors();
+      jQuery('.color-picker').miniColors();
     // Refresh Canvas if browser is resized
     // We're called as per move... so need wait till finished resizing
-    $(window).resize(function() {
+    jQuery(window).resize(function() {
         resizeCanvas();
     });
 }
@@ -223,7 +223,7 @@ function init_ui() {
 var timeout = false;
 var delta = 300;
 function resizeCanvas() {
-  var w = $('#canvas-body').width();
+  var w = jQuery('#canvas-body').width();
   if(timeout === false) {
     timeout = true;
     closeAndEndAnnotating();
@@ -233,28 +233,28 @@ function resizeCanvas() {
 
 function maybeResize() {
     timeout = false;
-    var w = $('#canvas-body').width();
-    var image_element = $('.base_img').children(":first");
+    var w = jQuery('#canvas-body').width();
+    var image_element = jQuery('.base_img').children(":first");
     
     initCanvas(topinfo['numCanvases']);
     image_element.width(w);
     image_element.css("height", "auto");
-    $('.base_img').css("height", image_element.height());
-    $('#canvas_0').css("width", w);
+    jQuery('.base_img').css("height", image_element.height());
+    jQuery('#canvas_0').css("width", w);
     
     // Set the top to zero.
-    $('.islandora-anno-wrapper').css('top', 0);
+    jQuery('.islandora-anno-wrapper').css('top', 0);
     
     // Resize incase we have the admin menu available.
-    if($('#admin-menu-wrapper').length > 0) {
-      $('.islandora-anno-wrapper').css('top', $('#admin-menu-wrapper').height());
+    if(jQuery('#admin-menu-wrapper').length > 0) {
+      jQuery('.islandora-anno-wrapper').css('top', jQuery('#admin-menu-wrapper').height());
     }
 }
 
 // Let's start it up!
-$(document).ready(function(){
+jQuery(document).ready(function(){
     // gets setup information from Islandora
-    $.ajax({
+    jQuery.ajax({
         url: Drupal.settings.basePath + 'islandora/anno/setup/'
           + Drupal.settings.islandora_image_annotation.PID,
         async:false,
@@ -269,29 +269,29 @@ $(document).ready(function(){
 
     //establish color-picker if allowed
     if(islandora_canvas_params.can_choose){
-        $('#color-picker-wrapper').click(function(){
-            $('#anno_color_activated').attr('value', 'active');
+        jQuery('#color-picker-wrapper').click(function(){
+            jQuery('#anno_color_activated').attr('value', 'active');
         });
-        $('.color-picker').miniColors();
+        jQuery('.color-picker').miniColors();
     }
     else{
-        $('#color-picker-wrapper').empty();
+        jQuery('#color-picker-wrapper').empty();
     }
 
     if(islandora_canvas_params.no_edit == true){
-        $('#create_annotation').hide();
+        jQuery('#create_annotation').hide();
     }
     else{
-        $(function(){
-            $.contextMenu({
+        jQuery(function(){
+            jQuery.contextMenu({
                 selector : '.comment_title',
                 callback : function(key, options) {
-                    var urn = $(this).attr('id');
+                    var urn = jQuery(this).attr('id');
                     urn = urn.substring(5,100);
-                    var title = $(this).text().substring(2,100);
+                    var title = jQuery(this).text().substring(2,100);
                     title = title.trim();
 
-                    var comment_text = $(this).next('.comment_text');
+                    var comment_text = jQuery(this).next('.comment_text');
                     var anno_type = comment_text.find('.comment_type').text();
 
                     if(key == 'delete'){
@@ -301,17 +301,17 @@ $(document).ready(function(){
                     }
 
                     if(key == 'edit'){
-                        $(this).addClass('annotation-opened').next().show();
+                        jQuery(this).addClass('annotation-opened').next().show();
                         var annotation = comment_text.find('.comment_content').text();
-                        var pm = $(this).find('.comment_showhide');
+                        var pm = jQuery(this).find('.comment_showhide');
                         if (pm.text() == '+ ') {
                             pm.empty().append('- ');
-                            var id = $(this).attr('id').substring(5,100);
-                            var canvas = $(this).attr('canvas');
+                            var id = jQuery(this).attr('id').substring(5,100);
+                            var canvas = jQuery(this).attr('canvas');
                             paint_commentAnnoTargets(this, canvas, id);
                         }
-                        $('#hidden_annotation_type').attr('anno_type','Update Annotation');
-                        $('#hidden_annotation_type').attr('urn',urn);
+                        jQuery('#hidden_annotation_type').attr('anno_type','Update Annotation');
+                        jQuery('#hidden_annotation_type').attr('urn',urn);
                         startEditting(title, annotation, anno_type, urn)
                     }
                 },
@@ -332,40 +332,40 @@ $(document).ready(function(){
     opts.base = islandora_canvas_params.object_base;
 
     if(islandora_canvas_params.use_dropdown == 1){
-        $('#islandora_classification').empty();
-        $('<label for="anno_classification">Type:</label>').appendTo('#islandora_classification');
-        var sel = $('<select  id="anno_classification">').appendTo('#islandora_classification');
+        jQuery('#islandora_classification').empty();
+        jQuery('<label for="anno_classification">Type:</label>').appendTo('#islandora_classification');
+        var sel = jQuery('<select  id="anno_classification">').appendTo('#islandora_classification');
     
-        $(islandora_canvas_params.categories).each(function() {
+        jQuery(islandora_canvas_params.categories).each(function() {
             value = this.toString();
-            sel.append($("<option>").attr('value',value).text(value));
+            sel.append(jQuery("<option>").attr('value',value).text(value));
         });
     }
     else{
-        $( "#anno_classification" ).autocomplete({
+        jQuery( "#anno_classification" ).autocomplete({
             source : islandora_canvas_params.categories
         });
     }
     if(islandora_canvas_params.islandora_anno_use_title_vocab == 1){
-        $('#islandora_titles').empty();
-        $('<label for="anno_title">Title:</label>').appendTo('#islandora_titles');
-        var titles = $('<select  id="anno_title">').appendTo('#islandora_titles');
-        titles.append($("<option>").attr('value','--Choose a type--').text('--Choose a type above to populate--'));
+        jQuery('#islandora_titles').empty();
+        jQuery('<label for="anno_title">Title:</label>').appendTo('#islandora_titles');
+        var titles = jQuery('<select  id="anno_title">').appendTo('#islandora_titles');
+        titles.append(jQuery("<option>").attr('value','--Choose a type--').text('--Choose a type above to populate--'));
     }
 
-    $("#anno_classification").change(function()
+    jQuery("#anno_classification").change(function()
     {
         if(islandora_canvas_params.islandora_anno_use_title_vocab == 1){
-            var id=$(this).val();
+            var id=jQuery(this).val();
             var base_url = islandora_canvas_params.islandora_base_url + 'islandora/anno/solr/title/terms/';
-            $.getJSON(base_url + id,{
-                id : $(this).val(),
+            jQuery.getJSON(base_url + id,{
+                id : jQuery(this).val(),
                 ajax : 'true'
             }, function(j){
                 var options = '<option value="nothing">--Select from ' + id + '--</option>';
                 for (var i = 0; i < j.length; i++){
                     var fieldName, objectPid;
-                    $.each(j[i], function (key, val){
+                    jQuery.each(j[i], function (key, val){
                         if(key =='PID'){
                             objectPid = val;
                         } else {
@@ -375,29 +375,29 @@ $(document).ready(function(){
                     options += '<option value="' + objectPid + '">' + fieldName + '</option>';
                 }
                 if(j.length == 0){
-                    $('#islandora_titles').empty();
-                    $('#islandora_titles').append('<label for"anno_title">Title:</label>');
-                    $('#islandora_titles').append('<input id="anno_title" type="text" size="28"/>');
+                    jQuery('#islandora_titles').empty();
+                    jQuery('#islandora_titles').append('<label for"anno_title">Title:</label>');
+                    jQuery('#islandora_titles').append('<input id="anno_title" type="text" size="28"/>');
                 }
                 else {
-                    $('#islandora_titles').empty();
-                    $('<label for="anno_title">Title:</label>').appendTo('#islandora_titles');
-                    var titles = $('<select  id="anno_title">').appendTo('#islandora_titles');
-                    titles.append($("<option>").attr('value','--Choose a type--').text('--Choose a type above to populate--'));
-                    $('#anno_title').html(options);
-                    $("#anno_title").change(function()
+                    jQuery('#islandora_titles').empty();
+                    jQuery('<label for="anno_title">Title:</label>').appendTo('#islandora_titles');
+                    var titles = jQuery('<select  id="anno_title">').appendTo('#islandora_titles');
+                    titles.append(jQuery("<option>").attr('value','--Choose a type--').text('--Choose a type above to populate--'));
+                    jQuery('#anno_title').html(options);
+                    jQuery("#anno_title").change(function()
                     {
-                        var id = $(this).val();
+                        var id = jQuery(this).val();
                         var mads_url = islandora_canvas_params.islandora_base_url + 'islandora/anno/mads/';
-                        $.getJSON(mads_url+id,{
-                            id : $(this).val(),
+                        jQuery.getJSON(mads_url+id,{
+                            id : jQuery(this).val(),
                             ajax : 'true'
                         }, function(mads){
                             var mads_text = "";
-                            $.each(mads, function(i, val) {
+                            jQuery.each(mads, function(i, val) {
                                 mads_text += i +': ' +val + '\n\n';
                             });
-                            $('#anno_text').val(mads_text);
+                            jQuery('#anno_text').val(mads_text);
                         });
                     });
                 }
@@ -410,16 +410,16 @@ $(document).ready(function(){
     for (var i = 0; i < stroke_widths.length; i++) {
       s_options += '<option value="'+ stroke_widths[i] + '">' + stroke_widths[i] + '</option>';
     }
-    $('#stroke-width-wrapper').empty();
-    $('#stroke-width-wrapper').append('<label for"stroke_width">Stroke Width:</label>');
-    $('#stroke-width-wrapper').append('<select id="stroke_width" />');
-    $('#stroke_width').append(s_options);
+    jQuery('#stroke-width-wrapper').empty();
+    jQuery('#stroke-width-wrapper').append('<label for"stroke_width">Stroke Width:</label>');
+    jQuery('#stroke-width-wrapper').append('<select id="stroke_width" />');
+    jQuery('#stroke_width').append(s_options);
     
     // RDF Initializationc
-    var rdfbase = $.rdf(opts);
+    var rdfbase = jQuery.rdf(opts);
     topinfo['query'] = rdfbase;
 
-    var l = $(location).attr('hash');
+    var l = jQuery(location).attr('hash');
     var uriparams = {};
     var nCanvas = 1;
     var start = 0;

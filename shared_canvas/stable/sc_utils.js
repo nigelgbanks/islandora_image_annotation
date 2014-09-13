@@ -55,8 +55,8 @@ function getRect(tgt) {
 	
   if (tgt.constraint != null) {
     // Extract from SVG
-    var pth = $.parseXML(tgt.constraint.value);
-    var doc = $(pth)
+    var pth = jQuery.parseXML(tgt.constraint.value);
+    var doc = jQuery(pth)
     var rect = doc.children()[0];
 		
     var tx = rect.getAttribute('x');
@@ -93,7 +93,7 @@ function fetchTriples(uri, qry, fn) {
     furi = uri;
   }
 
-  $.ajax({
+  jQuery.ajax({
     type:'POST',
     async:false,
     url: uri,
@@ -192,5 +192,5 @@ function isodate(d) {
 
 function log(txt) {
   var now = new Date();
-// $('#log').append('::' + ( (new Date().getTime() - startDate) / 1000 ) + ': ' + txt + '<br/>');
+// jQuery('#log').append('::' + ( (new Date().getTime() - startDate) / 1000 ) + ': ' + txt + '<br/>');
 }

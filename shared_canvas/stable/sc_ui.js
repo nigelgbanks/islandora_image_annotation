@@ -3,7 +3,7 @@ var top_finished = 0;
 var MAX_TXT_SIZE = 18;
 
 function ping_progressBar(flag) {
-  var pb = $('#loadprogress')
+  var pb = jQuery('#loadprogress')
  
   var c = pb.progressbar('value')
 
@@ -40,7 +40,7 @@ function populate_jumpMenu(qry) {
   var l = topinfo['sequence'];
   var ranges = topinfo['ranges'];
 
-  var jmp = $('#jump_body');
+  var jmp = jQuery('#jump_body');
   jmp.empty();
 
   // Maybe add in bonus links
@@ -88,16 +88,16 @@ function populate_jumpMenu(qry) {
       topinfo['sequenceInfo'][canvas] = info
     }
     var ttl = info[2];
-    $('#jump_body').append('<li><span onclick="jumpPage(' + x + ')">' + ttl + '</span></li>')
+    jQuery('#jump_body').append('<li><span onclick="jumpPage(' + x + ')">' + ttl + '</span></li>')
   }
-  $("#jump_body li:even").addClass("alt");
+  jQuery("#jump_body li:even").addClass("alt");
 }
 
 // Sequence Selector box
 function show_seqSel(seqs) {
   // uri, ?title, ?description
   var trail = new RegExp('^.+/([^/]+)$');
-  var bl = $('#seqSel_block');
+  var bl = jQuery('#seqSel_block');
   bl.empty();
   for (var s=0,seq;seq=seqs[s];s++) {
     var uri = seq[0].toString();
@@ -113,7 +113,7 @@ function show_seqSel(seqs) {
     line += '</li>';
     bl.append(line);
   }
-  $('#seqSel').show();
+  jQuery('#seqSel').show();
 }
 
 
@@ -122,21 +122,21 @@ function show_seqSel(seqs) {
 
 function showPages() {
   // Empty current display
-  $('#annotations').empty();
-  $('#audio_annotations').empty();
-  $('#comment_annos').hide();
-  $('#comment_annos_block').empty();
-  $(".canvas").empty();
-  $('#svg_wrapper').empty();
-  $('#title').empty();
-  $('#next').empty();
-  $('#prev').empty();
-  $('#imgSel_block').empty();
-  $('#imgSel').hide();
-  $('.canvasUri').remove();
+  jQuery('#annotations').empty();
+  jQuery('#audio_annotations').empty();
+  jQuery('#comment_annos').hide();
+  jQuery('#comment_annos_block').empty();
+  jQuery(".canvas").empty();
+  jQuery('#svg_wrapper').empty();
+  jQuery('#title').empty();
+  jQuery('#next').empty();
+  jQuery('#prev').empty();
+  jQuery('#imgSel_block').empty();
+  jQuery('#imgSel').hide();
+  jQuery('.canvasUri').remove();
 
   try {
-    $('#create_annotation_box').hide();
+    jQuery('#create_annotation_box').hide();
   } catch(e) {};
 
   topinfo['canvasDivHash'] = {};
@@ -152,7 +152,7 @@ function showPages() {
   // Reset URI to correct #fragment info
   topinfo['uriParams']['s'] = topinfo['current'];
   var hsh = makeUriHash();
-  $(location).attr('hash',hsh);
+  //jQuery(location).attr('hash',hsh);
 
   // Initialize to first Canvas div
   topinfo['currentCanvas'] = 0;
@@ -189,7 +189,7 @@ function showPage() {
   // And start to paint canvas
 
   topinfo['canvasDivHash'][canvas] = canvasId;
-  $("#"+canvasId).attr('canvas', canvas);
+  jQuery("#"+canvasId).attr('canvas', canvas);
   showCanvas(canvas, canvasId)
 }
 
@@ -207,10 +207,10 @@ function showNavLinks(canvas, which, wCanvas, seq) {
   //      Removed for EMiC
   //
   //	var title = info[2];
-  //	var ttl = $('#title');
+  //	var ttl = jQuery('#title');
   //	var curr = ttl.text()
   //	if (!curr) {
-  //		$('#title').append(title)
+  //		jQuery('#title').append(title)
   //	} else {
   //		var cl = curr.split(' ')
   //		var nl = title.split(' ')
@@ -223,15 +223,15 @@ function showNavLinks(canvas, which, wCanvas, seq) {
   //	}
 
   // Info for next canvas, if there is one
-  $('#next').empty();
+  jQuery('#next').empty();
   if (wCanvas < seq.length-1)
   {
-    $('#next').append('&nbsp; <button class="menu_head">next &rarr;</button>')
+    jQuery('#next').append('&nbsp; <button class="menu_head">next &rarr;</button>')
   }
 
   // Info for previous canvas
   if (wCanvas == 0 && which > 0) {
-    $('#prev').append('<button class="menu_head">&larr; prev</button> &nbsp;')
+    jQuery('#prev').append('<button class="menu_head">&larr; prev</button> &nbsp;')
   }
 }
 
@@ -241,7 +241,7 @@ function showCanvas(canvas, canvasId) {
   var cvsw = info[1];
   var scale = topinfo['canvasWidth'] / cvsw;
   var sh = cvsh * scale;
-  $('#' + canvasId).height(sh)
+  jQuery('#' + canvasId).height(sh)
 
 
   // Maybe show Canvas URI
@@ -250,9 +250,9 @@ function showCanvas(canvas, canvasId) {
     var cvsuri = '<span style="font-size: 10pt; z-index: 15000; padding-top:6px; padding-bottom: 6px;" id="canvasUri_'+
     canvasId+'" class="canvasUri"><input size="40" id="canvasUriInput_'+canvasId+'" style="width:'+
     (mw-30)+' border: 1px solid black;" "type="text" value="'+canvas+'"/></span>';
-    $('#dialogs').append(cvsuri);
+    jQuery('#dialogs').append(cvsuri);
 
-    var cud = $('#canvasUri_'+canvasId);
+    var cud = jQuery('#canvasUri_'+canvasId);
     cud.position({
       'of':'#' + canvasId,
       'my':'left top',
@@ -260,12 +260,12 @@ function showCanvas(canvas, canvasId) {
       'collision':'none',
       'offset':'20 -10'
     });
-    var cudi = $('#canvasUriInput_'+canvasId);
+    var cudi = jQuery('#canvasUriInput_'+canvasId);
     cudi.click(function() {
-      $(this).select();
+      jQuery(this).select();
     });
 
-    if (!$('#check_view_uri').is(':checked')) {
+    if (!jQuery('#check_view_uri').is(':checked')) {
       cud.hide();
     }
   }
@@ -313,9 +313,9 @@ function mk_raphael(typ, canvas, canvasId) {
     var scale = topinfo['canvasWidth'] / cvsw;
     var sh = cvsh * scale;
     var sw = cvsw * scale;
-    var svgWrap = $('#svg_wrapper');
+    var svgWrap = jQuery('#svg_wrapper');
     svgWrap.append('<div class="svg_canvas_wrapper" id="svg_annos_' + typ + '_' + canvasId + '"></div>');
-    var svg = $('#svg_annos_' + typ + '_' + canvasId);
+    var svg = jQuery('#svg_annos_' + typ + '_' + canvasId);
     svg.height(sh);
     svg.width(sw);
     z = topinfo['zOrders'][typ] + 1; // Allow a base image at 1
@@ -330,7 +330,7 @@ function mk_raphael(typ, canvas, canvasId) {
 
     var svgcanvas = ScaleRaphael('svg_annos_'+typ + '_' + canvasId, cvsw, cvsh);
     svgcanvas.changeSize(sw, sh, false, false);
-    if ($.browser.webkit) {
+    if (jQuery.browser.webkit) {
       svgcanvas.safari();
     }
     topinfo['raphaels'][typ][canvas] = svgcanvas;
@@ -359,7 +359,7 @@ function paint_anno(typ, anno, div) {
 
 
 function swapImage(radio, canvasId, annoId, optId) {
-  var canvas = $('#' + canvasId).attr('canvas');
+  var canvas = jQuery('#' + canvasId).attr('canvas');
   var annos = topinfo['annotations']['image'][canvas];
   var anno = null;
   for (var i=0;anno=annos[i];i++) {
@@ -375,8 +375,8 @@ function swapImage(radio, canvasId, annoId, optId) {
   }
   if (anno != null) {
     var myid = 'imganno_' + anno.id.substring(9, 100)
-    $('#'+myid).remove();
-    $('#imgSel_set_' + canvasId).remove();
+    jQuery('#'+myid).remove();
+    jQuery('#imgSel_set_' + canvasId).remove();
     paint_imageAnno(anno, canvasId)
   }
 }
@@ -384,17 +384,17 @@ function swapImage(radio, canvasId, annoId, optId) {
 function show_zpr(what) {
   // Stupid rewrite as no access to African
 
-  $('body').append('<div id="zpr-wrap"></div><span style="border: 1px solid black;position:absolute; top:5;right:5;z-index:20001; background: white; padding: 2px;" id="zpr-close"><b>close</b></span><div id="zpr-fullscreen"></div>');
-  $('#zpr-close').click(function() {
-    $('#zpr-wrap').remove();
-    $('#zpr-fullscreen').remove();
-    $('#zpr-close').remove();
+  jQuery('body').append('<div id="zpr-wrap"></div><span style="border: 1px solid black;position:absolute; top:5;right:5;z-index:20001; background: white; padding: 2px;" id="zpr-close"><b>close</b></span><div id="zpr-fullscreen"></div>');
+  jQuery('#zpr-close').click(function() {
+    jQuery('#zpr-wrap').remove();
+    jQuery('#zpr-fullscreen').remove();
+    jQuery('#zpr-close').remove();
   });
 
-  $('#zpr-wrap').width($(window).width());
-  $('#zpr-wrap').height($(window).height());
-  $('#zpr-fullscreen').width($(window).width() - 50);
-  $('#zpr-fullscreen').height($(window).height() - 50);
+  jQuery('#zpr-wrap').width(jQuery(window).width());
+  jQuery('#zpr-wrap').height(jQuery(window).height());
+  jQuery('#zpr-fullscreen').width(jQuery(window).width() - 50);
+  jQuery('#zpr-fullscreen').height(jQuery(window).height() - 50);
   var basefile = "file:///home/azaroth/jp2/W165/";
   var st = what.indexOf('W165_0');
   var fn = what.substr(st, 100);
@@ -424,7 +424,7 @@ function show_zpr(what) {
 }
 
 function paint_imageAnno(anno, canvasId) {
-  var canvas = $('#' + canvasId).attr('canvas');
+  var canvas = jQuery('#' + canvasId).attr('canvas');
   var info = topinfo['sequenceInfo'][canvas];
   var cvsw = info[1];
   var cvsh = info[0];
@@ -473,14 +473,14 @@ function paint_imageAnno(anno, canvasId) {
       html += '<li>'+ittl+'<span style="float:right"><input type="radio" name="imgSelRadioItem" onclick="swapImage(this, \''+canvasId+'\',\''+ anno.id + '\',\''+iopt.id+'\')" class="imgSelRadio"'+chkd+'></span></li>'
     }
     html += "</ul></div>"
-    $('#imgSel_block').append(html);
-    $(".imgSelul li:even").addClass("alt");
-    $('.imgSelRadio').click(function() {
+    jQuery('#imgSel_block').append(html);
+    jQuery(".imgSelul li:even").addClass("alt");
+    jQuery('.imgSelRadio').click(function() {
     
       })
-    if ($('#check_view_imgSel').is(':checked')) {
+    if (jQuery('#check_view_imgSel').is(':checked')) {
       alert("Its checked")
-      $('#imgSel').show();
+      jQuery('#imgSel').show();
     }
   } else {
     alert('abnno body')
@@ -499,8 +499,8 @@ function paint_imageAnno(anno, canvasId) {
     var imgid = 'img_' + myid
     var imguri = img.id;
 
-    $("#annotations").append('<div class="base_img" id="'+myid+'"><img src="'+imguri+'" id="'+imgid+'"></div>');
-    var div = $('#' + myid)
+    jQuery("#annotations").append('<div class="base_img" id="'+myid+'"><img src="'+imguri+'" id="'+imgid+'"></div>');
+    var div = jQuery('#' + myid)
     div.position({
       'of':'#'+canvasId,
       'my':'left top',
@@ -510,8 +510,8 @@ function paint_imageAnno(anno, canvasId) {
     });
     
     // William Panting: changed imgid selector because of possible characters needing escaping in jquery.
-    //var imge = $('#'+imgid)
-    var imge = $('.base_img').children(":first");
+    //var imge = jQuery('#'+imgid)
+    var imge = jQuery('.base_img').children(":first");
     
     imge.width(sw)
     imge.height(sh)
@@ -519,13 +519,13 @@ function paint_imageAnno(anno, canvasId) {
     div.height(sh);
     div.css('z-index', topinfo['zOrders']['image']);
 
-    //    if (!$('#check_show_baseImg').is(':checked')) {
+    //    if (!jQuery('#check_show_baseImg').is(':checked')) {
     //      div.hide();
     //    }
 
     var zpr = '<div id="zpr_'+canvasId+'" style="position:absolute;"><button id="zprb_'+canvasId+'">zoom</button></div>';
-    $('#annotations').append(zpr);
-    var zprs = $('#zpr_'+canvasId);
+    jQuery('#annotations').append(zpr);
+    var zprs = jQuery('#zpr_'+canvasId);
     zprs.css('z-index',9000);
     zprs.position({
       'of':'#' + canvasId,
@@ -534,13 +534,13 @@ function paint_imageAnno(anno, canvasId) {
       'collision':'none',
       'offset':'2 2'
     });
-    var zprb = $('#zprb_'+canvasId);
+    var zprb = jQuery('#zprb_'+canvasId);
     zprb.click(function() {
       show_zpr(imguri)
     });
 
 
-    if (!$('#check_view_zpr').is(':checked')) {
+    if (!jQuery('#check_view_zpr').is(':checked')) {
       zprs.hide();
     }
 
@@ -586,14 +586,14 @@ function paint_imageAnno(anno, canvasId) {
     }
 
     var body = '<img src="'+ imguri +'" id="img_'+ myid +'"/>';
-    $("#annotations").append('<div class="img_anno" id="' + myid + '" >'
+    jQuery("#annotations").append('<div class="img_anno" id="' + myid + '" >'
       + body + '</div>');
-    var div = $('#' + myid);
+    var div = jQuery('#' + myid);
     div.css('z-index', zIdx);
     div.height(divh);
    // div.width(divw);
 
-    img = $('#img_' + myid);
+    img = jQuery('#img_' + myid);
 
     if (clip) {
       img.css('position', 'absolute');
@@ -613,7 +613,7 @@ function paint_imageAnno(anno, canvasId) {
       'collision':'none',
       'offset': offset
     });
-    if (!$('#check_show_detailImg').is(':checked')) {
+    if (!jQuery('#check_show_detailImg').is(':checked')) {
       div.hide();
     }
 
@@ -649,7 +649,7 @@ function paint_imageAnno(anno, canvasId) {
     var svgcanvas = mk_raphael('image', canvas, canvasId)
 
     // reset z-index to detail
-    $(svgcanvas.wrapperElem).css('z-index', topinfo['zOrders']['detailImage'])
+    jQuery(svgcanvas.wrapperElem).css('z-index', topinfo['zOrders']['detailImage'])
     var target = anno.targets[0];
     if (img.constraint != null) {
       var svg = img.constraint.value;
@@ -659,8 +659,8 @@ function paint_imageAnno(anno, canvasId) {
       var svg = "<rect xmlns='"+SVG_NS+"' x='"+r[0]+"' y='"+r[1]+"' width='"+r[2]+"' height='"+r[3]+"'/>";
     }
 
-    var pth = $.parseXML(svg)
-    var doc = $(pth)
+    var pth = jQuery.parseXML(svg)
+    var doc = jQuery(pth)
     var pthelm = doc.children()[0];
     // Duplicating into the DOM for webkit
     var npth = document.createElementNS(SVG_NS, pthelm.nodeName)
@@ -705,15 +705,15 @@ function paint_imageAnno(anno, canvasId) {
 
 function process_bodyValue(anno) {
   var xml = anno.body.value;
-  $(xml).find('abbr').remove();
-  $(xml).find('sic').remove();
+  jQuery(xml).find('abbr').remove();
+  jQuery(xml).find('sic').remove();
 
-  var words = $(xml).find('seg[type="word"]');
+  var words = jQuery(xml).find('seg[type="word"]');
   for (var i=0,w;w=words[i];i++) {
-    txt = $(w).text();
+    txt = jQuery(w).text();
     txt = txt.replace(/\s/g, '')
-    $(w).empty();
-    $(w).append(txt);
+    jQuery(w).empty();
+    jQuery(w).append(txt);
   }
 
   txt = xml.text();
@@ -724,7 +724,7 @@ function process_bodyValue(anno) {
 
 function paint_textAnno(anno, canvasId) {
   nss = opts.namespaces;
-  var canvas = $('#' + canvasId).attr('canvas');
+  var canvas = jQuery('#' + canvasId).attr('canvas');
   var myid = anno.id.substring(9, 1000);
 
   // Check if body.value needs processing further
@@ -746,8 +746,8 @@ function paint_textAnno(anno, canvasId) {
     var txtpx = Math.min(txtpx, MAX_TXT_SIZE) // at most MTS
     var txtpx = Math.max(txtpx, 10) // at least 8 pt
 
-    $("#annotations").append('<div class="text_anno" id="text_' + myid + '" >' + anno.body.value + '</div>');
-    var danno = $('#text_' + myid);
+    jQuery("#annotations").append('<div class="text_anno" id="text_' + myid + '" >' + anno.body.value + '</div>');
+    var danno = jQuery('#text_' + myid);
     danno.css('z-index', topinfo['zOrders']['text'] + anno.zOrder)
     danno.height(Math.floor(th * scale));
     danno.width(Math.floor(tw * scale));
@@ -791,7 +791,7 @@ function paint_textAnno(anno, canvasId) {
     danno.css('font-size', '18px');
   } catch (e) {};
 
-  if (!$('#check_show_text').is(':checked')) {
+  if (!jQuery('#check_show_text').is(':checked')) {
     danno.hide();
   }
 
@@ -840,28 +840,28 @@ function paint_commentAnno(anno, canvasId) {
   block += '</div>';
   
   selectBlock = "#islandora_annoType_content_" + fixed_annotype;
-  if($(selectBlock).append(block)) {
+  if(jQuery(selectBlock).append(block)) {
   }
-  $('#anno_' + myid).attr('canvas', canvasId);
+  jQuery('#anno_' + myid).attr('canvas', canvasId);
 
-  $('#delete_anno_'+myid).click(function(e){
+  jQuery('#delete_anno_'+myid).click(function(e){
     if (confirm("Permananently Delete This Annotation?")) {
       islandora_deleteAnno(myid);
     }
     e.preventDefault();
   });
 
-  $('#anno_' + myid).click(function() {
-    $(this).toggleClass('annotation-opened').next().toggle();
-    var pm = $(this).find('.comment_showhide');
+  jQuery('#anno_' + myid).click(function() {
+    jQuery(this).toggleClass('annotation-opened').next().toggle();
+    var pm = jQuery(this).find('.comment_showhide');
     if (pm.text() == '+ ') {
       pm.empty().append('- ');
-      var id = $(this).attr('id').substring(5,100);
-      var canvas = $(this).attr('canvas');
+      var id = jQuery(this).attr('id').substring(5,100);
+      var canvas = jQuery(this).attr('canvas');
       paint_commentAnnoTargets(this, canvas, id, annoType);
     } else {
-      $('.svg_' + myid).remove();
-      var c = $(this).find('.mycolor');
+      jQuery('.svg_' + myid).remove();
+      var c = jQuery(this).find('.mycolor');
       svgAreaColors.push(c.attr('color'));
       c.remove();
       pm.empty().append('+ ');
@@ -869,7 +869,7 @@ function paint_commentAnno(anno, canvasId) {
     return false;
   }).next().hide();
 
-  $('#comment_annos').show();
+  jQuery('#comment_annos').show();
 
 }
 
@@ -881,7 +881,7 @@ function get_random_color() {
 
 function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
   var col;
-  var canvas = $('#' + canvasId).attr('canvas');
+  var canvas = jQuery('#' + canvasId).attr('canvas');
   var annos = topinfo['annotations']['comment'][canvas];
   for (var a = 0, anno; anno = annos[a]; a++) {
     if (anno.id == 'urn:uuid:' + annoId) {
@@ -896,7 +896,7 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
       } else if(islandora_canvas_params.strokeWidth['urn:uuid:' + annoId] != ''){
         strokeWidth = islandora_canvas_params.strokeWidth[['urn:uuid:' + annoId]];
       } else {
-        strokeWidth = $('#stroke_width').val();
+        strokeWidth = jQuery('#stroke_width').val();
       }
       if(Drupal.settings.islandora_image_annotation.can_choose == 1) {
         col = get_random_color();
@@ -908,16 +908,16 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
       }
       // Fix for google chrome not getting the color.
       if(typeof col == 'undefined'){
-        col = $('#anno_color').attr('value');
+        col = jQuery('#anno_color').attr('value');
       }
       for (var t = 0, tgt; tgt = anno.targets[t]; t++) {
         if (tgt.partOf != null) {
           if (tgt.constraint != null) {
-            var str = $(anno.targets[t].constraint.value);
+            var str = jQuery(anno.targets[t].constraint.value);
             // New, grabbing the colour for each annotation, not just the
             // first one.
             if(ttldiv != null || ttldiv != "") {
-              $(ttldiv).append('<span color="' + str.attr('stroke') + '" class="mycolor" style="margin-top: 2px; background: '+str.attr('stroke')+';float:right;width:15px;height:15px;">&nbsp;</span>');
+              jQuery(ttldiv).append('<span color="' + str.attr('stroke') + '" class="mycolor" style="margin-top: 2px; background: '+str.attr('stroke')+';float:right;width:15px;height:15px;">&nbsp;</span>');
             }
             svgc = mk_raphael('comment', canvas, canvasId);
             // paint SVG
@@ -933,8 +933,8 @@ function paint_commentAnnoTargets(ttldiv, canvasId, annoId, annoType) {
 }
 
 function paint_svgArea(svgc, annoId, col, svg, strokeWidth) {
-  var pth = $.parseXML(svg)
-  var doc = $(pth)
+  var pth = jQuery.parseXML(svg)
+  var doc = jQuery(pth)
   var pthelm = doc.children()[0];
   // Duplicating into the DOM for webkit
   var npth = document.createElementNS(SVG_NS, pthelm.nodeName)
@@ -956,12 +956,12 @@ function paint_svgArea(svgc, annoId, col, svg, strokeWidth) {
 
 function reorder_layers(e) {
   // re style the items
-  $(".menu_body li:odd").removeClass("alt");
-  $(".menu_body li:even").addClass("alt");
+  jQuery(".menu_body li:odd").removeClass("alt");
+  jQuery(".menu_body li:even").addClass("alt");
 
   ids = [];
-  $('#show_body').children().each(function() {
-    ids.push($(this).attr('id'))
+  jQuery('#show_body').children().each(function() {
+    ids.push(jQuery(this).attr('id'))
   });
   // This is the overall order in which annotations should be ordered
   // li_audio, li_comment, ...  first is topmost in list
@@ -1006,7 +1006,7 @@ function repositionCanvases() {
     if (x != 0) {
       if (x % perrow == 0) {
         // below previous first in row
-        $('#canvas_'+x).position({
+        jQuery('#canvas_'+x).position({
           'of':'#canvas_' + (x-perrow),
           'my':'left top',
           'at':'left bottom',
@@ -1014,7 +1014,7 @@ function repositionCanvases() {
           'offset': '0 10'
         });
       } else {
-        $('#canvas_' +x).position({
+        jQuery('#canvas_' +x).position({
           'of':'#canvas_' + (x-1),
           'my':'left top',
           'at':'right top',

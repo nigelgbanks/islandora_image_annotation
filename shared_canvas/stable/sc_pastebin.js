@@ -3,7 +3,7 @@
 
 function islandora_postData(title, data, type, color) {
     data = encodeURI(data);
-    $.ajax({
+    jQuery.ajax({
         type:'POST',
         async:true,
         url:islandora_canvas_params.islandora_post_url,
@@ -12,7 +12,7 @@ function islandora_postData(title, data, type, color) {
             data:data,
             type:type,
             color:color,
-            strokeWidth: $('#stroke_width').val()
+            strokeWidth: jQuery('#stroke_width').val()
         },
         success: function(pid,status,xhr) {
             islandora_getAnnotation(pid);
@@ -29,7 +29,7 @@ function islandora_postData(title, data, type, color) {
 function islandora_getList() {
     islandora_canvas_params.mappings = new Array();
     islandora_canvas_params.strokeWidth = new Array();
-    $.ajax({
+    jQuery.ajax({
         type:'GET',
         async:true,
         url: islandora_canvas_params.get_annotation_list_url,
@@ -47,15 +47,15 @@ function islandora_getList() {
                         var blockId = 'islandora_annoType_'+ fixed_cat;
                         var contentId = 'islandora_annoType_content_'+ fixed_cat;
                         var idSelector = '#' + blockId;
-                        if($(idSelector).length == 0){
+                        if(jQuery(idSelector).length == 0){
                             header =  '<div class = "islandora_comment_type" id = "'+ blockId + '">';
                             header += '<div class = "islandora_comment_type_title">' + temp + '</div>';
                             header += '<div class = "islandora_comment_type_content" style = "display:none" id = "'+ contentId + '"></div>';
                             header += '</div>';
-                            $('#comment_annos_block').append(header);
+                            jQuery('#comment_annos_block').append(header);
                         }
                     }
-                    var cnv = $(this).attr('canvas');
+                    var cnv = jQuery(this).attr('canvas');
                     var type = temp;
                 }
             if( listdata!= null && pids != null){
@@ -65,9 +65,9 @@ function islandora_getList() {
                 }
               }
             }
-            $(".islandora_comment_type_title").off();
-            $(".islandora_comment_type_title").ready().on("click", function(){
-                $(this).siblings('.islandora_comment_type_content').toggle();
+            jQuery(".islandora_comment_type_title").off();
+            jQuery(".islandora_comment_type_title").ready().on("click", function(){
+                jQuery(this).siblings('.islandora_comment_type_content').toggle();
             });
         },
         error: function(data,status,xhr) {
@@ -78,7 +78,7 @@ function islandora_getList() {
 
 // get annotation data from Fedora and send it to load_comment_anno to be displayed
 function islandora_getAnnotation(pid) {
-  $.ajax({
+  jQuery.ajax({
     type:'GET',
     url: islandora_canvas_params.islandora_get_annotation + pid,
     success: function(data,status,xhr) {
@@ -92,7 +92,7 @@ function islandora_getAnnotation(pid) {
 function islandora_deleteAnno(urn) {
 
     var selector = '#anno_'+urn;
-    $parent = $(selector).closest('.islandora_comment_type');
+    $parent = jQuery(selector).closest('.islandora_comment_type');
     length = $parent.find('.canvas_annotation').length;
 
     if (length ==1){
@@ -100,14 +100,14 @@ function islandora_deleteAnno(urn) {
     }
 
     var classSelector = '.svg_'+urn;
-    $.ajax({
+    jQuery.ajax({
         type:'POST',
         url:islandora_canvas_params.islandora_delete_annotation + urn,
         data: urn,
         success: function(data,status,xhr) {
-            $(selector).next().remove();
-            $(selector).remove();
-            $(classSelector).remove();
+            jQuery(selector).next().remove();
+            jQuery(selector).remove();
+            jQuery(classSelector).remove();
 
         },
         error: function(data,status,xhr) {
@@ -117,7 +117,7 @@ function islandora_deleteAnno(urn) {
 
 
 function islandora_updateAnno(urn, title,annoType, content, color){
-    $.ajax({
+    jQuery.ajax({
         type:'POST',
         url:islandora_canvas_params.islandora_update_annotation,
         data: {
@@ -126,48 +126,48 @@ function islandora_updateAnno(urn, title,annoType, content, color){
             annoType:annoType,
             content:content,
             color:color,
-            strokeWidth: $('#stroke_width').val()
+            strokeWidth: jQuery('#stroke_width').val()
         },
         success: function(data,status,xhr) {
-            $('#create_annotation_box').hide();
+            jQuery('#create_annotation_box').hide();
             var selector = '#anno_'+urn;
-            var text = $(selector).text().trim().substring(2,100);
-            old_title = $(selector).html();
+            var text = jQuery(selector).text().trim().substring(2,100);
+            old_title = jQuery(selector).html();
             new_title = old_title.replace(text, title);
-            islandora_canvas_params.strokeWidth['urn:uuid:'+urn] = $('#stroke_width').val();
+            islandora_canvas_params.strokeWidth['urn:uuid:'+urn] = jQuery('#stroke_width').val();
 
-            $(selector).html(new_title);
-            $(selector).next('.comment_text').find('.comment_type').text(annoType);
-            $(selector).next('.comment_text').find('.comment_content').text(content);
+            jQuery(selector).html(new_title);
+            jQuery(selector).next('.comment_text').find('.comment_type').text(annoType);
+            jQuery(selector).next('.comment_text').find('.comment_content').text(content);
             var fixed_cat = annoType.replace(/[^\w]/g,'');
 
-            $annotation = $(selector).closest('.canvas_annotation');
-            $destination = $('#islandora_annoType_content_' + fixed_cat);
+            $annotation = jQuery(selector).closest('.canvas_annotation');
+            $destination = jQuery('#islandora_annoType_content_' + fixed_cat);
             $annotation.appendTo($destination);
        
-            $('#create_annotation').empty().append('Annotate');
-            $('#create_annotation').css({
+            jQuery('#create_annotation').empty().append('Annotate');
+            jQuery('#create_annotation').css({
                 color:'#000000'
             });
-            $('#canvases .canvas').each(function() {
-                cnv = $(this).attr('canvas');
+            jQuery('#canvases .canvas').each(function() {
+                cnv = jQuery(this).attr('canvas');
                 destroyAll(cnv);
             });
             //reset all the annos in the columns so things are consistent.
              
-            $('#create_annotation_box').hide();   
+            jQuery('#create_annotation_box').hide();
             
-            $('.comment_text').each(function(i, el) {                        
-                $(el).hide();                         
+            jQuery('.comment_text').each(function(i, el) {
+                jQuery(el).hide();
             });
-            $('.comment_title').each(function(i, el) {                        
-                $(el).toggleClass('annotation-opened');                         
+            jQuery('.comment_title').each(function(i, el) {
+                jQuery(el).toggleClass('annotation-opened');
             });
-            $('.comment_showhide').each(function(i, el) {  
-                $(el).text('+ ');                         
+            jQuery('.comment_showhide').each(function(i, el) {
+                jQuery(el).text('+ ');
             });  
-            $('.mycolor').each(function(i, el) {                        
-                $(el).hide();                         
+            jQuery('.mycolor').each(function(i, el) {
+                jQuery(el).hide();
             }); 
                
         },

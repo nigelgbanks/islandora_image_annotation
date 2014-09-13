@@ -59,19 +59,19 @@ function annotation_dialog() {
     '<div id="hidden_entity" type="hidden" data-entity=""></div>'
   '</div>';
 
-  $(document.body).append(html_text);
-  $('#islandora_classification').addClass("dialog-entity-group");
+  jQuery(document.body).append(html_text);
+  jQuery('#islandora_classification').addClass("dialog-entity-group");
   
   // Optionally allow/disallow users from tagging entities.
   if (Drupal.settings.islandora_image_annotation.allow_entity_linking) {
-    $('#islandora_classification').append(entity_combobox);
-    $('#cboEntityLookup').autocomplete({
+    jQuery('#islandora_classification').append(entity_combobox);
+    jQuery('#cboEntityLookup').autocomplete({
       source: function(request,response){
         // lookup_entity is shared by image annotation and critical editions,
         // so it has been exposed to both via 'lookup_entity() function in
         // entity_search.js.
-        var result = lookup_entity($('#cboAddEntity').find('option:selected').text() + '/' + '?entities_query=' + request.term);
-        response($.map(result, function(item){
+        var result = lookup_entity(jQuery('#cboAddEntity').find('option:selected').text() + '/' + '?entities_query=' + request.term);
+        response(jQuery.map(result, function(item){
           return {
             label: item.identifier,
             value: item.identifier,
@@ -82,20 +82,20 @@ function annotation_dialog() {
       select: function(event, ui) {
         // Add the selected entity data to the hidden
         // 'hidden_entity' field.
-        $('#hidden_entity').data('entity',ui.item);
+        jQuery('#hidden_entity').data('entity',ui.item);
       },
     });
   }
-  var annotation_dialog = $('#create_annotation_box');
+  var annotation_dialog = jQuery('#create_annotation_box');
   return annotation_dialog.dialog({
     modal: true,
     open: function(event,ui) {
       // Fix to paint random colors.
       if(Drupal.settings.islandora_image_annotation.can_choose == 1) {
         var rcol = get_random_color();
-        $('#anno_color').attr('value',rcol);
-        $('.miniColors-trigger').css('background-color',rcol);
-        $('#color-picker-wrapper').hide();
+        jQuery('#anno_color').attr('value',rcol);
+        jQuery('.miniColors-trigger').css('background-color',rcol);
+        jQuery('#color-picker-wrapper').hide();
       }
     },
     title: 'Annotate',
@@ -110,18 +110,18 @@ function annotation_dialog() {
         closeAndEndAnnotating();
         // Reset hidden data for the next time this 
         // dialog is used.
-        if ($('#hidden_entity')) {
-          $('#hidden_entity').data('entity','');
+        if (jQuery('#hidden_entity')) {
+          jQuery('#hidden_entity').data('entity','');
         }
-        $('#hidden_annotation_type').attr('anno_type','');
-        $('#hidden_annotation_type').attr('urn','');
+        jQuery('#hidden_annotation_type').attr('anno_type','');
+        jQuery('#hidden_annotation_type').attr('urn','');
         annotation_dialog.dialog('close');
       }
     },
     'Cancel': function() {
       closeAndEndAnnotating();
       annotation_dialog.dialog('close');
-      $('#hidden_annotation_type').text('');
+      jQuery('#hidden_annotation_type').text('');
     }
   }
   });

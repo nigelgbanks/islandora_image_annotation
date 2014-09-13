@@ -18,22 +18,22 @@ var insideStyle = {
 
 function fetch_comment_annotations() {
     islandora_getList();
-	
+
 }
 
 function maybe_config_create_annotation() {
-    $('#create_annotation').click(startAnnotating);
-    $('#cancelAnno').click(closeAndEndAnnotating);
-    $('#saveAnno').click(saveAndEndAnnotating);
+    jQuery('#create_annotation').click(startAnnotating);
+    jQuery('#cancelAnno').click(closeAndEndAnnotating);
+    jQuery('#saveAnno').click(saveAndEndAnnotating);
 
-    $('.annoShape').click(function() {
-        var typ = $(this).attr('id').substr(10,5);
+    jQuery('.annoShape').click(function() {
+        var typ = jQuery(this).attr('id').substr(10,5);
         topinfo['svgAnnoShape'] = typ;
-        $('.annoShape').css('border', '0px');
-        $(this).css('border', '1px solid black');
+        jQuery('.annoShape').css('border', '0px');
+        jQuery(this).css('border', '1px solid black');
     });
-	
-    var shp = $('.annoShape').filter(':first');
+
+    var shp = jQuery('.annoShape').filter(':first');
     shp.css('border', '1px solid black');
     if(shp != null) {
       topinfo['svgAnnoShape'] = shp.attr('id').substr(10,5);
@@ -41,43 +41,43 @@ function maybe_config_create_annotation() {
 }
 
 function startAnnotating() {
-    $('#anno_color_activated').attr('value', '');
-    if ($('#create_annotation').text() == 'Annotating') {
+    jQuery('#anno_color_activated').attr('value', '');
+    if (jQuery('#create_annotation').text() == 'Annotating') {
         return;
     }
-    $('#saveAnno').html('<span class="ui-button-text">Save</span>');
-    $('#create_annotation').css({
+    jQuery('#saveAnno').html('<span class="ui-button-text">Save</span>');
+    jQuery('#create_annotation').css({
         color:'#808080'
     });
-    $('#create_annotation').empty().append('Annotating');
-    $('#create_annotation_box').dialog('open');
-    $('.ui-widget-overlay').remove();
-    $('#canvases .canvas').each(function() {
-        var cnv = $(this).attr('canvas');
+    jQuery('#create_annotation').empty().append('Annotating');
+    jQuery('#create_annotation_box').dialog('open');
+    jQuery('.ui-widget-overlay').remove();
+    jQuery('#canvases .canvas').each(function() {
+        var cnv = jQuery(this).attr('canvas');
         initForCreate(cnv);
     });
 }
 
 function startEditting(title, annotation, annoType, urn) {
-    $('#anno_color_activated').attr('value', '');
-    if ($('#create_annotation').text() == 'Annotating') {
+    jQuery('#anno_color_activated').attr('value', '');
+    if (jQuery('#create_annotation').text() == 'Annotating') {
       return;
     }
 
-    $('#create_annotation').css({
+    jQuery('#create_annotation').css({
         color:'#808080'
     });
-    $('#create_annotation').empty().append('Annotating');
-    $('#create_annotation_box').dialog('open');
-    $('.ui-widget-overlay').remove();
+    jQuery('#create_annotation').empty().append('Annotating');
+    jQuery('#create_annotation_box').dialog('open');
+    jQuery('.ui-widget-overlay').remove();
 
-    $('#anno_title').val(title);
-    $('#anno_text').val(annotation);
-    $('#anno_classification').val(annoType);
-    $('#saveAnno').html('<span class="ui-button-text">Update Annotation</span>');
-    $('#saveAnno').attr('urn', urn);
-    $('#canvases .canvas').each(function() {
-        var cnv = $(this).attr('canvas');
+    jQuery('#anno_title').val(title);
+    jQuery('#anno_text').val(annotation);
+    jQuery('#anno_classification').val(annoType);
+    jQuery('#saveAnno').html('<span class="ui-button-text">Update Annotation</span>');
+    jQuery('#saveAnno').attr('urn', urn);
+    jQuery('#canvases .canvas').each(function() {
+        var cnv = jQuery(this).attr('canvas');
         initForCreate(cnv);
     });
 }
@@ -93,40 +93,40 @@ function saveAndEndAnnotating() {
 
 function closeAndEndAnnotating() {
 
-    $('#create_annotation').empty().append('Annotate');
-    $('#create_annotation').css({
+    jQuery('#create_annotation').empty().append('Annotate');
+    jQuery('#create_annotation').css({
         color:'#000000'
     });
-    $('#canvases .canvas').each(function() {
-        cnv = $(this).attr('canvas');
+    jQuery('#canvases .canvas').each(function() {
+        cnv = jQuery(this).attr('canvas');
         destroyAll(cnv);
     });
     //destroy or hide all annos both render and block represtentations
-    $('.comment_text').each(function(i, el) {                        
-                        $(el).hide();                         
+    jQuery('.comment_text').each(function(i, el) {
+                        jQuery(el).hide();
                     });
-    $('.comment_title').each(function(i, el) {                        
-                        $(el).toggleClass('annotation-opened');                         
+    jQuery('.comment_title').each(function(i, el) {
+                        jQuery(el).toggleClass('annotation-opened');
                     });
-    $('.comment_showhide').each(function(i, el) {  
-                       $(el).text('+ ');                         
-                    });  
-    $('.mycolor').each(function(i, el) {                        
-                        $(el).hide();                         
-                    }); 
-    $('#create_annotation_box').dialog('close');
+    jQuery('.comment_showhide').each(function(i, el) {
+                       jQuery(el).text('+ ');
+                    });
+    jQuery('.mycolor').each(function(i, el) {
+                        jQuery(el).hide();
+                    });
+    jQuery('#create_annotation_box').dialog('close');
 
     // empty fields
-    $('#anno_title').val('');
-    $('#anno_text').val('');
-    $('#anno_aboutCanvas').prop('checked', false);
-    $('#anno_isResource').prop('checked', false);
-    var tabs = $('#tabs').tabs();
+    jQuery('#anno_title').val('');
+    jQuery('#anno_text').val('');
+    jQuery('#anno_aboutCanvas').prop('checked', false);
+    jQuery('#anno_isResource').prop('checked', false);
+    var tabs = jQuery('#tabs').tabs();
     tabs.tabs('select', 3);
 
-    
+
 }
-	
+
 //We do creation by trapping clicks in an invisible SVG box
 //This way we have the dimensions without messing around 
 //converting between page clicks and canvas clicks
@@ -138,7 +138,7 @@ function initForCreate(canvas) {
     var cw = Math.floor(r.width * invScale);
     var prt = r.wrapperElem;
     // Ensure we're above all painting annos
-    $(prt).css('z-index', 1001);
+    jQuery(prt).css('z-index', 1001);
     var bg = r.rect(0,0,cw,ch);
     bg.attr({
         'fill': 'white',
@@ -169,35 +169,35 @@ function destroyAll(canvas) {
             };
             bg.remove();
         }
-        $(r.wrapperElem).remove();
-        $(r).remove();
+        jQuery(r.wrapperElem).remove();
+        jQuery(r).remove();
     }
     topinfo['raphaels']['comment'][canvas] = undefined;
 }
 
 function saveAnnotation() {
     // Basic Sanity Check
-    var title = $('#anno_title').val();
-    if($("#anno_title").get(0).tagName == 'SELECT'){
+    var title = jQuery('#anno_title').val();
+    if(jQuery("#anno_title").get(0).tagName == 'SELECT'){
         //if title is a select box we want the title not the pid
-        title = $('#anno_title option:selected').text();
+        title = jQuery('#anno_title option:selected').text();
     }
-    var content = $('#anno_text').val();
-    var annoType = $('#anno_classification').val();
+    var content = jQuery('#anno_text').val();
+    var annoType = jQuery('#anno_classification').val();
     var color = '';
 
     //check to see if color box has been activated
-    color = $('#anno_color').attr('value');
-    if($('#hidden_annotation_type').attr('anno_type') == 'Update Annotation'){
-        urn = $('#hidden_annotation_type').attr('urn');
+    color = jQuery('#anno_color').attr('value');
+    if(jQuery('#hidden_annotation_type').attr('anno_type') == 'Update Annotation'){
+        urn = jQuery('#hidden_annotation_type').attr('urn');
         islandora_updateAnno(urn, title, annoType, content, color);
         return;
     }
     if (!content || (!title && typ == 'comment')) {
         alert('An annotation needs both title and content');
         return 0;
-    } 
-	
+    }
+
     // Create
     var rinfo = create_rdfAnno();
     var rdfa = rinfo[0];
@@ -208,11 +208,11 @@ function saveAnnotation() {
     }
 
     // Save
-    var data = $(rdfa).rdf().databank.dump({
+    var data = jQuery(rdfa).rdf().databank.dump({
         format:'text/turtle',
         serialize:true
     });
-    var type = $('#anno_classification').val();
+    var type = jQuery('#anno_classification').val();
     // add category to annoblock before saving annotation.  Fixes concurrency errors
     if(type == '') {
       type = 'unclassified';
@@ -222,22 +222,22 @@ function saveAnnotation() {
     var type_class = "annoType_" + fixed_cat;
     var blockId = 'islandora_annoType_'+ fixed_cat;
     var contentId = 'islandora_annoType_content_'+ fixed_cat;
-    
+
     var dt = data.split("<urn:uuid:");
     var split_dt = dt[1].split('>');
     var idSelector = '#' + blockId;
-    
-    if($(idSelector).length == 0){
+
+    if(jQuery(idSelector).length == 0){
         header =  '<div class = "islandora_comment_type" id = "'+ blockId + '">';
         header += '<div class = "islandora_comment_type_title">' + type + '</div>';
         header += '<div class = "islandora_comment_type_content" style = "display:none" id = "'+ contentId + '"></div>';
         header += '</div>';
-        $('#comment_annos_block').append(header);
+        jQuery('#comment_annos_block').append(header);
     }
     // add new categories to typeahead if necessary
-    if($.inArray(type, islandora_canvas_params.categories) == -1){
+    if(jQuery.inArray(type, islandora_canvas_params.categories) == -1){
         islandora_canvas_params.categories.push(type);
-        $( "#anno_classification" ).autocomplete({
+        jQuery( "#anno_classification" ).autocomplete({
             source: islandora_canvas_params.categories
         });
     }
@@ -245,11 +245,11 @@ function saveAnnotation() {
     // Updated backport fix. Add's click handler to new annotations,
     // Making them available.
     islandora_postData(tgt, rdfa, type, color);
-    $(".islandora_comment_type_title").off();
-    $(".islandora_comment_type_title").ready().on("click", function(){
-      $(this).siblings('.islandora_comment_type_content').toggle();
+    jQuery(".islandora_comment_type_title").off();
+    jQuery(".islandora_comment_type_title").ready().on("click", function(){
+      jQuery(this).siblings('.islandora_comment_type_content').toggle();
     });
-    
+
     var data = {};
 	data.Target = tgt;
 	data.Type = type;
@@ -275,7 +275,7 @@ function create_rdfAnno() {
 
     var nss = opts.namespaces;
     var typ = null;
-    $('#anno_type :selected').each(function() {
+    jQuery('#anno_type :selected').each(function() {
         typ = this.value;
 
     });
@@ -301,17 +301,17 @@ function create_rdfAnno() {
     rdfa += '<div about="urn:uuid:' + annoUU + '"> '; // Start Anno
     rdfa += ('<a rel="rdf:type" href="'+fullclss+'"></a>');
     rdfa += '<span property="dcterms:created" content="' + now + '"></span> ';
-    var title = $('#anno_title').val();
-    if($("#anno_title").get(0).tagName == 'SELECT'){
+    var title = jQuery('#anno_title').val();
+    if(jQuery("#anno_title").get(0).tagName == 'SELECT'){
         //if title is a select box we want the title not the pid
-        title = $('#anno_title option:selected').text();
+        title = jQuery('#anno_title option:selected').text();
     }
-    var color = $('#anno_color').attr('value');
-    
+    var color = jQuery('#anno_color').attr('value');
+
     // Check to be sure that entity linking is enabled.
     if(Drupal.settings.islandora_image_annotation.allow_entity_linking) {
       // Parse out the entity pid from the inner anchor.
-      var image_entity = $('#hidden_entity').data('entity');
+      var image_entity = jQuery('#hidden_entity').data('entity');
       if(image_entity) {
         var wrapper= document.createElement('a');
         wrapper.innerHTML= image_entity.data;
@@ -326,18 +326,18 @@ function create_rdfAnno() {
     if (title != '') {
         rdfa += '<span property="dc:title" content="' + title + '"></span>';
     }
-    
-    var type = $('#anno_classification').val();
+
+    var type = jQuery('#anno_classification').val();
     if(type == ''){
         type = 'unclassified'
     }
     if (title != '') {
         rdfa += '<span property="dc:type" content="' + type + '"></span>';
     }
-   
+
 //    try {
 //        // XXX Gdata specific, but can send to other services
-//        var which = $('#create_body input[name="blog_radio"]:radio:checked').attr('id');
+//        var which = jQuery('#create_body input[name="blog_radio"]:radio:checked').attr('id');
 //        var bFO = topinfo['blogs'][which][2];
 //        var authors = bFO.author;
 //        for (var a=0, auth; auth=authors[a]; a++) {
@@ -365,12 +365,12 @@ function create_rdfAnno() {
 //            }
 //        }
 //    } catch (e) {};
-    
+
     // Build Body
-    var isResc = $('#anno_isResource').prop('checked');
-    var tgtsCanvas = $('#anno_aboutCanvas').prop('checked');
-    var content = $('#anno_text').val();
-    
+    var isResc = jQuery('#anno_isResource').prop('checked');
+    var tgtsCanvas = jQuery('#anno_aboutCanvas').prop('checked');
+    var content = jQuery('#anno_text').val();
+
     if (isResc == true) {
         // XXX Could be constrained resource, eg part of an XML or image
         // So would need to build constraint ... too hard!
@@ -387,15 +387,15 @@ function create_rdfAnno() {
         rdfa += '<span property="cnt:characterEncoding" content="utf-8"></span>';
         rdfa += '</div> ';  // Close Body
     }
-    
+
     // Build Target(s)
     // For each Canvas, for each SVG, build a ConstrainedTarget and SvgConstraint
     // XXX Bad assumption that about ALL canvases if tgtsCanvas
     // XXX Should allow selection of other Annotations (eg Texts)
-    
+
     var target = null;
-    $('#canvases .canvas').each(function() {
-        var cnv = $(this).attr('canvas');
+    jQuery('#canvases .canvas').each(function() {
+        var cnv = jQuery(this).attr('canvas');
         if(cnv){
             if (tgtsCanvas == true) {
                 target = cnv;
@@ -440,7 +440,7 @@ function switchDown(x,y) {
     var x = fixedxy[0];
     var y = fixedxy[1];
     var which = topinfo['svgAnnoShape'];
-	
+
     if (which == 'circ') {
         this.creating = mkCircle(this,x,y);
         this.myShapes.push(this.creating);
@@ -474,17 +474,17 @@ function fixXY(what, x, y) {
     var wrap = r.wrapperElem;
 
     // This is location of canvas
-    var offsetLeft = $(wrap).offset().left;
-    var offsetTop = $(wrap).offset().top;
+    var offsetLeft = jQuery(wrap).offset().left;
+    var offsetTop = jQuery(wrap).offset().top;
     y-= offsetTop;
     x -= offsetLeft;
-	
+
     // Change made to support embeding shared canvas.
-    var pageOffsetTop = $(window).scrollTop();
-    var pageOffsetLeft = $(window).scrollLeft();
+    var pageOffsetTop = jQuery(window).scrollTop();
+    var pageOffsetLeft = jQuery(window).scrollLeft();
     y += pageOffsetTop;
     x += pageOffsetLeft;
-	
+
     // And now scale for Canvas resizing
     x = Math.floor(x * what.invScale);
     y = Math.floor(y * what.invScale);
@@ -502,7 +502,7 @@ function mkGrabber(what,poly,x,y,idx) {
     c.poly = poly;
     poly.set.push(c);
     c.start = [x,y];
-	
+
     var mdf = function() {
         this.moved = 0;
         this.start = [this.attr("cx"), this.attr("cy")]
@@ -529,7 +529,7 @@ function mkGrabber(what,poly,x,y,idx) {
     var move = function (dx, dy) {
         dx = Math.floor(dx * what.invScale);
         dy = Math.floor(dy * what.invScale);
-		
+
         this.attr({
             cx: this.start[0] + dx,
             cy: this.start[1] + dy
@@ -571,7 +571,7 @@ function mkPoly(what, x,y) {
         c = this.set[this.set.length-1];
         c.moveFn(dx,dy);
     };
-	
+
     var r = what.myPaper;
     var s = r.set();
     var outer = r.path("M" +x + ',' + y);
@@ -581,7 +581,7 @@ function mkPoly(what, x,y) {
     outer.addPoint = addPointFn;
     s.push(outer)
     outer.set = s;
-	
+
     c = mkGrabber(what,outer,x,y,0);
     outer.drag(move, mdf, muf);
     outer.resizeFn = resizefn;
@@ -595,15 +595,15 @@ function mkPoly(what, x,y) {
 function mkCircle(what, x,y) {
 
     innerSize = Math.floor(10 * what.invScale);
-	            	
+
     mdf = function() {
         this.start = [this.attr("cx"), this.attr("cy"), this.attr('r')]
     };
-	
+
     muf = function() {
         this.start = undefined;
     };
-	
+
     move = function (dx, dy) {
         this.set.attr(
         {
@@ -611,12 +611,12 @@ function mkCircle(what, x,y) {
             cy: this.start[1] + Math.floor(dy * what.invScale)
         });
     };
-	
+
     resize = function(dx, dy) {
         this.attr('r', this.start[2] + Math.floor(dx * what.invScale));
         this.inner.attr('r', this.start[2] + (Math.floor(dx * what.invScale) - innerSize));
     };
-	
+
     var r = what.myPaper;
     var st = r.set();
     var outer = r.circle(x,y,innerSize);
@@ -624,16 +624,16 @@ function mkCircle(what, x,y) {
     outer.attr(outsideStyle);
     outer.start = [x,y,innerSize];
     outer.set = st;
-	
+
     var inner = r.circle(x, y, 0);
     inner.attr(insideStyle);
     inner.toFront();
     inner.set = st;
-	
+
     st.push(outer);
     st.push(inner);
     outer.inner = inner;
-	
+
     inner.drag(move, mdf, muf);
     outer.drag(resize, mdf, muf);
     outer.resizeFn = resize;
@@ -645,9 +645,9 @@ function mkCircle(what, x,y) {
 
 
 function mkRect(what, x,y) {
-	            
+
     innerSize = Math.floor(14 * what.invScale);
-	
+
     mdf = function() {
         this.set.start = [
         Math.floor(this.set.outer.attr('x') ),
@@ -656,11 +656,11 @@ function mkRect(what, x,y) {
         Math.floor(this.set.outer.attr('width') )
         ];
     };
-	
+
     muf = function() {
         this.set.start = undefined;
     };
-	
+
     move = function(dx, dy) {
         this.set.outer.attr(
         {
@@ -673,7 +673,7 @@ function mkRect(what, x,y) {
             'y' : this.set.start[1] + this.set.start[2] + Math.floor(dy * what.invScale) - innerSize
         });
     };
-							 
+
     resize = function(dx, dy) {
         this.set.outer.attr(
         {
@@ -686,7 +686,7 @@ function mkRect(what, x,y) {
             'y': this.set.start[1] + this.set.start[2] + Math.floor(dy * what.invScale) - innerSize
         });
     };
-	
+
     var r = what.myPaper;
     var st = r.set();
     st.start = [x, y, innerSize,innerSize];
@@ -704,7 +704,7 @@ function mkRect(what, x,y) {
     st.push(inner);
     st.outer = outer;
     st.inner = inner;
-	
+
     inner.drag(resize, mdf, muf);
     outer.drag(move, mdf, muf);
     outer.resizeFn = resize;
@@ -718,8 +718,8 @@ function islandora_getOutsideStyle(){
     var outsideStyle = {
         fill: 'none',
         opacity: 'none',
-        'stroke-width': $('#stroke_width').val() + '%' ,
-        stroke: $('#anno_color').attr('value')
+        'stroke-width': jQuery('#stroke_width').val() + '%' ,
+        stroke: jQuery('#anno_color').attr('value')
     };
     return outsideStyle;
 }

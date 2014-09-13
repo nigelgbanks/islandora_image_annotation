@@ -1,11 +1,11 @@
 function lookup_entity(query) {
   var results;
-  $.ajax({
+  jQuery.ajax({
     url: Drupal.settings.islandora_image_annotation.entities_search_callback+ '/' + query,
     async: false,
     dataType: 'json',
     success: function(data, status, xhr) {
-      if ($.isPlainObject(data)) data = [data];
+      if (jQuery.isPlainObject(data)) data = [data];
       if (data != null) {
         results = data;
       } else {
@@ -19,7 +19,7 @@ function lookup_entity(query) {
           lines.pop();
         }
         var string = lines.join(',');
-        var data = $.parseJSON('['+string+']');
+        var data = jQuery.parseJSON('['+string+']');
         results = data;
       } else {
         results = null;
