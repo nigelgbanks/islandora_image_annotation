@@ -229,7 +229,7 @@ function islandora_image_annotation_islandora_required_objects(IslandoraTuque $c
   // DS-COMPOSITE-MODEL Datastream.
   $datastream = $oac_content_model->constructDatastream('DS-COMPOSITE-MODEL', 'X');
   $datastream->label = 'DS-COMPOSITE-MODEL';
-  $datastream->mimetype = 'text/xml';
+  $datastream->mimetype = 'application/xml';
   $datastream->setContentFromFile("$module_path/xml/islandora_image_annotation_ds_composite_model.xml", FALSE);
   $oac_content_model->ingestDatastream($datastream);
 
