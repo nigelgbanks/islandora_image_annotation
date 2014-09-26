@@ -1,5 +1,5 @@
 /*jslint browser: true*/
-/*global jQuery, RDF*/
+/*global jQuery, RDF, ScaleRaphael*/
 /**
  * @file
  * Defines the Islandora Image Annotation Canvas and it's Drupal behaviour.
@@ -414,46 +414,115 @@
     }
 
     /**
-     * @todo Implement
-     * @todo was paint_annos
+     * Gets the dimensions and the title of the given Canvas.
+     *
+     * @param {object} rdf
+     *   The $.rdf object whose triple store contains the Annotations.
+     * @param {string} uri
+     *   The Canvas URI.
+     *
+     * @returns {*[]}
+     *  @todo Document
      */
-    function drawAnnotations() {
-      // Step through all displayed canvases and paint all finished, unpainted
-      // annotations. Do it this way as can't predict when annotations will be
-      // available due to different AJAX speeds?
-      // @todo is this shit true?
-      $.each(that.canvasDivHash, function (canvas, div) {
-        $.each(that.annotations, function (type, annotations) {
-          $.each(annotations[canvas], function (index, annotation) {
-            if (annotation.finished && that.paintedAnnos.indexOf(annotation.id) === -1) {
-              that.paintedAnnos.push(annotation.id);
-              drawAnnotation(type, annotation, div);
-            }
-          });
+    function extractCanvasSize(rdf, uri) {
+      var height, width, title;
+      height = width = 0;
+      title = ''
+      rdf.where('<' + uri + '> exif:height ?height')
+        .where('<' + uri + '> exif:width ?width')
+        .optional('<' + uri + '> dc:title ?title')
+        .each(function () {
+          height = this.height.value;
+          width = this.width.value;
+          if (this.title !== undefined) {
+            title = this.title.value;
+          }
         });
-      });
+      return [height, width, title];
     }
 
     /**
-     * @todo Implement
-     * @todo was paint_anno
+     * @todo Document.
+     *
+     * @param type
+     * @param canvas
+     * @param canvasId
+     * @returns {*}
      */
-    function drawAnnotation(type, annotation, div) {
-      // @todo Implement this other crap.
-      switch (type) {
-      case 'image':
-        drawImageAnnotation(annotation, div);
-        break;
-      case 'text':
-        drawTextAnnotation(annotation, div);
-        break;
-      case 'audio':
-        drawAudioAnnotation(annotation, div);
-        break;
-      case 'comment':
-        drawCommentAnnotation(annotation, div);
-        break;
+    function makeRaphael(type, canvas, canvasId) {
+      var info, canvasWidth, canvasHeight, scale, scaledWidth, scaledHeight,
+        svgId, $svg, svgCanvas;
+      if (that.raphaels[type][canvas] !== undefined) {
+        return that.raphaels[type][canvas];
       }
+      info = that.sequenceInfo[canvas];
+      if (info === undefined) {
+        info = extractCanvasSize(that.query, canvas);
+        that.sequenceInfo[canvas] = info;
+      }
+      canvasWidth = info[1];
+      canvasHeight = info[0];
+      scale = that.canvasWidth / canvasWidth;
+      scaledHeight = canvasHeight * scale;
+      scaledWidth = canvasWidth * scale;
+      svgId = 'svg_annos_' + type + '_' + canvasId;
+
+      $svg = $('<div />', {
+        id: svgId,
+        class: 'svg_canvas_wrapper'
+      });
+      $('#svg_wrapper').append($svg);
+      $svg.height(scaledHeight);
+      $svg.width(scaledWidth);
+      // Allow a base image at 1
+      $svg.css('z-index', that.zOrders[type] + 1);
+      $svg.css('position', 'absolute');
+      $svg.position({
+        'of': '#' + canvasId,
+        'my': 'left top',
+        'at': 'left top',
+        'collision': 'none'
+      });
+
+      svgCanvas = ScaleRaphael(svgId, canvasWidth, canvasHeight);
+      svgCanvas.changeSize(scaledWidth, scaledHeight, false, false);
+      if ($.browser.webkit) {
+        svgCanvas.safari();
+      }
+      // Cache svgCanvas.
+      that.raphaels[type][canvas] = svgCanvas;
+      return svgCanvas;
+    }
+
+    /**
+     * Draw the given annotation on the given canvas element.
+     *
+     * This is much more minimal than what was originally part of the
+     * SharedCanvas, it only supports rendering the entire image.
+     * Scaled to fit the canvas.
+     *
+     * @param {object} annotation
+     *   The annotation to draw.
+     * @param canvasId
+     *   The DOM element ID for the canvas.
+     */
+    function drawImageAnnotation(annotation, canvasId) {
+      var $imageAnnotation, $image;
+      $imageAnnotation = $('<div />', {
+        // We make the assumption that the annotation will always have a uuid
+        // in it.
+        id: 'image-annotation-' + IIAUtils.urnComponents(annotation.id).nss,
+        class: 'image-annotation base_img'
+      });
+      $image = $('<img />', {
+        src: annotation.getBodyTarget().id
+      });
+      // $image.width(scaledWidth);
+      // $image.height(scaledHeight);
+      //div.width(sw)
+      // div.height(scaledHeight);
+      //div.css('z-index', that.zOrders.image);
+      $("#annotations").append($imageAnnotation.append($image));
     }
 
     /**
@@ -464,14 +533,14 @@
      * @param canvasId
      *   The DOM element ID for the canvas.
      */
-    function drawImageAnnotation(annotation, canvasId) {
+    function _drawImageAnnotation(annotation, canvasId) {
       var $image;
       var canvas, canvasWidth, canvasHeight, canvasTitle, scale, scaledHeight, scaledWidth,
-        img, myid, aid, html, xywh, zprb, zprs, zpr, imge, imguri, imgid,
+        img, myid, html, xywh, zprb, zprs, zpr, imge, imguri, imgid,
         x, y, w, h, tx, ty, tw, th, chkd, a, attr, body, clip, clipScale, cpe,
         div, divh, divw, doc, fullImage, imgh, imgoffleft, imgofftop,
         imgw, imhw, npth, offset, pth, pthelm, r, sc, svg, svgcanvas, target,
-        ttlh, ttlw, zIdx, o, iopt;
+        ttlh, ttlw, zIdx, o, iopt, urn;
 
       canvas = $('#' + canvasId).attr('canvas');
       canvasHeight = that.sequenceInfo[canvas][0];
@@ -481,15 +550,9 @@
       scaledWidth = scale * canvasWidth;
 
       // @todo clean up this shite.
-      if (annotation.id.substring(0, 9) === 'urn:uuid:') {
-        myid = 'imganno_' + annotation.id.substring(9, 1000);
-      } else {
-        aid = annotation.id.substring(8, 1000)
-        aid = aid.replace(/\./g, '_');
-        aid = aid.replace(/\//g, '_');
-        aid = aid.replace(/-/g, '_');
-        myid = 'imganno_' + aid;
-      }
+      // We make the assumption that the annotation will always have a uuid
+      // in it.
+      myid = 'imganno_' + IIAUtils.urnComponents(annotation.id).nss;
 
       // First find which image to use!
       // @todo Could be a function of it's own, in the RDF object.
@@ -513,13 +576,14 @@
         h = xywh[3];
       }
 
-      if (img.rotation === 0 && annotation.targets[0].partOf === null && img.partOf === null) {
+      if (img.rotation === 0 && annotation.targets[0].partOf === undefined && img.partOf === undefined) {
         // Full Image annotates Full Canvas
         imgid = 'img_' + myid;
         imguri = img.id;
 
         $image = $('<div />', {
-          id: myid
+          id: myid,
+          class: 'base_img'
         }).append($('<img />', {
           id: imgid,
           src: imguri
@@ -540,12 +604,13 @@
         //div.width(sw)
         div.height(scaledHeight);
         div.css('z-index', that.zOrders.image);
-      } else if (img.rotation === 0 && (xywh !== null || !img.partOf)) {
+      }
+      else if (img.rotation === 0 && (xywh !== null || !img.partOf)) {
 
         // Full Image/Rect Segment annotates Rect Segment of Canvas
         // Can get by with just regular HTML and CSS
 
-        if (img.partOf === null) {
+        if (img.partOf === undefined) {
           imguri = annotation.body.id;
           clip = '';
 
@@ -561,30 +626,29 @@
           imgh = ttlh * clipScale;
           imhw = ttlw * clipScale;
 
-          clip = 'rect('+(y * clipScale)+'px,'+((x + w)*clipScale)+'px,'+((y+h)*clipScale)+'px,'+(x*clipScale)+'px)';
-          zIdx = topinfo['zOrders']['image'] + annotation.zOrder;
+          clip = 'rect(' + (y * clipScale) + 'px,' + ((x + w) * clipScale) + 'px,' + ((y + h) * clipScale) + 'px,' + (x * clipScale) + 'px)';
+          zIdx = that.zOrders.image + annotation.zOrder;
           divh = scaledHeight;
           divw = scaledWidth;
-          offset = "0 0"
-          imgoffleft = (x*clipScale);
-          imgofftop = (y*clipScale);
+          offset = "0 0";
+          imgoffleft = (x * clipScale);
+          imgofftop = (y * clipScale);
         }
 
         xywh = annotation.targets[0].getRect();
-        if (xywh != null) {
+        if (xywh !== null) {
           tx = xywh[0];
           ty = xywh[1];
           tw = xywh[2];
           th = xywh[3];
-          offset = "" + Math.floor(tx*scale) + ' ' + Math.floor(ty*scale);
-          zIdx = topinfo['zOrders']['detailImage'] + annotation.zOrder;
+          offset = Math.floor(tx * scale) + ' ' + Math.floor(ty * scale);
+          zIdx = that.zOrders.detailImage + annotation.zOrder;
           divw = tw * scale;
           divh = th * scale;
         }
 
-        body = '<img src="'+ imguri +'" id="img_'+ myid +'"/>';
-        $("#annotations").append('<div class="img_anno" id="' + myid + '" >'
-          + body + '</div>');
+        body = '<img src="' + imguri + '" id="img_' + myid + '"/>';
+        $("#annotations").append('<div class="img_anno" id="' + myid + '" >' + body + '</div>');
         div = $('#' + myid);
         div.css('z-index', zIdx);
         div.height(divh);
@@ -594,8 +658,8 @@
         if (clip) {
           img.css('position', 'absolute');
           img.offset({
-            top:div.position().top - imgofftop,
-            left:div.position().left-imgoffleft
+            top: div.position().top - imgofftop,
+            left: div.position().left - imgoffleft
           });
           img.css('clip', clip);
         }
@@ -603,56 +667,58 @@
         img.width(imgw);
 
         div.position({
-          'of':'#'+canvasId,
-          'my':'left top',
-          'at':'left top',
-          'collision':'none',
+          'of': '#' + canvasId,
+          'my': 'left top',
+          'at': 'left top',
+          'collision': 'none',
           'offset': offset
         });
 
-      } else if (img.rotation && annotation.targets[0].partOf == null) {
+      }
+      else if (img.rotation && annotation.targets[0].partOf === undefined) {
         // Rotated image targets entire canvas.
         // No need to clip, just translate top corner to correct place
         // and then scale to correct size. Non visible stuff will be outside SVG
         // view port and thus not display.
 
         fullImage = img.partOf;
-        svgcanvas = mk_raphael('image', canvas, canvasId);
+        svgcanvas = makeRaphael('image', canvas, canvasId);
         r = img.fragmentInfo;
         x = svgcanvas.image(fullImage.id, 0, 0, fullImage.width, fullImage.height);
         x.node.setAttribute('preserveAspectRatio', 'none');
 
-        x.rotate(img.rotation,r[0],r[1]);
-        if (img.rotation == 90) {
-          x.translate(r[3]-r[0], 0-r[1])
+        x.rotate(img.rotation, r[0], r[1]);
+        if (img.rotation === 90) {
+          x.translate(r[3] - r[0], -r[1]);
         } else {
-          x.translate(0-r[0],r[2]-r[1])
+          x.translate(-r[0], r[2] - r[1]);
         }
-      } else {
+      }
+      else {
         // Non Rect Segment of Image annotates (Canvas / Segment of Canvas)
         // Use SVG clip, either from SVG or media fragment
         // OR full image that needs rotation
         // XXX This cannot be unshown, and re-orders all together as just one SVG canvas
 
         fullImage = img.partOf;
-        svgcanvas = mk_raphael('image', canvas, canvasId);
+        svgcanvas = makeRaphael('image', canvas, canvasId);
 
         // reset z-index to detail
-        $(svgcanvas.wrapperElem).css('z-index', topinfo['zOrders']['detailImage']);
+        $(svgcanvas.wrapperElem).css('z-index', that.zOrders.detailImage);
         target = annotation.targets[0];
-        if (img.constraint != null) {
+        if (img.constraint !== undefined) {
           svg = img.constraint.value;
-        } else if (img.fragmentType == 'rect') {
+        } else if (img.fragmentType && img.fragmentType === 'rect') {
           // Construct SVG rect from fragmentInfo
           r = img.fragmentInfo;
-          svg = "<rect xmlns='"+SVG_NS+"' x='"+r[0]+"' y='"+r[1]+"' width='"+r[2]+"' height='"+r[3]+"'/>";
+          svg = "<rect xmlns='http://www.w3.org/2000/svg' x='" + r[0] + "' y='" + r[1] + "' width='" + r[2] + "' height='" + r[3] + "'/>";
         }
 
         pth = $.parseXML(svg);
         doc = $(pth);
         pthelm = doc.children()[0];
         // Duplicating into the DOM for webkit
-        npth = document.createElementNS(SVG_NS, pthelm.nodeName);
+        npth = document.createElementNS('http://www.w3.org/2000/svg', pthelm.nodeName);
         for (a in pthelm.attributes) {
           attr = pthelm.attributes[a];
           npth.setAttribute(attr.nodeName, attr.nodeValue);
@@ -661,7 +727,7 @@
 
         // Now determine if target is full canvas or fragment
 
-        if (target.fragmentType == 'rect') {
+        if (target.fragmentType && target.fragmentType === 'rect') {
           tx = target.fragmentInfo[0];
           ty = target.fragmentInfo[1];
           tw = target.fragmentInfo[2];
@@ -676,7 +742,7 @@
         sc = th / fullImage.height;
 
         // And build SVG clip path.
-        cpe = document.createElementNS(SVG_NS, 'clipPath');
+        cpe = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
         cpe.setAttribute('id', 'svgclippath' + canvasId);
         // Need to translate and scale the path as well as the image
         pthelm.setAttribute('transform', 'translate(' + tx + ' ' + ty + ') scale(' + sc + ')');
@@ -690,6 +756,51 @@
         x.scale(sc, sc, 0, 0);
         x.translate(tx, ty);
       }
+    }
+
+    /**
+     * @todo Document
+     */
+    function drawAnnotation(type, annotation, div) {
+      // @todo Implement this other crap?
+      switch (type) {
+      case 'image':
+        drawImageAnnotation(annotation, div);
+        break;
+        /* @todo Do we need any of this?
+        case 'text':
+          drawTextAnnotation(annotation, div);
+          break;
+        case 'audio':
+          drawAudioAnnotation(annotation, div);
+          break;
+        case 'comment':
+          drawCommentAnnotation(annotation, div);
+          break;
+         */
+      }
+    }
+
+    /**
+     * @todo Document
+     */
+    function drawAnnotations() {
+      // Step through all displayed canvases and paint all finished, unpainted
+      // annotations. Do it this way as can't predict when annotations will be
+      // available due to different AJAX speeds?
+      // @todo is this shit true?
+      $.each(that.canvasDivHash, function (canvas, div) {
+        $.each(that.annotations, function (type, annotations) {
+          if (annotations[canvas] !== undefined) {
+            $.each(annotations[canvas], function (index, annotation) {
+              if (annotation.finished && that.paintedAnnos.indexOf(annotation.id) === -1) {
+                that.paintedAnnos.push(annotation.id);
+                drawAnnotation(type, annotation, div);
+              }
+            });
+          }
+        });
+      });
     }
 
     /**
@@ -835,34 +946,6 @@
     }
 
     /**
-     * Gets the dimensions and the title of the given Canvas.
-     *
-     * @param {object} rdf
-     *   The $.rdf object whose triple store contains the Annotations.
-     * @param {string} uri
-     *   The Canvas URI.
-     *
-     * @returns {*[]}
-     *  @todo Document
-     */
-    function extractCanvasSize(rdf, uri) {
-      var height, width, title;
-      height = width = 0;
-      title = ''
-      rdf.where('<' + uri + '> exif:height ?height')
-        .where('<' + uri + '> exif:width ?width')
-        .optional('<' + uri + '> dc:title ?title')
-        .each(function () {
-          height = this.height.value;
-          width = this.width.value;
-          if (this.title !== undefined) {
-            title = this.title.value;
-          }
-        });
-      return [height, width, title];
-    }
-
-    /**
      * Fetches All the annotations and displays them on the canvas.
      *
      * @todo Document.
@@ -896,7 +979,7 @@
       var canvas = that.sequence[0],
         canvasId = 'canvas';
 
-      that.canvasDivHash.canvas = canvasId;
+      that.canvasDivHash[canvas] = canvasId;
       $('#' + canvasId).attr('canvas', canvas);
       showCanvas(canvas, canvasId);
     }
@@ -933,7 +1016,7 @@
      *   The Resource Map URI for the sequence we are to process.
      */
     function processSequence(rdf, uri) {
-      var sequence = null;
+      var sequence;
 
       // Fetch the Aggregation for the Resource Map.
       rdf.where('?sequence rdf:type dms:Sequence')
@@ -943,13 +1026,13 @@
         });
       // If we don't find one that matches the given Resource map, just grab the
       // first one.
-      if (sequence === null) {
+      if (sequence === undefined) {
         rdf.where('?sequence rdf:type dms:Sequence')
           .each(function () {
             sequence = this.sequence.value;
           });
       }
-      if (sequence !== null) {
+      if (sequence !== undefined) {
         that.sequence = rdfListToArray(rdf, sequence);
       } else {
         // Something has gone terribly wrong.

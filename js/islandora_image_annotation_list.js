@@ -35,24 +35,6 @@
    */
   Drupal.IslandoraImageAnnotationList = function (base, settings) {
 
-    /**
-     * Splits the given urn into components.
-     *
-     * @see https://www.ietf.org/rfc/rfc2141.txt
-     *
-     * @param {string} urn
-     *   A urn, that follows this structure "urn:"<NID>":"<NSS>.
-     *
-     * @returns {{nid: string, nss: string}}
-     */
-    function urnComponents(urn) {
-      var matches;
-      matches = urn.match(/([0-9a-z][0-9a-z\-]{1,31}):([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
-      return {
-        nid: matches[1],
-        nss: matches[2]
-      };
-    }
 
     /**
      * Dumb conversion not really safe in all cases, assumes the string is
@@ -142,7 +124,7 @@
       // Add each annotation to the content section.
       $.each(annotations, function (i, annotation) {
         var $annotation, $annotationTitle, $color, $annotationText, urn;
-        urn = urnComponents(annotation.urn);
+        urn = IIAUtils.urnComponents(annotation.urn);
         // Create annotation block.
         $annotation = $('<div />', {
           urn: urn.nss,

@@ -25,6 +25,33 @@ IslandoraImageAnnotationUtils = IIAUtils = {};
   };
 
   /**
+   * Splits the given string into it's urn components if found.
+   *
+   * Uses a regex and in theory can extract urns out of blocks of arbitrary
+   * text.
+   *
+   * @see https://www.ietf.org/rfc/rfc2141.txt
+   *
+   * @param {string} urn
+   *   A urn, that follows this structure "urn:"<NID>":"<NSS>.
+   *
+   * @returns {{urn: string, nid: string, nss: string}|null}
+   *   Returns the components of the given string that match
+   */
+  IslandoraImageAnnotationUtils.urnComponents = function (urn) {
+    // Optionally matches against the prefix, and the nid.
+    var matches = urn.match(/(urn:)?([0-9a-z][0-9a-z\-]{1,31})?:?([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+    return (matches === null) ? null : {
+      toString: function () {
+        return matches[0];
+      },
+      urn: matches[1],
+      nid: matches[2],
+      nss: matches[3]
+    };
+  };
+
+  /**
    * Generates a url to the given resource in the given namespace prefix.
    *
    * @param {string} namespacePrefix

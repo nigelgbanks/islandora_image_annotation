@@ -161,6 +161,7 @@ function template_preprocess_islandora_image_annotation_canvas(array &$variables
   drupal_add_js("$module_path/js/islandora_image_annotation_utils.js");
   drupal_add_js("$module_path/js/rdf.js");
   drupal_add_js("$module_path/js/islandora_image_annotation_canvas.js");
+  drupal_add_css("$module_path/css/islandora_image_annotation.canvas.css");
 }
 
 /**
@@ -193,7 +194,7 @@ function template_preprocess_islandora_image_annotation(array &$variables) {
   drupal_add_js(array('islandoraImageAnnotation' => $settings), 'setting');
   // Set preprocessor variables, for use in JavaScript.
   //$variables['anno_list_pane'] = theme('islandora_anno_list_pane');
-  $variables['anno_img_pane'] = theme('islandora_anno_image_pane');
+  //$variables['anno_img_pane'] = theme('islandora_anno_image_pane');
   $variables['dialog_box'] = array(
     '#theme' => 'islandora_image_annotation_dialog',
     '#object' => $object,
@@ -216,7 +217,7 @@ function template_preprocess_islandora_image_annotation(array &$variables) {
   $module_path = drupal_get_path('module', 'islandora_image_annotation');
 
   // Add css.
-  drupal_add_css($module_path . '/js/shared_canvas/css/window_behaviors.css');
+  //drupal_add_css($module_path . '/js/shared_canvas/css/window_behaviors.css');
   //drupal_add_css($module_path . '/js/shared_canvas/css/islandora_shared_canvas_style.css');
   //drupal_add_css($module_path . '/js/shared_canvas/css/smoothness/jquery-ui-1.8.16.custom.css');
 
@@ -229,17 +230,18 @@ function template_preprocess_islandora_image_annotation(array &$variables) {
   // Previously in islandora_image_annotation_include_common_js();
   $image_annotation_module_path = drupal_get_path('module', 'islandora_image_annotation');
 
-  drupal_add_js($image_annotation_module_path . '/js/shared_canvas/js/jquery/jquery.watermark.min.js');
-  drupal_add_js($image_annotation_module_path . '/js/shared_canvas/js/ContextMenu/jquery.contextMenu.js');
+  drupal_add_js($image_annotation_module_path . '/lib/jquery/jquery.watermark.min.js');
+  drupal_add_js($image_annotation_module_path . '/lib/jquery/ContextMenu/jquery.contextMenu.js');
+  drupal_add_js($image_annotation_module_path . '/lib/jquery/jquery.miniColors.js');
+  drupal_add_js($image_annotation_module_path . '/lib/jquery/jquery.svg.js');
+  drupal_add_js($image_annotation_module_path . '/lib/jquery/jquery.rdfquery.rdfa.min-1.1.js');
+  drupal_add_js($image_annotation_module_path . '/lib/jquery/jquery.rdf.turtle.js');
+  // @todo Remove if not needed.
+  // drupal_add_js($image_annotation_module_path . '/lib/jquery/jquery.touchSwipe-1.2.4.js');
+  drupal_add_js($image_annotation_module_path . '/lib/raphael/raphael.js');
+  drupal_add_js($image_annotation_module_path . '/lib/raphael/scale.raphael.js');
+  drupal_add_js($image_annotation_module_path . '/lib/uuid.js');
 
-  drupal_add_js($image_annotation_module_path . '/js/shared_canvas/js/jquery/jquery.svg.js');
-  drupal_add_js($image_annotation_module_path . '/js/shared_canvas/js/jquery.rdfquery.rdfa.min-1.1.js');
-  drupal_add_js($image_annotation_module_path . '/js/shared_canvas/js/jquery.rdf.turtle.js');
-  drupal_add_js($image_annotation_module_path . '/js/shared_canvas/js/jquery.touchSwipe-1.2.4.js');
-  drupal_add_js($image_annotation_module_path . '/js/shared_canvas/js/raphael.js');
-  drupal_add_js($image_annotation_module_path . '/js/shared_canvas/js/scale.raphael.js');
-  drupal_add_js($image_annotation_module_path . '/js/shared_canvas/js/uuid.js');
-  drupal_add_js($image_annotation_module_path . '/js/shared_canvas/js/jquery/jquery.miniColors.js');
 
   /*
   drupal_add_js($image_annotation_module_path . '/js/shared_canvas/stable/sc_ui.js');
@@ -255,7 +257,7 @@ function template_preprocess_islandora_image_annotation(array &$variables) {
 
   drupal_add_css($image_annotation_module_path . '/js/shared_canvas/js/ContextMenu/jquery.contextMenu.css');
   drupal_add_css($image_annotation_module_path . '/js/shared_canvas/css/jquery.miniColors.css');
-  drupal_add_css($image_annotation_module_path . '/js/shared_canvas/css/sc.css');
+  //drupal_add_css($image_annotation_module_path . '/js/shared_canvas/css/sc.css');
   // End Previously in.
 
   // Add JavaScript.

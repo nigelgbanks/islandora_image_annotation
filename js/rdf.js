@@ -396,7 +396,7 @@ var RDF = {};
       if (!x || !width) {
         return null;
       }
-    } else if (this.fragmentInfo !== null && this.fragmentInfo.length === 4) {
+    } else if (this.fragmentInfo !== undefined && this.fragmentInfo.length === 4) {
       x = this.fragmentInfo[0];
       y = this.fragmentInfo[1];
       width = this.fragmentInfo[2];

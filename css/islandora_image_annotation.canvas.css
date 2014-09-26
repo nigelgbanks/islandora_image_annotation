@@ -1,0 +1,18 @@
+/**
+ * @file
+ * Defines the base set of css required to render the canvas.
+ */
+
+/**
+ * All components of the 'canvas' are laid over-top of one another.
+ */
+#canvases .canvas {
+  position: absolute;
+  z-index: 0;
+}
+#annotations {
+  z-index: 1;
+}
+#svg-wrapper {
+  z-index: 2;
+}
