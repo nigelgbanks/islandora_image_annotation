@@ -15,5 +15,5 @@
       <!--  Wrapper to create SVG divs in -->
       <div id="svg-wrapper"></div>
     </div>
-  </div>git dif
+  </div>
 </div>

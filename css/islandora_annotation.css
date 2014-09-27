@@ -1,8 +1,11 @@
+/**
+ * @deprecated
+ */
 .-image-annotation-annotations {
-  float: left;
-  width: 25%;
-  background-color: #eee;
-}
+   float: left;
+   width: 25%;
+   background-color: #eee;
+ }
 
 .islandora-image-annotation-canvas {
   float: left;

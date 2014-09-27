@@ -12,13 +12,18 @@
   'use strict';
 
   /**
+   * The DOM element that represents the Singleton Instance of this class.
+   * @type {string}
+   */
+  var base = '#islandora-image-annotation-canvas';
+
+  /**
    * Initialize the Islandora Image Annotation Canvas.
    *
    * We can only have one canvas per page.
    */
   Drupal.behaviors.islandoraImageAnnotationCanvas = {
     attach: function (context, settings) {
-      var base = '#islandora-image-annotation-canvas';
       $(base, context).once('islandoraImageAnnotation', function () {
         Drupal.IslandoraImageAnnotationCanvas[base] = new Drupal.IslandoraImageAnnotationCanvas(base, settings.islandoraImageAnnotationCanvas);
       });
@@ -122,7 +127,7 @@
     /**
      * Resize the canvas and the image inside of it.
      */
-    function resizeCanvas() {
+    this.resizeCanvas = function () {
       var $imageWrapper, $image, width;
 
       $imageWrapper = $('.base_img');
@@ -150,7 +155,7 @@
         // Poll the window.resize event every 300ms for changes and resize the
         // canvas appropriately.
         poll(function () {
-          resizeCanvas();
+          that.resizeCanvas();
         }, 300);
       });
     }
@@ -507,22 +512,36 @@
      *   The DOM element ID for the canvas.
      */
     function drawImageAnnotation(annotation, canvasId) {
-      var $imageAnnotation, $image;
+      var canvas, canvasWidth, canvasHeight, scale, scaledHeight, scaledWidth,
+        $imageAnnotation, $image;
+
+      // @todo Refactor into a function.
+      canvas = $('#' + canvasId).attr('canvas');
+      canvasHeight = that.sequenceInfo[canvas][0];
+      canvasWidth = that.sequenceInfo[canvas][1];
+      scale = that.canvasWidth / canvasWidth;
+      scaledHeight = scale * canvasHeight;
+      scaledWidth = scale * canvasWidth;
+
       $imageAnnotation = $('<div />', {
-        // We make the assumption that the annotation will always have a uuid
+        // We make the assumption that the annotation id will always have a uuid
         // in it.
         id: 'image-annotation-' + IIAUtils.urnComponents(annotation.id).nss,
-        class: 'image-annotation base_img'
+        class: 'image-annotation'
       });
       $image = $('<img />', {
-        src: annotation.getBodyTarget().id
+        src: annotation.getBodyTarget().id,
+        width: scaledWidth,
+        height: scaledHeight
       });
-      // $image.width(scaledWidth);
-      // $image.height(scaledHeight);
-      //div.width(sw)
-      // div.height(scaledHeight);
-      //div.css('z-index', that.zOrders.image);
       $("#annotations").append($imageAnnotation.append($image));
+    }
+
+    /**
+     * @todo Document.
+     */
+    function drawCommentAnnotation() {
+      console.log('Implement drawCommentAnnotation()');
     }
 
     /**
@@ -759,25 +778,27 @@
     }
 
     /**
-     * @todo Document
+     * Draw the given annotation as the given type.
+     *
+     * Original version of shared Canvas apparently supported text and audio
+     * annotations. This has been discontinued.
+     *
+     * @param {string} type
+     *   The type of annotation to draw, expected to be either 'image' or
+     *   'comment'.
+     * @param {RDF.Annotation} annotation
+     *   The annotation to draw
+     * @param div
+     *   The div to insert the drawn annotation into.
      */
     function drawAnnotation(type, annotation, div) {
-      // @todo Implement this other crap?
       switch (type) {
       case 'image':
         drawImageAnnotation(annotation, div);
         break;
-        /* @todo Do we need any of this?
-        case 'text':
-          drawTextAnnotation(annotation, div);
-          break;
-        case 'audio':
-          drawAudioAnnotation(annotation, div);
-          break;
-        case 'comment':
-          drawCommentAnnotation(annotation, div);
-          break;
-         */
+      case 'comment':
+        drawCommentAnnotation(annotation, div);
+        break;
       }
     }
 
@@ -966,13 +987,8 @@
       $('#' + canvasId).height(height * scale);
 
       // Start sucking down annotations
-      /* @todo Implement */
-      fetchAnnotations('zone', canvas);
       fetchAnnotations('image', canvas);
-      fetchAnnotations('text', canvas);
-      fetchAnnotations('audio', canvas);
       fetchAnnotations('comment', canvas);
-      //fetch_comment_annotations();
     }
 
     function showPage() {
@@ -989,7 +1005,6 @@
       $(".canvas").empty();
       $('#svg_wrapper').empty();
       $('#annotations').empty();
-      $('.canvasUri').remove();
 
       that.canvasDivHash = {};
       that.raphaels = {
@@ -1193,7 +1208,20 @@
       processManifest);
 
     // Adjust the canvas size now that we've loaded everything.
-    resizeCanvas();
+    this.resizeCanvas();
+  };
+
+  /**
+   * Gets the global singleton of this class.
+   *
+   * This function is meant to be used after Drupal.attachBehaviors() has been
+   * called, otherwise the singleton instance won't exist.
+   *
+   * @return {Drupal.IslandoraImageAnnotationDialog}
+   *   The singleton
+   */
+  Drupal.IslandoraImageAnnotationCanvas.getInstance = function () {
+    return Drupal.IslandoraImageAnnotationCanvas[base];
   };
 
 }(jQuery));

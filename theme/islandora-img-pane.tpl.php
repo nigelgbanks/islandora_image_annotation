@@ -3,6 +3,8 @@
 /**
  * @file
  * The area in which the image and it's overlaid annotations are rendered.
+ *
+ * @deprecated
  */
 ?>
 <div id="canvas-body">
