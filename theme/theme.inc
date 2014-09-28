@@ -238,8 +238,8 @@ function template_preprocess_islandora_image_annotation(array &$variables) {
   $image_annotation_module_path = drupal_get_path('module', 'islandora_image_annotation');
 
   drupal_add_js($image_annotation_module_path . '/lib/jquery/jquery.watermark.min.js');
-  drupal_add_js($image_annotation_module_path . '/lib/jquery/ContextMenu/jquery.contextMenu.js');
-  drupal_add_js($image_annotation_module_path . '/lib/jquery/jquery.miniColors.js');
+  drupal_add_js($image_annotation_module_path . '/lib/jquery/contextMenu/jquery.contextMenu.js');
+  drupal_add_js($image_annotation_module_path . '/lib/jquery/miniColors/jquery.miniColors.js');
   // @todo Check if I can remove this jquery.svg javascript call.
   drupal_add_js($image_annotation_module_path . '/lib/jquery/jquery.svg.js');
   drupal_add_js($image_annotation_module_path . '/lib/jquery/jquery.rdfquery.rdfa.min-1.1.js');
@@ -263,8 +263,8 @@ function template_preprocess_islandora_image_annotation(array &$variables) {
   // Previously in islandora_image_annotation_include_common_css();
   $image_annotation_module_path = drupal_get_path('module', 'islandora_image_annotation');
 
-  drupal_add_css($image_annotation_module_path . '/lib/jquery/ContextMenu/jquery.contextMenu.css');
-  drupal_add_css($image_annotation_module_path . '/lib/jquery/css/jquery.miniColors.css');
+  drupal_add_css($image_annotation_module_path . '/lib/jquery/contextMenu/jquery.contextMenu.css');
+  drupal_add_css($image_annotation_module_path . '/lib/jquery/miniColors/jquery.miniColors.css');
   //drupal_add_css($image_annotation_module_path . '/js/shared_canvas/css/sc.css');
   // End Previously in.
 

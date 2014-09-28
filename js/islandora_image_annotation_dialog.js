@@ -42,6 +42,7 @@
    * @constructor
    */
   Drupal.IslandoraImageAnnotationDialog = function (base, settings) {
+    var $dialog = $(base);
 
     /**
      * Replaces the defined '%pid%' placeholder in the url so that it will
@@ -287,12 +288,68 @@
     }
 
     /**
+     * Populates the form with the given name / values pairs.
+     */
+    function setFormValues(values) {
+      $.each(values, function (name, value) {
+        $('*[name="' + name + '"]', $dialog).val(value);
+      });
+    }
+
+    /**
+     * Resets the form to it's defaults.
+     */
+    function getFormValues() {
+      // @todo Set up a mechanism to fetch this info,
+      // that.raphaels.comment[canvas].annotateRect.myShapes;
+      // shapes = [];
+      // canvas = $('#canvases').find('.canvas[canvas]').attr('canvas');
+      return {
+        title: $('input[name="title"]', $dialog).val(),
+        type: $('input[name="type"]', $dialog).val(),
+        color: $('input[name="color"]', $dialog).attr('value'),
+        text:  $('input[name="text"]', $dialog).val()
+      };
+    }
+
+    /**
+     * Resets the form to it's defaults.
+     */
+    function populateForm(annotation) {
+      // Although there can be multiple targets, we just assume one for this
+      // form.
+      var $svg = $(annotation.targets[0].constraint.value);
+      // @todo Deal with Entities.
+      setFormValues({
+        title: annotation.title,
+        type: annotation.annotationType,
+        stroke: $svg.attr('stroke-width'),
+        color: $svg.attr('stroke'),
+        text: annotation.body.value
+      });
+    }
+
+    /**
+     * Resets the form to it's defaults.
+     */
+    function clearForm() {
+      // Clear All the fields.
+      $('input,select,textarea', $dialog).val('');
+      // Reset Defaults.
+      $('input[name="stroke"]', $dialog).val('.3%');
+      // Set a random color for the annotations.
+      $('input[name="color"]', $dialog).attr('value', getRandomColour());
+      // Destroy the miniColor
+      $('input[name="color"]', $dialog).miniColors('destroy');
+    }
+
+    /**
      * Creates a dialog box and displays it.
      *
      * @returns {*}
      */
-    this.show = function () {
-      $(base).dialog({
+    this.show = function (canvas, annotation) {
+      $dialog.dialog({
         title: Drupal.t('Annotate'),
         height: 680,
         width: 460,
@@ -305,12 +362,17 @@
           of: '#content'
         },
         open: function () {
-          var randomColour;
+          // Clear the form to be safe.
+          clearForm();
+          // Populate the form.
+          if (annotation !== undefined) {
+            populateForm(annotation);
+          }
+          // Set up the color chooser.
           if (settings.canChooseColour) {
-            randomColour = getRandomColour();
-            $('#anno_color').attr('value', randomColour);
-            $('.miniColors-trigger').css('background-color', randomColour);
-            $('#color-picker-wrapper').hide();
+            $('#color-picker-wrapper').click(function () {
+              $('#islandora-image-annotation-dialog-color-activated').attr('value', 'active');
+            });
             $('.color-picker').miniColors();
           }
         },
@@ -318,21 +380,22 @@
           text: 'Save',
           // Assumes only one canvas with a valid 'canvas' attribute.
           click: function () {
-            var $title, title, content, type, color, canvas, shapes, annotation;
-
+            var values;
+            /*
             $title = $('#islandora-image-annotation-dialog-title');
             title = $title.is('select') ? $('option:selected', $title).val() : $title.val();
             content = $('#islandora-image-annotation-dialog-text').val();
             type = $('#islandora-image-annotation-dialog-type').val();
             color = $('#islandora-image-annotation-dialog-color').attr('value');
-            canvas = $('#canvases').find('.canvas[canvas]').attr('canvas');
+            canvas = $('#canvases').find('.canvas[canvas]').attr('canvas');*/
+            values = getFormValues();
             // @todo Set up a mechanism to fetch this info,
             // that.raphaels.comment[canvas].annotateRect.myShapes;
-            shapes = [];
+            // shapes = [];
 
             // Minimally we only allow users to create content if they have
             // entered a title and annotation.
-            if (!content || !title) {
+            if (!values.text || !values.title) {
               alert('An annotation needs both title and content');
               return 0;
             }
@@ -352,15 +415,14 @@
             // generates identifiers for the annotation and it's content.
             annotation = createAnnotation(title, type, null, null, color, content, canvas, shapes);
             addAnnotationToObject(settings.pid, canvas, annotation.rdfa, type, color);
-            $(this).dialog('close');
+            $dialog.dialog('close');
           }
         }, {
           text: 'Cancel',
           click: function () {
-            // @todo
+            clearForm();
             // closeAndEndAnnotating();
-            $(this).dialog('close');
-            //$('#hidden_annotation_type').text('');
+            $dialog.dialog('close');
           }
         }]
       });

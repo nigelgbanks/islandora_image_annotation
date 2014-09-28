@@ -172,6 +172,17 @@ var RDF = {};
   };
 
   /**
+   * Checks if this resource is a Canvas.
+   *
+   * @returns {boolean}
+   */
+  RDF.Resource.prototype.isCanvas = function () {
+    var type = IIAUtils.getResourceURL('dms', 'Canvas');
+    return ($.inArray(type, this.types) !== -1) ? true : false;
+  };
+
+
+  /**
    * Instantiate a RDF.Annotation object.
    *
    * @param {string} id
@@ -214,6 +225,7 @@ var RDF = {};
       painted: 0,
       zOrder: 0
     });
+    console.log(this.getTargetCanvas());
   };
   // RDF.Annotation inherits from RDF.Resource.
   RDF.Annotation.prototype = Object.create(RDF.Resource.prototype);
@@ -238,6 +250,22 @@ var RDF = {};
     }
     return this.body;
   };
+
+  /**
+   *
+   * @returns {*}
+   */
+  RDF.Annotation.prototype.getTargetCanvas = function () {
+    var canvas = null;
+    $.each(this.targets, function (index, target) {
+      if (target.isCanvas()) {
+        canvas = target;
+        return false;
+      }
+    });
+    return canvas;
+  };
+
 
   /**
    * Gets the fragment identifier from the given URI.
@@ -382,7 +410,7 @@ var RDF = {};
     });
   };
   // RDF.Annotation inherits from RDF.Resource.
-  RDF.BodyTarget.prototype = Object.create(RDF.BodyTarget.prototype);
+  RDF.BodyTarget.prototype = Object.create(RDF.Resource.prototype);
   RDF.BodyTarget.prototype.constructor = RDF.BodyTarget;
 
   /**

@@ -41,19 +41,6 @@
     var annotations = [];
 
     /**
-     * Gets a Random Color.
-     *
-     * @returns {string}
-     */
-    function getRandomColor() {
-      var svgAreaColors = [
-        '#FF0000', '#FF6600', '#FF9400', '#FEC500', '#FFFF00', '#8CC700',
-        '#0FAD00', '#00A3C7', '#0064B5', '#0010A5', '#6300A5', '#C5007C'
-      ];
-      return svgAreaColors[Math.floor(Math.random() * svgAreaColors.length)];
-    }
-
-    /**
      * Looks for the given annotation targets canvas.
      *
      * The target will be the SVG annotation of the image, which is assumed to
@@ -347,6 +334,7 @@
         case 'edit':
           showAnnotation(uuid);
           // @todo Open Dialog box, and pre-populate it.
+          Drupal.IslandoraImageAnnotationDialog.getInstance().show(annotations[uuid]);
           // startEditting(title, annotation, anno_type, urn);
           break;
 
