@@ -131,6 +131,12 @@ var RDF = {};
 
     // Adds helper functions for fetching properties.
     me = getResourceFromDump(id, dump);
+    if (me === null) {
+      // We sometimes reference resources we don't have any information for, in
+      // such cases we can use the only piece of information we have the id.
+      this.id = id;
+      return;
+    }
 
     rdfType = IIAUtils.getResourceURL('rdf', 'type');
     dcTitle = IIAUtils.getResourceURL('dc', 'title');
@@ -200,7 +206,9 @@ var RDF = {};
     $.extend(this, {
       body: new RDF.BodyTarget(me.getProperty(oaHasBody), dump),
       hasPart: me.getProperty(dcTermsHasPart) || undefined,
-      annoType: me.getProperty(dcType) || undefined,
+      // Type specified by the user, not expected to be 'zone', 'image',
+      // 'audio', 'text' or 'comment'
+      annotationType: me.getProperty(dcType) || undefined,
       targets: targets,
       finished: 1,
       painted: 0,

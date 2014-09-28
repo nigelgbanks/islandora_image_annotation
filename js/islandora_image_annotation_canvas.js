@@ -115,30 +115,41 @@
       $canvasBody = $('#canvas-body');
       that.canvasWidth = $canvasBody.width();
       that.canvasHeight = $canvasBody.height();
-      that.numCanvases = 1;
-      if ($('#canvas', $canvasBody).length === 0) {
-        $('#canvases').append('<div id="canvas" class="canvas" />');
-      }
       $canvas = $('#canvas');
       $canvas.width(that.canvasWidth);
       $canvas.height(that.canvasHeight);
+      // Update Raphael if possible.
+      $.each(that.raphaels, function (type, canvases) {
+        $.each(canvases, function (id, canvas) {
+          canvas.changeSize(that.canvasWidth, that.canvasHeight, false, false);
+        });
+      });
+      /*
+      $svg = $('#svg-wrapper svg');
+      $svg.width(that.canvasWidth);
+      $svg.height(that.canvasHeight);
+       svgCanvas = ScaleRaphael(svgId, canvasWidth, canvasHeight);
+      */
     }
 
     /**
      * Resize the canvas and the image inside of it.
      */
     this.resizeCanvas = function () {
-      var $imageWrapper, $image, width;
-
-      $imageWrapper = $('.base_img');
-      $image = $imageWrapper.children(":first");
-      width = $('#canvas-body').width();
-
-      $image.width(width);
-      $image.css('height', 'auto');
-      $imageWrapper.css('height', $image.height());
+      var width = $('#canvas-body').width();
+      $('.image-annotation').each(function () {
+        var $imageWrapper, $image;
+        $imageWrapper = $(this);
+        $image = $imageWrapper.children(":first");
+        $image.width(width);
+        $image.css('height', 'auto');
+        $imageWrapper.css('height', $image.height());
+        // Needs to be set explicitly since absolute position elements
+        // like image are not in the normal document flow.
+        $('#canvas-body').height($image.height());
+      });
       initializeCanvas();
-    }
+    };
 
     /**
      * Sets up the user interface.
@@ -167,7 +178,20 @@
      *   The $.rdf object used to fetch / process the annotations as triples.
      */
     function createRDFBase() {
-      return $.rdf(that.opts);
+      return $.rdf({
+        base: 'http://localhost/EmicShared/impl/',
+        namespaces: {
+          dc: 'http://purl.org/dc/elements/1.1/',
+          dcterms: 'http://purl.org/dc/terms/',
+          dctype: 'http://purl.org/dc/dcmitype/',
+          oa: 'http://www.w3.org/ns/openannotation/core/',
+          cnt: 'http://www.w3.org/2008/content#',
+          dms: 'http://dms.stanford.edu/ns/',
+          rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+          ore: 'http://www.openarchives.org/ore/terms/',
+          exif: 'http://www.w3.org/2003/12/exif/ns#'
+        }
+      });
     }
 
     /**
@@ -378,7 +402,7 @@
       var annotationType = null;
       // Annotations can have multiple type values, so we first check for the
       // most generic description and then refine if possible.
-      if ($.inArray('http://www.w3.org/ns/openannotation/core/Annotation', annotation.types)) {
+      if ($.inArray('http://www.w3.org/ns/openannotation/core/Annotation', annotation.types) !== -1) {
         annotationType = 'comment';
       }
       // Check the more specific Annotations Types.
@@ -454,7 +478,7 @@
      * @param canvasId
      * @returns {*}
      */
-    function makeRaphael(type, canvas, canvasId) {
+    this.makeRaphael = function (type, canvas, canvasId) {
       var info, canvasWidth, canvasHeight, scale, scaledWidth, scaledHeight,
         svgId, $svg, svgCanvas;
       if (that.raphaels[type][canvas] !== undefined) {
@@ -470,18 +494,19 @@
       scale = that.canvasWidth / canvasWidth;
       scaledHeight = canvasHeight * scale;
       scaledWidth = canvasWidth * scale;
-      svgId = 'svg_annos_' + type + '_' + canvasId;
+      svgId = 'svg-annotation-' + type;
 
       $svg = $('<div />', {
         id: svgId,
-        class: 'svg_canvas_wrapper'
+        canvas: canvas
       });
-      $('#svg_wrapper').append($svg);
+      $('#svg-wrapper').append($svg);
       $svg.height(scaledHeight);
       $svg.width(scaledWidth);
       // Allow a base image at 1
       $svg.css('z-index', that.zOrders[type] + 1);
-      $svg.css('position', 'absolute');
+      // @todo Sort this shit out:  $svg.css('position', 'absolute');
+      $svg.css('position', 'static');
       $svg.position({
         'of': '#' + canvasId,
         'my': 'left top',
@@ -497,7 +522,7 @@
       // Cache svgCanvas.
       that.raphaels[type][canvas] = svgCanvas;
       return svgCanvas;
-    }
+    };
 
     /**
      * Draw the given annotation on the given canvas element.
@@ -540,241 +565,66 @@
     /**
      * @todo Document.
      */
-    function drawCommentAnnotation() {
-      console.log('Implement drawCommentAnnotation()');
-    }
+    function drawCommentAnnotation(annotation, canvasId) {
+      Drupal.IslandoraImageAnnotationList.getInstance().addAnnotation(annotation);
 
-    /**
-     * Draw the given annotation on the given canvas element.
-     *
-     * @param {object} annotation
-     *   The annotation to draw.
-     * @param canvasId
-     *   The DOM element ID for the canvas.
-     */
-    function _drawImageAnnotation(annotation, canvasId) {
-      var $image;
-      var canvas, canvasWidth, canvasHeight, canvasTitle, scale, scaledHeight, scaledWidth,
-        img, myid, html, xywh, zprb, zprs, zpr, imge, imguri, imgid,
-        x, y, w, h, tx, ty, tw, th, chkd, a, attr, body, clip, clipScale, cpe,
-        div, divh, divw, doc, fullImage, imgh, imgoffleft, imgofftop,
-        imgw, imhw, npth, offset, pth, pthelm, r, sc, svg, svgcanvas, target,
-        ttlh, ttlw, zIdx, o, iopt, urn;
+      /*
+       var title, type, fixed_annotype, txt, tgt, myid, tgtttl, x,
+       entity_link, block, selectBlock, id, canvas, pm, c;
+       title = annotation.title;
+       type = annotation.annoType;
+       // remove illegal characters
+       fixed_annotype = type.replace(/[^\w]/g, '');
+       txt = annotation.body.value;
+       myid = annotation.id.substring(9, 100);
+       txt = txt.replace(/\n/g, '<br/>');
 
-      canvas = $('#' + canvasId).attr('canvas');
-      canvasHeight = that.sequenceInfo[canvas][0];
-      canvasWidth = that.sequenceInfo[canvas][1];
-      scale = that.canvasWidth / canvasWidth;
-      scaledHeight = scale * canvasHeight;
-      scaledWidth = scale * canvasWidth;
+      // Grab the list object and update it, for now later we can switch to
+      // events.
+      entity_link = '';
 
-      // @todo clean up this shite.
-      // We make the assumption that the annotation will always have a uuid
-      // in it.
-      myid = 'imganno_' + IIAUtils.urnComponents(annotation.id).nss;
-
-      // First find which image to use!
-      // @todo Could be a function of it's own, in the RDF object.
-      img = null;
-      if (annotation.body.options.length > 0) {
-        // Display choice with best default
-        annotation.body.options.sort(function (a, b) {
-          return a.id > b.id ? 1 : -1;
-        });
-        img = annotation.body.defaultOpt || annotation.body.options[0];
-      } else {
-        img = annotation.body;
+      if (annotation.relation) {
+        entity_link = '<div class="comment_entity">' + '<a href="' + Drupal.settings.islandora_image_annotation.entity_link_path +
+          annotation.relation + '">' +
+          annotation.hasPart + '</a>' + '</div>';
       }
+      // block contains complete annotation
+      block = '<div class="canvas-annotation" ' + 'urn="' + myid + '" ' + ' >';
+      block += '<div class="comment_title" id="anno_' + myid + '"><span class="comment_showhide">+ </span>' + title + '</div>';
+      block += '<div class="comment_text">' + '<div class="comment_type">' + type + '</div><div class="comment_content">' + txt + '</div>' + entity_link + '</div>';
+      block += '</div>';
 
-      // And Display it.
-      xywh = img.getRect();
-      if (xywh !== null) {
-        x = xywh[0];
-        y = xywh[1];
-        w = xywh[2];
-        h = xywh[3];
+      selectBlock = "#islandora_annoType_content_" + fixed_annotype;
+      if ($(selectBlock).append(block)) {
       }
+      $('#anno_' + myid).attr('canvas', canvasId);
 
-      if (img.rotation === 0 && annotation.targets[0].partOf === undefined && img.partOf === undefined) {
-        // Full Image annotates Full Canvas
-        imgid = 'img_' + myid;
-        imguri = img.id;
+      $('#delete_anno_' + myid).click(function (event) {
+        if (confirm("Permanently Delete This Annotation?")) {
+          // @todo Implement this?
+          // islandora_deleteAnno(myid);
+        }
+        event.preventDefault();
+      });
 
-        $image = $('<div />', {
-          id: myid,
-          class: 'base_img'
-        }).append($('<img />', {
-          id: imgid,
-          src: imguri
-        }));
-        $("#annotations").append($image);
-        div = $('#' + myid);
-        div.position({
-          'of': '#' + canvasId,
-          'my': 'left top',
-          'at': 'left top',
-          'collision': 'none',
-          'offset': '0 0'
-        });
-        imge = $('.base_img').children("img:first");
-
-        imge.width(scaledWidth);
-        imge.height(scaledHeight);
-        //div.width(sw)
-        div.height(scaledHeight);
-        div.css('z-index', that.zOrders.image);
-      }
-      else if (img.rotation === 0 && (xywh !== null || !img.partOf)) {
-
-        // Full Image/Rect Segment annotates Rect Segment of Canvas
-        // Can get by with just regular HTML and CSS
-
-        if (img.partOf === undefined) {
-          imguri = annotation.body.id;
-          clip = '';
-
+      $('#anno_' + myid).click(function () {
+        $(this).toggleClass('annotation-opened').next().toggle();
+        pm = $(this).find('.comment_showhide');
+        if (pm.text() === '+ ') {
+          pm.empty().append('- ');
+          id = $(this).attr('id').substring(5, 100);
+          canvas = $(this).attr('canvas');
+          paint_commentAnnoTargets(this, canvas, id, type);
         } else {
-          imguri = img.partOf.id;
-          // top, right, bottom, left offsets from edges == STUPID!
-          // Clip needs to be scaled against size of full image
-
-          ttlh = 1088;
-          ttlw = 816;
-
-          clipScale = scaledWidth / w;
-          imgh = ttlh * clipScale;
-          imhw = ttlw * clipScale;
-
-          clip = 'rect(' + (y * clipScale) + 'px,' + ((x + w) * clipScale) + 'px,' + ((y + h) * clipScale) + 'px,' + (x * clipScale) + 'px)';
-          zIdx = that.zOrders.image + annotation.zOrder;
-          divh = scaledHeight;
-          divw = scaledWidth;
-          offset = "0 0";
-          imgoffleft = (x * clipScale);
-          imgofftop = (y * clipScale);
+          $('.svg_' + myid).remove();
+          c = $(this).find('.mycolor');
+          // @todo Find out where this comes from.
+          svgAreaColors.push(c.attr('color'));
+          c.remove();
+          pm.empty().append('+ ');
         }
-
-        xywh = annotation.targets[0].getRect();
-        if (xywh !== null) {
-          tx = xywh[0];
-          ty = xywh[1];
-          tw = xywh[2];
-          th = xywh[3];
-          offset = Math.floor(tx * scale) + ' ' + Math.floor(ty * scale);
-          zIdx = that.zOrders.detailImage + annotation.zOrder;
-          divw = tw * scale;
-          divh = th * scale;
-        }
-
-        body = '<img src="' + imguri + '" id="img_' + myid + '"/>';
-        $("#annotations").append('<div class="img_anno" id="' + myid + '" >' + body + '</div>');
-        div = $('#' + myid);
-        div.css('z-index', zIdx);
-        div.height(divh);
-
-        img = $('#img_' + myid);
-
-        if (clip) {
-          img.css('position', 'absolute');
-          img.offset({
-            top: div.position().top - imgofftop,
-            left: div.position().left - imgoffleft
-          });
-          img.css('clip', clip);
-        }
-        img.height(imgh);
-        img.width(imgw);
-
-        div.position({
-          'of': '#' + canvasId,
-          'my': 'left top',
-          'at': 'left top',
-          'collision': 'none',
-          'offset': offset
-        });
-
-      }
-      else if (img.rotation && annotation.targets[0].partOf === undefined) {
-        // Rotated image targets entire canvas.
-        // No need to clip, just translate top corner to correct place
-        // and then scale to correct size. Non visible stuff will be outside SVG
-        // view port and thus not display.
-
-        fullImage = img.partOf;
-        svgcanvas = makeRaphael('image', canvas, canvasId);
-        r = img.fragmentInfo;
-        x = svgcanvas.image(fullImage.id, 0, 0, fullImage.width, fullImage.height);
-        x.node.setAttribute('preserveAspectRatio', 'none');
-
-        x.rotate(img.rotation, r[0], r[1]);
-        if (img.rotation === 90) {
-          x.translate(r[3] - r[0], -r[1]);
-        } else {
-          x.translate(-r[0], r[2] - r[1]);
-        }
-      }
-      else {
-        // Non Rect Segment of Image annotates (Canvas / Segment of Canvas)
-        // Use SVG clip, either from SVG or media fragment
-        // OR full image that needs rotation
-        // XXX This cannot be unshown, and re-orders all together as just one SVG canvas
-
-        fullImage = img.partOf;
-        svgcanvas = makeRaphael('image', canvas, canvasId);
-
-        // reset z-index to detail
-        $(svgcanvas.wrapperElem).css('z-index', that.zOrders.detailImage);
-        target = annotation.targets[0];
-        if (img.constraint !== undefined) {
-          svg = img.constraint.value;
-        } else if (img.fragmentType && img.fragmentType === 'rect') {
-          // Construct SVG rect from fragmentInfo
-          r = img.fragmentInfo;
-          svg = "<rect xmlns='http://www.w3.org/2000/svg' x='" + r[0] + "' y='" + r[1] + "' width='" + r[2] + "' height='" + r[3] + "'/>";
-        }
-
-        pth = $.parseXML(svg);
-        doc = $(pth);
-        pthelm = doc.children()[0];
-        // Duplicating into the DOM for webkit
-        npth = document.createElementNS('http://www.w3.org/2000/svg', pthelm.nodeName);
-        for (a in pthelm.attributes) {
-          attr = pthelm.attributes[a];
-          npth.setAttribute(attr.nodeName, attr.nodeValue);
-        }
-        pthelm = npth;
-
-        // Now determine if target is full canvas or fragment
-
-        if (target.fragmentType && target.fragmentType === 'rect') {
-          tx = target.fragmentInfo[0];
-          ty = target.fragmentInfo[1];
-          tw = target.fragmentInfo[2];
-          th = target.fragmentInfo[3];
-        } else {
-          tw = canvasWidth;
-          th = canvasHeight;
-          tx = 0;
-          ty = 0;
-        }
-
-        sc = th / fullImage.height;
-
-        // And build SVG clip path.
-        cpe = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
-        cpe.setAttribute('id', 'svgclippath' + canvasId);
-        // Need to translate and scale the path as well as the image
-        pthelm.setAttribute('transform', 'translate(' + tx + ' ' + ty + ') scale(' + sc + ')');
-
-        cpe.appendChild(pthelm);
-        svgcanvas.canvas.appendChild(cpe);
-
-        x = svgcanvas.image(fullImage.id, 0, 0, fullImage.width, fullImage.height);
-        x.node.setAttribute('preserveAspectRatio', 'none');
-        x.node.setAttribute('clip-path', 'url(#svgclippath' + canvasId + ')');
-        x.scale(sc, sc, 0, 0);
-        x.translate(tx, ty);
-      }
+        return false;
+      }).next().hide();*/
     }
 
     /**
@@ -965,6 +815,29 @@
         });
       }
     }
+
+    /**
+     * @todo Document
+     * @param pid
+     */
+    this.getCommentAnnotation = function (pid) {
+      $.ajax({
+        type: 'GET',
+        url: '/islandora/anno/get_annotation/' + pid,
+        success: function (data, status, xhr) {
+          var rdf = $(data).rdf();
+          if (rdf.databank.size() === 0) {
+            try {
+              rdf = createRDFBase.load(data);
+            } catch (exception) {
+              console.log('Failed to load Comment Annotation: ' + exception);
+              console.log(exception.stack);
+            }
+          }
+          processAnnotations(rdf, '');
+        }
+      });
+    };
 
     /**
      * Fetches All the annotations and displays them on the canvas.
@@ -1221,6 +1094,12 @@
    *   The singleton
    */
   Drupal.IslandoraImageAnnotationCanvas.getInstance = function () {
+    // @todo Hack for now, later fix and remove.
+    if (Drupal.IslandoraImageAnnotationCanvas[base] === undefined) {
+      $(base, document).once('islandoraImageAnnotation', function () {
+        Drupal.IslandoraImageAnnotationCanvas[base] = new Drupal.IslandoraImageAnnotationCanvas(base, Drupal.settings.islandoraImageAnnotationCanvas);
+      });
+    }
     return Drupal.IslandoraImageAnnotationCanvas[base];
   };
 

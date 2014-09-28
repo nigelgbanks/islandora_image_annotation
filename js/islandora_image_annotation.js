@@ -36,24 +36,6 @@
           fullWindowClass = 'islandora-image-annotation-full-window';
 
         /**
-         * Displays a message that ESC can be used to exit full window mode.
-         */
-        function displayExitFullWindowMessage() {
-          // Add a message to notify user of the 'ESC' button.
-          var $message = $('<div/ >', {
-            id: messageId
-          }).html(Drupal.t('Press ESC to exit full screen')).hide();
-          $('.islandora-image-annotation-right-column').prepend($message);
-          $message.fadeIn(400, function () {
-            setTimeout(function () {
-              $message.fadeOut(400, function () {
-                $message.remove();
-              });
-            }, 3000);
-          });
-        }
-
-        /**
          * Removes the message that ESC can be used to exit full window mode.
          */
         function removeExitFullWindowMessage() {
@@ -61,6 +43,32 @@
           if ($message.length > 0) {
             $message.remove();
           }
+        }
+
+        /**
+         * Displays a message that ESC can be used to exit full window mode.
+         */
+        function displayExitFullWindowMessage() {
+          var $message;
+
+          // Prevent from rendering twice.
+          removeExitFullWindowMessage();
+
+          // Add a message to notify user of the 'ESC' button.
+          $message = $('<div />', {
+            id: messageId
+          }).append(
+            $('<div />').html(Drupal.t('Press ESC to exit full screen')).hide()
+          );
+          $('.islandora-image-annotation-right-column').prepend($message);
+          $('div:first-child', $message).fadeIn(400, function () {
+            var $child = $(this);
+            setTimeout(function () {
+              $child.fadeOut(400, function () {
+                $message.remove();
+              });
+            }, 3000);
+          });
         }
 
         /**

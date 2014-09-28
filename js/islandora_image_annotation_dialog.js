@@ -253,7 +253,7 @@
             objectPid: objectPid,
             annotationPid: annotationPid
           });
-          // @todo Remove.
+          // @todo Implement.
           // getAnnotation(annotationPid);
         },
         error: function (data, status, xhr) {
@@ -353,64 +353,6 @@
             annotation = createAnnotation(title, type, null, null, color, content, canvas, shapes);
             addAnnotationToObject(settings.pid, canvas, annotation.rdfa, type, color);
             $(this).dialog('close');
-
-            // @todo
-            // This is adding something to the tab section, this should be moved
-            // to be a listening event.
-            /*
-            var fixed_cat = type.replace(/[^\w]/g, '');
-            var blockId = 'islandora_annoType_'+ fixed_cat;
-            var contentId = 'islandora_annoType_content_'+ fixed_cat;
-
-
-            var idSelector = '#' + blockId;
-
-            if ($(idSelector).length == 0) {
-              header =  '<div class = "islandora_comment_type" id = "'+ blockId + '">';
-              header += '<div class = "islandora_comment_type_title">' + type + '</div>';
-              header += '<div class = "islandora_comment_type_content" style = "display:none" id = "'+ contentId + '"></div>';
-              header += '</div>';
-              $('#comment_annos_block').append(header);
-            }
-            // add new categories to type ahead if necessary
-            if($.inArray(type, islandora_canvas_params.categories) == -1){
-              islandora_canvas_params.categories.push(type);
-              $( "#anno_classification" ).autocomplete({
-                source: islandora_canvas_params.categories
-              });
-            }
-            $(".islandora_comment_type_title").off();
-            $(".islandora_comment_type_title").ready().on("click", function () {
-             $(this).siblings('.islandora_comment_type_content').toggle();
-            });
-            */
-            // @end todo
-            /*
-            addAnnotationToObject(settings.pid, canvas, annotation.rdfa, type, color);
-
-            return {
-              Target: canvas,
-              Type: type,
-              Colour: color,
-              uuid: annotation.annotationID
-            };*/
-
-            // @todo
-            /*var hiddenEntity = $('#hidden_entity'),
-             hiddenAnnotationType = $('#hidden_annotation_type');
-             // @todo Link this.
-             if (saveAndEndAnnotating() !== 0) {
-             // @todo Link this.
-             closeAndEndAnnotating();
-             // Reset hidden data for the next time this
-             // dialog is used.
-             if (hiddenEntity) {
-             $('#hidden_entity').data('entity', '');
-             }
-             hiddenAnnotationType.attr('anno_type', '');
-             hiddenAnnotationType.attr('urn', '');
-             $(this).dialog('close');
-             }*/
           }
         }, {
           text: 'Cancel',

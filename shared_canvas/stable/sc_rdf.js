@@ -476,7 +476,7 @@ function load_commentAnno(data) {
     try {
       lqry = $.rdf(opts).load(data);
     } catch (e) {
-     //alert('broken comment annotation: ' + data)
+      //alert('broken comment annotation: ' + data)
     }
   }
   cb_process_annoList(lqry, '');

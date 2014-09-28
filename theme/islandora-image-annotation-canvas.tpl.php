@@ -9,11 +9,13 @@
   <div id="canvas-body-wrapper">
     <div id="canvas-body">
       <!--  Wrapper to create Canvas divs in -->
-      <div id="canvases"></div>
-      <!--  Wrapper to create annotations in, then reposition -->
-      <div id="annotations"></div>
+      <div id="canvases">
+        <div id="canvas" class="canvas"></div>
+      </div>
       <!--  Wrapper to create SVG divs in -->
       <div id="svg-wrapper"></div>
+      <!--  Wrapper to create annotations in, then reposition -->
+      <div id="annotations"></div>
     </div>
   </div>
 </div>

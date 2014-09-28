@@ -6,9 +6,14 @@
 /**
  * All components of the 'canvas' are laid over-top of one another.
  */
-#canvases .canvas {
+#canvas-body {
+  position: relative;
+}
+#canvases, #svg-wrapper, #annotations {
   position: absolute;
-  z-index: 0;
+}
+#canvases {
+  z-index: -1;
 }
 #annotations {
   z-index: 1;

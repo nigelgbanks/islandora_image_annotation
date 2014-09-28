@@ -7,6 +7,11 @@
  */
 (function ($) {
   'use strict';
+  /**
+   * The DOM element that represents the Singleton Instance of this class.
+   * @type {string}
+   */
+  var base = '#islandora-image-annotation-list';
 
   /**
    * Initialize the Tabs section of the Image annotation widget.
@@ -15,7 +20,6 @@
    */
   Drupal.behaviors.islandoraImageAnnotationList = {
     attach: function (context, settings) {
-      var base = '#islandora-image-annotation-list';
       $(base, context).once('islandoraImageAnnotationList', function () {
         Drupal.IslandoraImageAnnotationList[base] = new Drupal.IslandoraImageAnnotationList(base, settings.islandoraImageAnnotationList);
       });
@@ -34,132 +38,290 @@
    * @constructor
    */
   Drupal.IslandoraImageAnnotationList = function (base, settings) {
-
+    var annotations = [];
 
     /**
-     * Dumb conversion not really safe in all cases, assumes the string is
-     * already a valid HTML ID, just makes it work with jQuery.
-     *
-     * @param {string} id
-     *  The id to convert.
+     * Gets a Random Color.
      *
      * @returns {string}
-     *   An id that is safe to use with jQuery.
      */
-    function jQuerySafeHTMLID(id) {
-      var regex = /[^0-9a-zA-Z-_]/g;
-      return id.replace(regex, '-');
+    function getRandomColor() {
+      var svgAreaColors = [
+        '#FF0000', '#FF6600', '#FF9400', '#FEC500', '#FFFF00', '#8CC700',
+        '#0FAD00', '#00A3C7', '#0064B5', '#0010A5', '#6300A5', '#C5007C'
+      ];
+      return svgAreaColors[Math.floor(Math.random() * svgAreaColors.length)];
     }
 
     /**
+     * Looks for the given annotation targets canvas.
      *
-     * @param type
-     */
-    function toggleTypeDisplay(type) {
-
-    }
-
-    /**
-     * Toggles the display of the annotation identified by the given urn.
+     * The target will be the SVG annotation of the image, which is assumed to
+     * be part of the canvas.
      *
-     * @param urn
-     *   The <NSS> portion of a uuid urn. "urn:"<NID>":"<NSS>.
+     * @param {RDF.BodyTarget} target
+     *   The annotation in which to targets a canvas, indirectly.
+     *
+     * @returns {string|null}
+     *   The canvas identifier if found, null otherwise.
      */
-    function toggleAnnotationDisplay(urn) {
-      var $annotation = $(".canvas-annotation[urn='" + urn + "']", base);
-      $('.comment-text, span.color', $annotation).toggle();
-      $('.comment-title', $annotation).toggleClass('annotation-opened');
-      if ($('span.color', $annotation).is(':visible')) {
-        $('.comment-show-hide', $annotation).text('-');
-        // Display the annotation on the canvas.
-      } else {
-        $('.comment-show-hide', $annotation).text('+');
+    function getAnnotationTargetCanvas(target) {
+      if (target.partOf !== undefined && target.partOf.id !== undefined) {
+        return target.partOf.id;
       }
+      return null;
     }
 
     /**
-     * Toggles the display of the annotation identified by the given urn.
+     * Draws the shape the target describes.
+     *
+     * @param svg
+     * @param annotation
+     * @param target
+     */
+    function drawShape(svg, annotation, target) {
+      var shape = $(':first-child', $.parseXML(target.constraint.value));
+      shape.attr('uuid', annotation.id);
+      $(svg.canvas).append(shape);
+    }
+
+    /**
+     * Shows the given annotation target on the Canvas.
+     *
+     * @param {RDF.Annotation} annotation
+     *   The annotation in which targets belongs to.
+     *
+     * @param {RDF.BodyTarget} target
+     *   The target to show.
+     */
+    function showAnnotationTarget(annotation, target) {
+      var $canvas, canvas, svg;
+      $canvas = $('.canvas[canvas="' + getAnnotationTargetCanvas(target) + '"]');
+      canvas = Drupal.IslandoraImageAnnotationCanvas.getInstance();
+      svg = canvas.makeRaphael('comment', $canvas.attr('canvas'), $canvas.attr('id'));
+      drawShape(svg, annotation, target);
+    }
+
+    /**
+     * Show all of the targets of the given annotation.
+     *
+     * This is rendered as shapes over-top of the image.
+     *
+     * @param {RDF.Annotation} annotation
+     *   The annotation whose targets are to be rendered.
+     */
+    function showAnnotationTargets(annotation) {
+      $.each(annotation.targets, function (index, target) {
+        showAnnotationTarget(annotation, target);
+      });
+    }
+
+    /**
+     * Hides all of the annotations target SVG elements.
+     *
+     * @param {RDF.Annotation} annotation
+     *   The annotation whose targets are to be rendered.
+     */
+    function hideAnnotationTargets(annotation) {
+      $('svg *[uuid="' + annotation.id + '"]').remove();
+    }
+
+    /**
+     * Toggles the display of the annotation identified by the given uuid.
      *
      * Shows the comment text section of the annotation and the annotation color
      * icon, also displays the annotation shapes on the canvas.
      *
-     * @param urn
-     *   The <NSS> portion of a uuid urn. "urn:"<NID>":"<NSS>.
+     * @param {string} uuid
+     *   The identifier for the annotation "urn:"<NID>":"<NSS>.
      */
-    function showAnnotation(urn) {
-      var $annotation = $(".canvas-annotation[urn='" + urn + "']", base);
+    function showAnnotation(uuid) {
+      var $annotation = $(".canvas-annotation[uuid='" + uuid + "']");
       $('.comment-text, span.color', $annotation).show();
       $('.comment-show-hide', $annotation).text('-');
       $('.comment-title', $annotation).addClass('annotation-opened');
-      // @todo this does not make sense here.
-      // paint_commentAnnoTargets(this, $annotation.attr('canvas'), urn);
+      showAnnotationTargets(annotations[uuid]);
     }
 
     /**
-     * Converts the given annotation to a html list item.
+     * @todo Document
      *
-     * @param {string} type
-     * @param {[object]} annotations
-     *
-     * @returns {string}
+     * @param {string} uuid
+     *   The identifier for the annotation "urn:"<NID>":"<NSS>.
      */
-    function getAnnotationTypeListItem(type, annotations) {
-      var $type, $typeTitle, $content;
+    function hideAnnotation(uuid) {
+      var $annotation = $(".canvas-annotation[uuid='" + uuid + "']");
+      $('.comment-text, span.color', $annotation).hide();
+      $('.comment-show-hide', $annotation).text('+');
+      $('.comment-title', $annotation).removeClass('annotation-opened');
+      hideAnnotationTargets(annotations[uuid]);
+    }
+
+    /**
+     * Toggles the display of the annotation identified by the given urn.
+     *
+     * @param uuid
+     *   The uuid of the annotation to display "urn:"<NID>":"<NSS>.
+     */
+    function toggleAnnotationDisplay(uuid) {
+      var $annotation = $(".canvas-annotation[uuid='" + uuid + "']", base);
+      $('.comment-text, span.color', $annotation).toggle();
+      $('.comment-title', $annotation).toggleClass('annotation-opened');
+      if ($('span.color', $annotation).is(':visible')) {
+        $('.comment-show-hide', $annotation).text('-');
+        showAnnotation(uuid);
+      } else {
+        $('.comment-show-hide', $annotation).text('+');
+        hideAnnotation(uuid);
+      }
+    }
+
+    /**
+     * Gets the type container from the given type.
+     *
+     * @returns {jQuery}
+     *   jQuery wrapper around the type container if found, otherwise an empty,
+     *   jQuery wrapper.
+     */
+    function getAnnotationTypeContainer(type) {
+      return $('.comment-type-container[type="' + type + '"]');
+    }
+
+    /**
+     * The list of comment annotations are grouped by type.
+     *
+     * @returns {bool}
+     *   True if the given type container exists false otherwise.
+     */
+    function hasAnnotationTypeContainer(type) {
+      return getAnnotationTypeContainer(type).length !== 0;
+    }
+
+    /**
+     * Creates a container in which to put annotations by the given type.
+     *
+     * @returns {jQuery}
+     *   True if the given type container exists false otherwise.
+     */
+    function createAnnotationTypeContainer(type) {
+      var $type, $title, $content;
       // Annotations are grouped by type.
       $type = $('<div />', {
-        //id: jQuerySafeHTMLID('islandora-image-annotation-' + type),
-        class: 'comment-type-container'
+        class: 'comment-type-container',
+        type: type
       });
-      $typeTitle = $('<div class="comment-type-title">' + type + '</div>');
+      $title = $('<div class="comment-type-title">' + type + '</div>');
       // Display the Content when the title is clicked.
-      $typeTitle.click(function () {
+      $title.click(function () {
         $('+ .comment-type-content', this).toggle();
       });
       // Each annotation is listed in the content section, which is initially
       // hidden.
       $content = $('<div />', {
-        //id: jQuerySafeHTMLID('islandora-image-annotation-content-' + type),
         class: 'comment-type-content'
       }).hide();
-      // Add each annotation to the content section.
-      $.each(annotations, function (i, annotation) {
-        var $annotation, $annotationTitle, $color, $annotationText, urn;
-        urn = IIAUtils.urnComponents(annotation.urn);
-        // Create annotation block.
-        $annotation = $('<div />', {
-          urn: urn.nss,
-          canvas: 'canvas_0',
-          class: 'canvas-annotation'
-        });
-        // Create Color Icon.
-        $color = $('<span />', {
-          color: annotation.color,
-          class: 'color',
-          style: 'background:' + annotation.color + ';'
-        }).hide();
-        // Add Title, including the color icon.
-        $annotationTitle = $('<div />', {
-          //id: 'anno_' + jQuerySafeHTMLID(urn.nss),
-          class: 'comment-title'
-        }).append('<span class="comment-show-hide">+</span>');
-        $annotationTitle.append('<span>' + annotation.title + '</span>', $color);
-        // Display the annotation when the title is clicked.
-        $annotationTitle.click(function () {
-          toggleAnnotationDisplay(urn.nss);
-        });
-        // Add Text, initially hidden.
-        $annotationText = $('<div class="comment-text" />').hide();
-        $annotationText.append('<div class="comment-type">' + type + '</div>');
-        $annotationText.append('<div class="comment-content">' + annotation.text + '</div>');
-        $content.append($annotation.append($annotationTitle, $annotationText));
-      });
-      return $type.append($typeTitle, $content);
+      return $type.append($title, $content);
     }
 
-    // Add all the currently defined annotations to the list.
+    /**
+     * Gets the color of the given annotation.
+     *
+     * @param {RDF.BodyTarget} target
+     *   The target to get the color from.
+     *
+     * @returns {string|null}
+     *   The color in #ffffff format if found, otherwise null.
+     */
+    function getAnnotationTargetColor(target) {
+      if (target.constraint !== undefined && target.constraint.value !== undefined) {
+        return $(target.constraint.value).attr('stroke');
+      }
+      return null;
+    }
+
+    /**
+     * Creates an Annotation element to insert into the list.
+     *
+     * @param {RDF.Annotation} annotation
+     *   The annotation in which we will render into HTML.
+     *
+     * @returns {jQuery}
+     *   The HTML as a jQuery object.
+     */
+    function createAnnotation(annotation) {
+      var $annotation, $annotationTitle, $annotationText;
+      // Create annotation block.
+      $annotation = $('<div />', {
+        uuid: annotation.id,
+        // Make the assumption that only one canvas will ever exist, and we'll
+        // always have at least one target.
+        canvas: getAnnotationTargetCanvas(annotation.targets[0]),
+        class: 'canvas-annotation'
+      });
+      // Add Title, including the color icon.
+      $annotationTitle = $('<div />', {
+        class: 'comment-title'
+      }).append('<span class="comment-show-hide">+</span>');
+      $annotationTitle.append('<span>' + annotation.title + '</span>');
+      // Append Color Icons
+      $.each(annotation.targets, function (index, target) {
+        var color = getAnnotationTargetColor(target);
+        $annotationTitle.append($('<span />', {
+          color: color,
+          class: 'color',
+          style: 'background:' + color + ';'
+        }).hide());
+      });
+      // Display the annotation when the title is clicked.
+      $annotationTitle.click(function () {
+        toggleAnnotationDisplay(annotation.id);
+      });
+      // Add Text, initially hidden.
+      $annotationText = $('<div class="comment-text" />').hide();
+      $annotationText.append('<div class="comment-type">' + annotation.annotationType + '</div>');
+      $annotationText.append('<div class="comment-content">' + annotation.body.value + '</div>');
+      $annotation = $annotation.append($annotationTitle, $annotationText);
+      return $annotation;
+    }
+
+    // Create the comment type containers for the comment annotations.
+    // trigger a load of each comment annotation.
     $.each(settings.annotations, function (type, annotations) {
-      $(base).append(getAnnotationTypeListItem(type, annotations));
+      $(base).append(createAnnotationTypeContainer(type));
+      $.each(annotations, function (index, annotation) {
+        Drupal.IslandoraImageAnnotationCanvas.getInstance().getCommentAnnotation(annotation.pid);
+      });
     });
+
+    /**
+     * Deletes the given Annotation from Fedora and the interface.
+     *
+     * @param {string} uuid
+     *   The uuid of the annotation to display "urn:"<NID>":"<NSS>.
+     */
+    function deleteAnnotation(uuid) {
+      var $annotation, urn;
+      $annotation = $('.canvas-annotation[uuid="' + uuid + '"]');
+      urn = IIAUtils.urnComponents(uuid);
+      $.ajax({
+        type: 'POST',
+        // @todo Refactor the menu callbacks, as they require a pid they don't
+        // use.
+        url: '/islandora/anno/delete_annotation/pid/' + urn.nss,
+        success: function (data, status, xhr) {
+          var $content = $annotation.parent();
+          // Remove the targets that are currently being displayed.
+          hideAnnotationTargets(annotations[uuid]);
+          // Remove the annotation from the list.
+          $annotation.remove();
+          // If there are no annotations of this type left anymore remove the
+          // type, group from the list.
+          if ($content.children().length === 0) {
+            $content.parent().remove();
+          }
+        }
+      });
+    }
 
     // Set up context menu to display for each annotation title element.
     $.contextMenu({
@@ -175,27 +337,59 @@
         }
       },
       callback : function (key, options) {
-        var $title, $annotation, urn, title;
+        var $title, $annotation, uuid, title;
         $title = $(this);
         $annotation = $title.parent('.canvas-annotation');
-        urn = $annotation.attr('urn');
+        uuid = $annotation.attr('uuid');
         title = $('span:nth-child(2)', $title).text().trim();
 
         switch (key) {
         case 'edit':
-          showAnnotation(urn);
+          showAnnotation(uuid);
           // @todo Open Dialog box, and pre-populate it.
           // startEditting(title, annotation, anno_type, urn);
           break;
 
         case 'delete':
           if (confirm("Permanently Delete Annotation '" + title + "'")) {
-            // @todo Make this part of a ImageAnnotation Widget thing...
-            // islandora_deleteAnno(urn);
+            deleteAnnotation(uuid);
           }
           break;
         }
       }
     });
+
+    /**
+     * Adds the given annotation to the list, or updates it.
+     *
+     * @todo Rename / Restructure.
+     * @param annotation
+     */
+    this.addAnnotation = function (annotation) {
+      var type, container;
+      type = annotation.annotationType;
+      if (hasAnnotationTypeContainer(type)) {
+        container = getAnnotationTypeContainer(type);
+      } else {
+        container = createAnnotationTypeContainer(type);
+        $(base).append(container);
+      }
+      annotations[annotation.id] = annotation;
+      $('.comment-type-content', container).append(createAnnotation(annotation));
+    };
   };
+
+  /**
+   * Gets the global singleton of this class.
+   *
+   * This function is meant to be used after Drupal.attachBehaviors() has been
+   * called, otherwise the singleton instance won't exist.
+   *
+   * @return {Drupal.IslandoraImageAnnotationDialog}
+   *   The singleton
+   */
+  Drupal.IslandoraImageAnnotationList.getInstance = function () {
+    return Drupal.IslandoraImageAnnotationList[base];
+  };
+
 }(jQuery));
