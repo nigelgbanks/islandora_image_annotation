@@ -140,7 +140,7 @@
       $('.image-annotation').each(function () {
         var $imageWrapper, $image;
         $imageWrapper = $(this);
-        $image = $imageWrapper.children(":first");
+        $image = $imageWrapper.children('img:first');
         $image.width(width);
         $image.css('height', 'auto');
         $imageWrapper.css('height', $image.height());
@@ -558,6 +558,10 @@
         src: annotation.getBodyTarget().id,
         width: scaledWidth,
         height: scaledHeight
+      });
+      $image.one('load', function() {
+        // Update the canvas size to reflect the new image.
+        that.resizeCanvas();
       });
       $("#annotations").append($imageAnnotation.append($image));
     }
