@@ -499,45 +499,29 @@
      *   The x coordinate.
      * @param {number} y
      *   The y coordinate.
-     * @param {number} index
-     *   The point on the polygon's path.
      *
      * @returns {Element}
      *  A circle used as icon to indicate the latest point on the polygon.
      */
-    function makeGrabber(background, polygon, x, y, index) {
+    function makeGrabber(background, polygon, x, y) {
       var onEnd, onStart, move, radius, circle;
 
       // Start the drag event.
       onStart = function () {
-        this.moved = 0;
         this.start = [this.attr("cx"), this.attr("cy")];
       };
 
       // End the drag event.
       onEnd = function () {
-        var i, path;
-        if (background.creating === this.polygon && this.index === 0) {
+        if (background.creating === this.polygon && this.index() === 0) {
           background.creating = null;
           this.polygon.attr('path', this.polygon.attr('path') + 'Z');
-        } else if (!this.moved) {
-          // Delete point.
-          path = Raphael.parsePathString(this.polygon.attr("path"));
-          path.splice(this.index, 1);
-          this.polygon.attr("path", path);
-          // Now shuffle down all subsequent points
-          for (i = this.index; i <= this.polygon.set.length; i += 1) {
-            // Counts from 1, not 0.
-            this.polygon.set[i + 1].index -= 1;
-          }
-          this.remove();
         }
-        this.start = undefined;
       };
 
       // Move the circle.
       move = function (dx, dy) {
-        var path;
+        var path, index = this.index();
         dx = Math.floor(dx * background.invertedScale);
         dy = Math.floor(dy * background.invertedScale);
         this.attr({
@@ -545,10 +529,9 @@
           cy: this.start[1] + dy
         });
         path = Raphael.parsePathString(this.polygon.attr("path"));
-        path[this.index][1] = Math.floor(this.start[0] + dx);
-        path[this.index][2] = Math.floor(this.start[1] + dy);
+        path[index][1] = Math.floor(this.start[0] + dx);
+        path[index][2] = Math.floor(this.start[1] + dy);
         this.polygon.attr('path', path);
-        this.moved = 1;
       };
 
       radius = Math.floor(10 * background.invertedScale);
@@ -560,12 +543,49 @@
         'stroke-width': 'none',
         'stroke-dasharray': '- '
       });
-      circle.index = index;
       circle.polygon = polygon;
       polygon.set.push(circle);
       circle.start = [x, y];
       circle.moveFn = move;
       circle.drag(move, onStart, onEnd);
+
+      // Gets the grabbers "index" which correlates to the point in the "path"
+      // it represents.
+      circle.index = function () {
+        var me, grabbers, index;
+        me = this;
+        index = -1;
+        // Filter out the removed grabbers an polygon objects.
+        grabbers = $.grep(this.polygon.set, function (element) {
+          return element.type === 'circle';
+        });
+        $.each(grabbers, function (i, element) {
+          if (me === element) {
+            index = i;
+            return false;
+          }
+        });
+        return index;
+      };
+
+      // Double clicking on the "grabber" will remove it and the point in the
+      // "path" it represents.
+      circle.dblclick(function () {
+        var path = Raphael.parsePathString(this.polygon.attr("path"));
+        path.splice(this.index(), 1);
+        // A Path must be two or more points, we must also account for the 'Z'
+        // terminator point.
+        if (path.length <= 2) {
+          background.creating = null;
+          this.polygon.set.remove();
+        } else {
+          // Update the polygon's path such that it no longer includes this
+          // "grabber". Make sure the first element in the path is marked.
+          path[0][0] = 'M';
+          this.polygon.attr("path", path);
+        }
+        this.remove();
+      });
       return circle;
     }
 
@@ -616,9 +636,7 @@
       // Add a point to the polygon.
       addPoint = function (background, x, y) {
         this.attr('path', this.attr('path') + ('L' + x + ',' + y));
-        grabber = makeGrabber(background, this, x, y, this.attr('path').length - 1);
-        // @nigelb test to remove on invalid paths.
-        this.set.push(grabber);
+        grabber = makeGrabber(background, this, x, y);
       };
 
       // Create the starting point.
@@ -631,14 +649,8 @@
       outer.set = group;
 
       grabber = makeGrabber(background, outer, x, y, 0);
-      // @nigelb test.
-      group.push(grabber);
       outer.drag(move, onStart, onEnd);
       outer.resizeFn = resize;
-      // User can remove the annotation by double clicking on it's center.
-      outer.dblclick(function () {
-        this.set.remove();
-      });
       return outer;
     }
 
@@ -908,6 +920,8 @@
         if (this.creating === null) {
           return;
         }
+        // We don't do anything for polygons as they are driven by clicks rather
+        // than the "main" drag event.
         switch (properties.shape) {
         case 'rectangle':
           if (this.creating.set !== undefined && this.creating.set.start !== undefined) {
@@ -920,9 +934,6 @@
           if (this.creating.start !== undefined) {
             this.creating.start = [];
           }
-          this.creating = null;
-          break;
-        case 'polygon':
           this.creating = null;
           break;
         }

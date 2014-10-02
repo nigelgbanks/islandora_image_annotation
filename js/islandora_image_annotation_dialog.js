@@ -342,7 +342,7 @@
       $('input,select,textarea', $dialog).val('');
       // Reset Defaults.
       $('input[name="stroke"]', $dialog).val('.3%');
-      chooseShape('rectangle');
+      chooseShape('polygon');
       // Set a random color for the annotations.
       $('input[name="color"]', $dialog).attr('value', getRandomColour());
       // Destroy the miniColor
@@ -356,7 +356,6 @@
      */
     function getAnnotationProperties() {
       var values = getFormValues();
-      console.log(values);
       return {
         shape: values.shape,
         attributes: {
