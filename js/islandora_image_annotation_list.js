@@ -311,41 +311,43 @@
     }
 
     // Set up context menu to display for each annotation title element.
-    $.contextMenu({
-      selector : '.comment-title',
-      items: {
-        edit: {
-          name: "Edit",
-          icon: "edit"
-        },
-        delete: {
-          name : "Delete annotation",
-          icon : "delete"
-        }
-      },
-      callback : function (key, options) {
-        var $title, $annotation, uuid, title;
-        $title = $(this);
-        $annotation = $title.parent('.canvas-annotation');
-        uuid = $annotation.attr('uuid');
-        title = $('span:nth-child(2)', $title).text().trim();
-
-        switch (key) {
-        case 'edit':
-          showAnnotation(uuid);
-          // @todo Open Dialog box, and pre-populate it.
-          Drupal.IslandoraImageAnnotationDialog.getInstance().show(annotations[uuid]);
-          // startEditting(title, annotation, anno_type, urn);
-          break;
-
-        case 'delete':
-          if (confirm("Permanently Delete Annotation '" + title + "'")) {
-            deleteAnnotation(uuid);
+    function createContextMenu() {
+      $.contextMenu({
+        selector : '.comment-title',
+        items: {
+          edit: {
+            name: "Edit",
+            icon: "edit"
+          },
+          delete: {
+            name : "Delete annotation",
+            icon : "delete"
           }
-          break;
+        },
+        callback : function (key, options) {
+          var $title, $annotation, uuid, title;
+          $title = $(this);
+          $annotation = $title.parent('.canvas-annotation');
+          uuid = $annotation.attr('uuid');
+          title = $('span:nth-child(2)', $title).text().trim();
+
+          switch (key) {
+          case 'edit':
+            showAnnotation(uuid);
+            // @todo Open Dialog box, and pre-populate it.
+            Drupal.IslandoraImageAnnotationDialog.getInstance().show(annotations[uuid]);
+            // startEditting(title, annotation, anno_type, urn);
+            break;
+
+          case 'delete':
+            if (confirm("Permanently Delete Annotation '" + title + "'")) {
+              deleteAnnotation(uuid);
+            }
+            break;
+          }
         }
-      }
-    });
+      });
+    }
 
     /**
      * Adds the given annotation to the list, or updates it.
@@ -365,6 +367,11 @@
       annotations[annotation.id] = annotation;
       $('.comment-type-content', container).append(createAnnotation(annotation));
     };
+
+    // Only initialize the context menu if the user is able to edit the object.
+    if (Drupal.settings.islandoraImageAnnotation.editable) {
+      createContextMenu();
+    }
   };
 
   /**

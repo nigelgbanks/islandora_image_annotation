@@ -26,3 +26,8 @@
 #islandora-image-annotation-shape-polygon {
   padding: 2px;
 }
+.islandora-image-annotation-shape-icon.selected {
+  padding-left: 2px;
+  padding-top: 1px;
+  border: 1px solid black;
+}

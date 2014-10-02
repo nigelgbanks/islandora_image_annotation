@@ -143,8 +143,8 @@ function initForCreate(canvas) {
         'opacity': 0.15
     });
     bg.creating = null;
-    bg.invScale = invScale;
-    bg.myPaper = r;
+    bg.invertedScale = invScale;
+    bg.paper = r;
     bg.myShapes = [];
     r.annotateRect = bg;
     bg.drag(function(dx,dy) {
@@ -468,7 +468,7 @@ function switchUp(x, y) {
 
 function fixXY(what, x, y) {
     // modify for x,y of wrapper
-    var r = what.myPaper;
+    var r = what.paper;
     var wrap = r.wrapperElem;
 
     // This is location of canvas
@@ -484,20 +484,20 @@ function fixXY(what, x, y) {
     x += pageOffsetLeft;
 	
     // And now scale for Canvas resizing
-    x = Math.floor(x * what.invScale);
-    y = Math.floor(y * what.invScale);
+    x = Math.floor(x * what.invertedScale);
+    y = Math.floor(y * what.invertedScale);
     return [x,y]
 }
 
 
 
 function mkGrabber(what,poly,x,y,idx) {
-    var myr = Math.floor(10*what.invScale);
-    var r = what.myPaper;
+    var myr = Math.floor(10*what.invertedScale);
+    var r = what.paper;
     var c = r.circle(x,y,myr);
     c.attr(insideStyle);
-    c.pointIdx = idx;
-    c.poly = poly;
+    c.index = idx;
+    c.polygon = poly;
     poly.set.push(c);
     c.start = [x,y];
 	
@@ -507,17 +507,17 @@ function mkGrabber(what,poly,x,y,idx) {
     };
 
     var muf = function() {
-        if (what.creating == this.poly && this.pointIdx == 0) {
+        if (what.creating == this.polygon && this.index == 0) {
             what.creating = null;
-            this.poly.attr('path', this.poly.attr('path') + 'Z');
+            this.polygon.attr('path', this.polygon.attr('path') + 'Z');
         } else if (!this.moved) {
             // delete point
-            pth = Raphael.parsePathString(this.poly.attr("path"));
-            pth.splice(this.pointIdx, 1);
-            this.poly.attr("path", pth);
+            pth = Raphael.parsePathString(this.polygon.attr("path"));
+            pth.splice(this.index, 1);
+            this.polygon.attr("path", pth);
             // Now shuffle down all subsequent points
-            for (var i = this.pointIdx, pt; pt = this.poly.set[i+1]; i++) {
-                pt.pointIdx -= 1;
+            for (var i = this.index, pt; pt = this.polygon.set[i+1]; i++) {
+                pt.index -= 1;
             }
             this.remove();
         }
@@ -525,18 +525,18 @@ function mkGrabber(what,poly,x,y,idx) {
     };
 
     var move = function (dx, dy) {
-        dx = Math.floor(dx * what.invScale);
-        dy = Math.floor(dy * what.invScale);
+        dx = Math.floor(dx * what.invertedScale);
+        dy = Math.floor(dy * what.invertedScale);
 		
         this.attr({
             cx: this.start[0] + dx,
             cy: this.start[1] + dy
         })
-        var pathsplit = Raphael.parsePathString(this.poly.attr("path"))
-        pathsplit[this.pointIdx][1] = Math.floor(this.start[0]+dx);
-        pathsplit[this.pointIdx][2] = Math.floor(this.start[1]+dy);
+        var pathsplit = Raphael.parsePathString(this.polygon.attr("path"))
+        pathsplit[this.index][1] = Math.floor(this.start[0]+dx);
+        pathsplit[this.index][2] = Math.floor(this.start[1]+dy);
 
-        this.poly.attr('path', pathsplit);
+        this.polygon.attr('path', pathsplit);
         this.moved = 1;
     };
     c.moveFn = move;
@@ -558,19 +558,19 @@ function mkPoly(what, x,y) {
         this.set.tmp = undefined;
     };
     var move = function(dx,dy) {
-        dx=Math.floor(dx * what.invScale);
-        dy=Math.floor(dy * what.invScale);
+        dx=Math.floor(dx * what.invertedScale);
+        dy=Math.floor(dy * what.invertedScale);
         this.set.translate(dx-this.set.tmp[0], dy-this.set.tmp[1]);
         this.set.tmp = [dx,dy];
     };
     var resizefn = function(dx,dy) {
-        dx=Math.floor(dx * what.invScale);
-        dy=Math.floor(dy * what.invScale);
+        dx=Math.floor(dx * what.invertedScale);
+        dy=Math.floor(dy * what.invertedScale);
         c = this.set[this.set.length-1];
         c.moveFn(dx,dy);
     };
 	
-    var r = what.myPaper;
+    var r = what.paper;
     var s = r.set();
     var outer = r.path("M" +x + ',' + y);
     var outsideStyle = islandora_getOutsideStyle();
@@ -592,7 +592,7 @@ function mkPoly(what, x,y) {
 
 function mkCircle(what, x,y) {
 
-    innerSize = Math.floor(10 * what.invScale);
+    innerSize = Math.floor(10 * what.invertedScale);
 	            	
     mdf = function() {
         this.start = [this.attr("cx"), this.attr("cy"), this.attr('r')]
@@ -605,17 +605,17 @@ function mkCircle(what, x,y) {
     move = function (dx, dy) {
         this.set.attr(
         {
-            cx: this.start[0] + Math.floor(dx * what.invScale),
-            cy: this.start[1] + Math.floor(dy * what.invScale)
+            cx: this.start[0] + Math.floor(dx * what.invertedScale),
+            cy: this.start[1] + Math.floor(dy * what.invertedScale)
         });
     };
 	
     resize = function(dx, dy) {
-        this.attr('r', this.start[2] + Math.floor(dx * what.invScale));
-        this.inner.attr('r', this.start[2] + (Math.floor(dx * what.invScale) - innerSize));
+        this.attr('r', this.start[2] + Math.floor(dx * what.invertedScale));
+        this.inner.attr('r', this.start[2] + (Math.floor(dx * what.invertedScale) - innerSize));
     };
 	
-    var r = what.myPaper;
+    var r = what.paper;
     var st = r.set();
     var outer = r.circle(x,y,innerSize);
     var outsideStyle = islandora_getOutsideStyle();
@@ -644,7 +644,7 @@ function mkCircle(what, x,y) {
 
 function mkRect(what, x,y) {
 	            
-    innerSize = Math.floor(14 * what.invScale);
+    innerSize = Math.floor(14 * what.invertedScale);
 	
     mdf = function() {
         this.set.start = [
@@ -662,30 +662,30 @@ function mkRect(what, x,y) {
     move = function(dx, dy) {
         this.set.outer.attr(
         {
-            'x': this.set.start[0] + Math.floor(dx * what.invScale),
-            'y' : this.set.start[1] + Math.floor(dy * what.invScale)
+            'x': this.set.start[0] + Math.floor(dx * what.invertedScale),
+            'y' : this.set.start[1] + Math.floor(dy * what.invertedScale)
         });
         this.set.inner.attr(
         {
-            'x': this.set.start[0] + this.set.start[3] + Math.floor(dx * what.invScale) - innerSize,
-            'y' : this.set.start[1] + this.set.start[2] + Math.floor(dy * what.invScale) - innerSize
+            'x': this.set.start[0] + this.set.start[3] + Math.floor(dx * what.invertedScale) - innerSize,
+            'y' : this.set.start[1] + this.set.start[2] + Math.floor(dy * what.invertedScale) - innerSize
         });
     };
 							 
     resize = function(dx, dy) {
         this.set.outer.attr(
         {
-            'height' : this.set.start[2] + Math.floor(dy * what.invScale),
-            'width' : this.set.start[3] + Math.floor(dx * what.invScale)
+            'height' : this.set.start[2] + Math.floor(dy * what.invertedScale),
+            'width' : this.set.start[3] + Math.floor(dx * what.invertedScale)
         });
         this.set.inner.attr(
         {
-            'x' : this.set.start[0] + this.set.start[3] + Math.floor(dx * what.invScale) - innerSize,
-            'y': this.set.start[1] + this.set.start[2] + Math.floor(dy * what.invScale) - innerSize
+            'x' : this.set.start[0] + this.set.start[3] + Math.floor(dx * what.invertedScale) - innerSize,
+            'y': this.set.start[1] + this.set.start[2] + Math.floor(dy * what.invertedScale) - innerSize
         });
     };
 	
-    var r = what.myPaper;
+    var r = what.paper;
     var st = r.set();
     st.start = [x, y, innerSize,innerSize];
 

@@ -48,7 +48,9 @@ function template_preprocess_islandora_image_annotation_dialog(array &$variables
       '#path' => "$module_path/images/draw_rectangle.png",
       '#attributes' => array(
         'id' => 'islandora-image-annotation-shape-rectangle',
-        'class' => 'islandora-image-annotation-shape-icon',
+        // Rectangle is selected by default.
+        'class' => 'islandora-image-annotation-shape-icon selected',
+        'shape' => 'rectangle',
       ),
     ),
     'circle' => array(
@@ -57,6 +59,7 @@ function template_preprocess_islandora_image_annotation_dialog(array &$variables
       '#attributes' => array(
         'id' => 'islandora-image-annotation-shape-circle',
         'class' => 'islandora-image-annotation-shape-icon',
+        'shape' => 'circle',
       ),
     ),
     'polygon' => array(
@@ -65,6 +68,7 @@ function template_preprocess_islandora_image_annotation_dialog(array &$variables
       '#attributes' => array(
         'id' => 'islandora-image-annotation-shape-polygon',
         'class' => 'islandora-image-annotation-shape-icon',
+        'shape' => 'polygon',
       ),
     ),
   );
@@ -93,7 +97,7 @@ function template_preprocess_islandora_image_annotation_dialog(array &$variables
   drupal_add_js(array('islandoraImageAnnotationDialog' => $settings), 'setting');
   drupal_add_library('system', 'ui.dialog');
   drupal_add_js("$module_path/js/islandora_image_annotation_dialog.js");
-  drupal_add_css("$module_path/css/islandora_image_annotation.canvas.css");
+  drupal_add_css("$module_path/css/islandora_image_annotation.dialog.css");
 }
 
 /**
@@ -177,11 +181,11 @@ function template_preprocess_islandora_image_annotation_canvas(array &$variables
 function template_preprocess_islandora_image_annotation(array &$variables) {
   //module_load_include('inc', 'islandora_image_annotation', 'includes/build_streams');
   module_load_include('inc', 'islandora_image_annotation', 'includes/utils');
-
+  $module_path = drupal_get_path('module', 'islandora_image_annotation');
   $object = $variables['object'];
   $settings = array(
     'pid' => $object->id,
-    'editable' => !user_access(ISLANDORA_IMAGE_ANNOTATION_CREATE),
+    'editable' => user_access(ISLANDORA_IMAGE_ANNOTATION_CREATE),
     'categories' => islandora_image_annotation_get_categories($object),
     'enforceTaxonomy' => variable_get('islandora_annotation_enforce_taxonomy', TRUE),
     'allowEntityLinking' => variable_get('islandora_image_annotation_use_entity_tagging', TRUE),
@@ -200,80 +204,36 @@ function template_preprocess_islandora_image_annotation(array &$variables) {
   );
   drupal_add_js(array('islandoraImageAnnotation' => $settings), 'setting');
   // Set preprocessor variables, for use in JavaScript.
-  //$variables['anno_list_pane'] = theme('islandora_anno_list_pane');
-  //$variables['anno_img_pane'] = theme('islandora_anno_image_pane');
   $variables['dialog_box'] = array(
     '#theme' => 'islandora_image_annotation_dialog',
     '#object' => $object,
   );
   // We embed the list in our tabs, cause why not.
   drupal_add_library('system', 'ui.tabs');
-  $module_path = drupal_get_path('module', 'islandora_image_annotation');
   drupal_add_js("$module_path/js/islandora_image_annotation_tabs.js");
   $variables['list'] = array(
     '#theme' => 'islandora_image_annotation_list',
     '#object' => $object,
   );
+  // The canvas is where the image and it's annotations get rendered.
   $variables['canvas'] = array(
     '#theme' => 'islandora_image_annotation_canvas',
     '#object' => $object,
   );
-
   // @todo make as a library.
-  module_load_include('inc', 'islandora_image_annotation', 'includes/utils');
-  $module_path = drupal_get_path('module', 'islandora_image_annotation');
-
-  // Add css.
-  //drupal_add_css($module_path . '/js/shared_canvas/css/window_behaviors.css');
-  //drupal_add_css($module_path . '/js/shared_canvas/css/islandora_shared_canvas_style.css');
-  //drupal_add_css($module_path . '/js/shared_canvas/css/smoothness/jquery-ui-1.8.16.custom.css');
-
-  // Add JavaScript.
-  // Lets see if we can roll without this version of jQuery.
-  // drupal_add_js($module_path . '/js/shared_canvas/js/jquery/jquery-1.7.js');
-  // drupal_add_js($module_path . '/js/shared_canvas/js/jquery/jquery-ui-1.8.13.custom.min.js');
-
   // Include common JavaScript/CSS.
-  // Previously in islandora_image_annotation_include_common_js();
-  $image_annotation_module_path = drupal_get_path('module', 'islandora_image_annotation');
-
-  drupal_add_js($image_annotation_module_path . '/lib/jquery/jquery.watermark.min.js');
-  drupal_add_js($image_annotation_module_path . '/lib/jquery/contextMenu/jquery.contextMenu.js');
-  drupal_add_js($image_annotation_module_path . '/lib/jquery/miniColors/jquery.miniColors.js');
+  drupal_add_js("$module_path/lib/jquery/jquery.watermark.min.js");
+  drupal_add_js("$module_path/lib/jquery/contextMenu/jquery.contextMenu.js");
+  drupal_add_js("$module_path/lib/jquery/miniColors/jquery.miniColors.js");
   // @todo Check if I can remove this jquery.svg javascript call.
-  drupal_add_js($image_annotation_module_path . '/lib/jquery/jquery.svg.js');
-  drupal_add_js($image_annotation_module_path . '/lib/jquery/jquery.rdfquery.rdfa.min-1.1.js');
-  drupal_add_js($image_annotation_module_path . '/lib/jquery/jquery.rdf.turtle.js');
-  // @todo Remove if not needed.
-  // drupal_add_js($image_annotation_module_path . '/lib/jquery/jquery.touchSwipe-1.2.4.js');
-  drupal_add_js($image_annotation_module_path . '/lib/raphael/raphael.js');
-  drupal_add_js($image_annotation_module_path . '/lib/raphael/scale.raphael.js');
-  drupal_add_js($image_annotation_module_path . '/lib/uuid.js');
-
-
-  /*
-  drupal_add_js($image_annotation_module_path . '/js/shared_canvas/stable/sc_ui.js');
-  drupal_add_js($image_annotation_module_path . '/js/shared_canvas/stable/sc_utils.js');
-  drupal_add_js($image_annotation_module_path . '/js/shared_canvas/stable/sc_rdf.js');
-  drupal_add_js($image_annotation_module_path . '/js/shared_canvas/stable/sc_rdfjson.js');
-  drupal_add_js($image_annotation_module_path . '/js/shared_canvas/stable/sc_create.js');
-  drupal_add_js($image_annotation_module_path . '/js/shared_canvas/stable/sc_pastebin.js');
-  */
-  // End Previously in.
-  // Previously in islandora_image_annotation_include_common_css();
-  $image_annotation_module_path = drupal_get_path('module', 'islandora_image_annotation');
-
-  drupal_add_css($image_annotation_module_path . '/lib/jquery/contextMenu/jquery.contextMenu.css');
-  drupal_add_css($image_annotation_module_path . '/lib/jquery/miniColors/jquery.miniColors.css');
-  //drupal_add_css($image_annotation_module_path . '/js/shared_canvas/css/sc.css');
-  // End Previously in.
-
-  // Add JavaScript.
-
-  //$module_path = drupal_get_path('module', 'islandora_image_annotation');
-  //drupal_add_js($module_path . '/shared_canvas/stable/islandora_image_annotation_init.js');
-  //drupal_add_js($module_path . '/js/islandora_image_annotation.js');
-  //drupal_add_js($module_path . '/js/islandora_image_annotation_create_annotation_dialog.js');
+  drupal_add_js("$module_path/lib/jquery/jquery.svg.js");
+  drupal_add_js("$module_path/lib/jquery/jquery.rdfquery.rdfa.min-1.1.js");
+  drupal_add_js("$module_path/lib/jquery/jquery.rdf.turtle.js");
+  drupal_add_js("$module_path/lib/raphael/raphael.js");
+  drupal_add_js("$module_path/lib/raphael/scale.raphael.js");
+  drupal_add_js("$module_path/lib/uuid.js");
+  drupal_add_css("$module_path/lib/jquery/contextMenu/jquery.contextMenu.css");
+  drupal_add_css("$module_path/lib/jquery/miniColors/jquery.miniColors.css");
 }
 
 function template_process_islandora_image_annotation(array &$variables) {

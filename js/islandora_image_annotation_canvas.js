@@ -1,5 +1,5 @@
 /*jslint browser: true*/
-/*global jQuery, RDF, ScaleRaphael*/
+/*global jQuery, RDF, Raphael, ScaleRaphael*/
 /**
  * @file
  * Defines the Islandora Image Annotation Canvas and it's Drupal behaviour.
@@ -47,6 +47,7 @@
 
     // Set the default properties.
     $.extend(this, {
+      // @todo Remove this hard coded thing.
       'canvasWidth': 0,    // scaled width of canvas in pixels.
       'canvasHeight': 0,   // scaled height of canvas in pixels.
       // @todo remove this property.
@@ -108,6 +109,28 @@
     });
 
     /**
+     * Gets the ID of the current canvas.
+     *
+     * @returns {string}
+     *   The ID of the current canvas, typically something like this:
+     *   http://example.com/islandora/object/PID/datastream/DSID/view/Canvas
+     */
+    this.getCurrentCanvas = function () {
+      // Just grabs the first canvas, we only support one right now.
+      return $('.canvas[canvas]', '#canvases').attr('canvas');
+    };
+
+    /**
+     * Gets the current rendered shapes.
+     *
+     * @param canvas
+     * @returns {Array|shapes|*}
+     */
+    this.getShapes = function (canvas) {
+      return this.raphaels.comment[canvas].annotationBackground.shapes;
+    };
+
+    /**
      * Initializes the canvas.
      */
     function initializeCanvas() {
@@ -124,12 +147,6 @@
           canvas.changeSize(that.canvasWidth, that.canvasHeight, false, false);
         });
       });
-      /*
-      $svg = $('#svg-wrapper svg');
-      $svg.width(that.canvasWidth);
-      $svg.height(that.canvasHeight);
-       svgCanvas = ScaleRaphael(svgId, canvasWidth, canvasHeight);
-      */
     }
 
     /**
@@ -145,7 +162,7 @@
         $image.css('height', 'auto');
         $imageWrapper.css('height', $image.height());
         // Needs to be set explicitly since absolute position elements
-        // like image are not in the normal document flow.
+        // like the image are not in the normal document flow.
         $('#canvas-body').height($image.height());
       });
       initializeCanvas();
@@ -389,60 +406,6 @@
     }
 
     /**
-     * Gets the type of the given annotation.
-     *
-     * @param {object} annotation
-     *   The annotation to get the type of.
-     *
-     * @returns {string|null}
-     *   The annotation type, either (image, text, audio, comment, zone), or
-     *   null if it could not be determined.
-     */
-    function getAnnotationType(annotation) {
-      var annotationType = null;
-      // Annotations can have multiple type values, so we first check for the
-      // most generic description and then refine if possible.
-      if ($.inArray('http://www.w3.org/ns/openannotation/core/Annotation', annotation.types) !== -1) {
-        annotationType = 'comment';
-      }
-      // Check the more specific Annotations Types.
-      $.each(annotation.types, function (index, type) {
-        var types = {
-          'http://dms.stanford.edu/ns/ImageAnnotation': 'image',
-          'http://dms.stanford.edu/ns/TextAnnotation': 'text',
-          'http://dms.stanford.edu/ns/AudioAnnotation': 'audio',
-          'http://dms.stanford.edu/ns/CommentAnnotation': 'comment',
-          'http://dms.stanford.edu/ns/ZoneAnnotation': 'zone'
-        };
-        if (types[type] !== undefined) {
-          annotationType = types[type];
-          return false;
-        }
-      });
-      if (!annotationType) {
-        // Check body type
-        $.each(annotation.body.types, function (index, type) {
-          var types = {
-            'http://purl.org/dc/dcmitype/Image': 'image',
-            'http://purl.org/dc/dcmitype/Text': 'text',
-            'http://dms.stanford.edu/ns/ImageBody': 'audio',
-            'http://dms.stanford.edu/ns/TextBody': 'comment',
-            'http://dms.stanford.edu/ns/ImageSegment': 'zone'
-          };
-          if (types[type] !== undefined) {
-            annotationType = types[type];
-            return false;
-          }
-        });
-      }
-      if (!annotationType) {
-        // Check body fragment type
-        annotationType = annotation.body.fragmentType;
-      }
-      return annotationType;
-    }
-
-    /**
      * Gets the dimensions and the title of the given Canvas.
      *
      * @param {object} rdf
@@ -455,8 +418,9 @@
      */
     function extractCanvasSize(rdf, uri) {
       var height, width, title;
-      height = width = 0;
-      title = ''
+      width = 0;
+      height = 0;
+      title = '';
       rdf.where('<' + uri + '> exif:height ?height')
         .where('<' + uri + '> exif:width ?width')
         .optional('<' + uri + '> dc:title ?title')
@@ -476,7 +440,7 @@
      * @param type
      * @param canvas
      * @param canvasId
-     * @returns {*}
+     * @returns {Paper}
      */
     this.makeRaphael = function (type, canvas, canvasId) {
       var info, canvasWidth, canvasHeight, scale, scaledWidth, scaledHeight,
@@ -522,6 +486,494 @@
       // Cache svgCanvas.
       that.raphaels[type][canvas] = svgCanvas;
       return svgCanvas;
+    };
+
+    /**
+     * Creates the icon that is used to create the polygon.
+     *
+     * @param {Element} background
+     *   The background Raphael Element in which the coordinates are in.
+     * @param {Element} polygon
+     *   The point on the polygon to show the grabber.
+     * @param {number} x
+     *   The x coordinate.
+     * @param {number} y
+     *   The y coordinate.
+     * @param {number} index
+     *   The point on the polygon's path.
+     *
+     * @returns {Element}
+     *  A circle used as icon to indicate the latest point on the polygon.
+     */
+    function makeGrabber(background, polygon, x, y, index) {
+      var onEnd, onStart, move, radius, circle;
+
+      // Start the drag event.
+      onStart = function () {
+        this.moved = 0;
+        this.start = [this.attr("cx"), this.attr("cy")];
+      };
+
+      // End the drag event.
+      onEnd = function () {
+        var i, path;
+        if (background.creating === this.polygon && this.index === 0) {
+          background.creating = null;
+          this.polygon.attr('path', this.polygon.attr('path') + 'Z');
+        } else if (!this.moved) {
+          // Delete point.
+          path = Raphael.parsePathString(this.polygon.attr("path"));
+          path.splice(this.index, 1);
+          this.polygon.attr("path", path);
+          // Now shuffle down all subsequent points
+          for (i = this.index; i <= this.polygon.set.length; i += 1) {
+            // Counts from 1, not 0.
+            this.polygon.set[i + 1].index -= 1;
+          }
+          this.remove();
+        }
+        this.start = undefined;
+      };
+
+      // Move the circle.
+      move = function (dx, dy) {
+        var path;
+        dx = Math.floor(dx * background.invertedScale);
+        dy = Math.floor(dy * background.invertedScale);
+        this.attr({
+          cx: this.start[0] + dx,
+          cy: this.start[1] + dy
+        });
+        path = Raphael.parsePathString(this.polygon.attr("path"));
+        path[this.index][1] = Math.floor(this.start[0] + dx);
+        path[this.index][2] = Math.floor(this.start[1] + dy);
+        this.polygon.attr('path', path);
+        this.moved = 1;
+      };
+
+      radius = Math.floor(10 * background.invertedScale);
+      circle = background.paper.circle(x, y, radius);
+      circle.attr({
+        fill: '#ffffff',
+        opacity: 0.3,
+        stroke: 'black',
+        'stroke-width': 'none',
+        'stroke-dasharray': '- '
+      });
+      circle.index = index;
+      circle.polygon = polygon;
+      polygon.set.push(circle);
+      circle.start = [x, y];
+      circle.moveFn = move;
+      circle.drag(move, onStart, onEnd);
+      return circle;
+    }
+
+    /**
+     * Creates a Polygon, by tracking clicks and drawing a path between them.
+     *
+     * @param {Element} background
+     *   The background Raphael Element in which the coordinates are in.
+     * @param {number} x
+     *   The x coordinate.
+     * @param {number} y
+     *   The y coordinate.
+     * @param {object} attributes
+     *   HTML element attributes to apply to the polygon, like color or
+     *   stroke-width.
+     *
+     * @returns {Element}
+     *  The polygon as a Raphael Element.
+     */
+    function makePolygon(background, x, y, attributes) {
+      var onStart, onEnd, move, resize, addPoint, outer, paper, group, grabber;
+      // Start the drag event.
+      onStart = function () {
+        this.set.tmp = [0, 0];
+      };
+
+      // End the drag event.
+      onEnd = function () {
+        this.set.tmp = undefined;
+      };
+
+      // Move a 'node' on the path.
+      move = function (dx, dy) {
+        dx = Math.floor(dx * background.invertedScale);
+        dy = Math.floor(dy * background.invertedScale);
+        this.set.translate(dx - this.set.tmp[0], dy - this.set.tmp[1]);
+        this.set.tmp = [dx, dy];
+      };
+
+      // Move a 'node' on the path.
+      resize = function (dx, dy) {
+        dx = Math.floor(dx * background.invertedScale);
+        dy = Math.floor(dy * background.invertedScale);
+        grabber = this.set[this.set.length - 1];
+        grabber.moveFn(dx, dy);
+      };
+
+      // Add a point to the polygon.
+      addPoint = function (background, x, y) {
+        this.attr('path', this.attr('path') + ('L' + x + ',' + y));
+        grabber = makeGrabber(background, this, x, y, this.attr('path').length - 1);
+        // @nigelb test to remove on invalid paths.
+        this.set.push(grabber);
+      };
+
+      // Create the starting point.
+      paper = background.paper;
+      group = paper.set();
+      outer = paper.path("M" + x + ',' + y);
+      outer.attr(attributes);
+      outer.addPoint = addPoint;
+      group.push(outer);
+      outer.set = group;
+
+      grabber = makeGrabber(background, outer, x, y, 0);
+      // @nigelb test.
+      group.push(grabber);
+      outer.drag(move, onStart, onEnd);
+      outer.resizeFn = resize;
+      // User can remove the annotation by double clicking on it's center.
+      outer.dblclick(function () {
+        this.set.remove();
+      });
+      return outer;
+    }
+
+    /**
+     * Creates a Circle, where the user clicks, they can resize by dragging.
+     *
+     * @param {Element} background
+     *   The background Raphael Element in which the coordinates are in.
+     * @param {number} x
+     *   The x coordinate.
+     * @param {number} y
+     *   The y coordinate.
+     * @param {object} attributes
+     *   HTML element attributes to apply to the polygon, like color or
+     *   stroke-width.
+     *
+     * @returns {Element}
+     *  The circle as a Raphael Element.
+     */
+    function makeCircle(background, x, y, attributes) {
+      var inner, outer, group, paper, innerSize,
+        onStart, onEnd, move, resize;
+      // Make the innerSize large enough so that it's visible at the time of
+      // creation.
+      innerSize = Math.floor(10 * background.invertedScale);
+
+      // Start the drag event.
+      onStart = function () {
+        this.start = [this.attr("cx"), this.attr("cy"), this.attr('r')];
+      };
+
+      // Finish the drag event.
+      onEnd = function () {
+        this.start = undefined;
+      };
+
+      // Move the Circle.
+      move = function (dx, dy) {
+        this.set.attr({
+          cx: this.start[0] + Math.floor(dx * background.invertedScale),
+          cy: this.start[1] + Math.floor(dy * background.invertedScale)
+        });
+      };
+
+      // Resize the Circle.
+      resize = function (dx, dy) {
+        var outerRadius = this.start[2] + Math.floor(dx * background.invertedScale),
+          innerRadius = this.start[2] + (Math.floor(dx * background.invertedScale) - innerSize);
+        this.attr('r', Math.max(0, outerRadius));
+        this.inner.attr('r', Math.max(0, innerRadius));
+      };
+
+      // Draw the circle and it's icon.
+      paper = background.paper;
+      group = paper.set();
+
+      // This is the circle the user is drawing.
+      outer = paper.circle(x, y, innerSize);
+      outer.attr(attributes);
+      outer.start = [x, y, innerSize];
+      outer.set = group;
+
+      // The inner circle acts as tool to visualize the outer circle the user is
+      // drawing / resizing / moving.
+      inner = paper.circle(x, y, innerSize / 2);
+      inner.attr({
+        fill: '#ffffff',
+        opacity: 0.3,
+        stroke: 'black',
+        'stroke-width': 'none',
+        'stroke-dasharray': '- '
+      });
+      inner.toFront();
+      inner.set = group;
+
+      // Add the inner circle to the outer and add them to the set.
+      outer.inner = inner;
+      group.push(outer);
+      group.push(inner);
+
+      // Set up behaviours for drag resizing and moving.
+      inner.drag(move, onStart, onEnd);
+      outer.drag(resize, onStart, onEnd);
+      outer.resizeFn = resize;
+      // User can remove the annotation by double clicking on it's center.
+      inner.dblclick(function () {
+        this.set.remove();
+      });
+      return outer;
+    }
+
+    /**
+     * Creates a Circle, where the user clicks, they can resize by dragging.
+     *
+     * @param {Element} background
+     *   The background Raphael Element in which the coordinates are in.
+     * @param {number} x
+     *   The x coordinate.
+     * @param {number} y
+     *   The y coordinate.
+     * @param {object} attributes
+     *   HTML element attributes to apply to the polygon, like color or
+     *   stroke-width.
+     *
+     * @returns {Element}
+     *  The circle as a Raphael Element.
+     */
+    function makeRectangle(background, x, y, attributes) {
+      var inner, outer, group, paper, innerSize, onStart, onEnd, move, resize;
+      // Make the innerSize large enough so that it's visible at the time of
+      // creation.
+      innerSize = Math.floor(14 * background.invertedScale);
+
+      // Start the drag event.
+      onStart = function () {
+        this.set.start = [
+          Math.floor(this.set.outer.attr('x')),
+          Math.floor(this.set.outer.attr('y')),
+          Math.floor(this.set.outer.attr('height')),
+          Math.floor(this.set.outer.attr('width'))
+        ];
+      };
+
+      // End the drag event.
+      onEnd = function () {
+        this.set.start = undefined;
+      };
+
+      // Move the Rectangle.
+      move = function (dx, dy) {
+        this.set.outer.attr({
+          'x': this.set.start[0] + Math.floor(dx * background.invertedScale),
+          'y' : this.set.start[1] + Math.floor(dy * background.invertedScale)
+        });
+        this.set.inner.attr({
+          'x': this.set.start[0] + this.set.start[3] + Math.floor(dx * background.invertedScale) - innerSize,
+          'y' : this.set.start[1] + this.set.start[2] + Math.floor(dy * background.invertedScale) - innerSize
+        });
+      };
+
+      // Resize the Rectangle.
+      resize = function (dx, dy) {
+        var width, height;
+        height = this.set.start[2] + Math.floor(dy * background.invertedScale);
+        width = this.set.start[3] + Math.floor(dx * background.invertedScale);
+        this.set.outer.attr({
+          'width' : Math.max(0, width),
+          'height' : Math.max(0, height)
+        });
+        this.set.inner.attr({
+          'x' : this.set.start[0] + this.set.start[3] + Math.floor(dx * background.invertedScale) - innerSize,
+          'y': this.set.start[1] + this.set.start[2] + Math.floor(dy * background.invertedScale) - innerSize
+        });
+      };
+
+      // Draw the rectangle and it's icon.
+      paper = background.paper;
+      group = paper.set();
+      group.start = [x, y, innerSize, innerSize];
+      outer = paper.rect(x, y, innerSize, innerSize);
+      outer.attr(attributes);
+      outer.set = group;
+      group.push(outer);
+      // The inner circle acts as tool to visualize the outer circle the user is
+      // drawing / resizing / moving.
+      inner = paper.rect(x, y, innerSize + 1, innerSize + 1);
+      inner.attr({
+        fill: '#ffffff',
+        opacity: 0.3,
+        stroke: 'black',
+        'stroke-width': 'none',
+        'stroke-dasharray': '- '
+      });
+      inner.toFront();
+      inner.set = group;
+      group.push(inner);
+
+      // Store references to both the outer and inner for use in onStart().
+      group.outer = outer;
+      group.inner = inner;
+
+      // Set up behaviours for drag resizing and moving.
+      inner.drag(resize, onStart, onEnd);
+      outer.drag(move, onStart, onEnd);
+      outer.resizeFn = resize;
+      inner.dblclick(function () {
+        this.set.remove();
+      });
+      return outer;
+    }
+
+    /**
+     * Invert the given coordinates within the background.
+     *
+     * @param {Element} background
+     *   The background in which the coordinates are in.
+     * @param {number} x
+     *   The x coordinate.
+     * @param {number} y
+     *   The y coordinate.
+     *
+     * @returns {[number, number]}
+     *   The inverted XY coordinates.
+     */
+    function invertXYCoordinates(background, x, y) {
+      var $wrap, $window, invertedX, invertedY;
+      $wrap = $(background.paper.wrapperElem);
+      $window = $(window);
+
+      // This is location of canvas
+      invertedX = x - $wrap.offset().left;
+      invertedY = y - $wrap.offset().top;
+
+      // Change made to support embedding shared canvas.
+      invertedX += $window.scrollLeft();
+      invertedY += $window.scrollTop();
+
+      // And now scale for Canvas resizing
+      invertedX = Math.floor(invertedX * background.invertedScale);
+      invertedY = Math.floor(invertedY * background.invertedScale);
+      return [invertedX, invertedY];
+    }
+
+    /**
+     * Starts annotating.
+     *
+     * @param {string} canvas
+     * @param {function} getAnnotationProperties
+     *   Since we can change the display attributes while annotating we must
+     *   fetch the latest attributes at the time of creating a shape.
+     */
+    this.startAnnotating = function (canvas, getAnnotationProperties) {
+      var onStart, onEnd, raphael, invertedScale, canvasHeight, canvasWidth,
+        background;
+
+      // Start the drag event.
+      onStart = function (x, y) {
+        var invertedCoordinates, invertedX, invertedY, properties;
+        invertedCoordinates = invertXYCoordinates(this, x, y);
+        invertedX = invertedCoordinates[0];
+        invertedY = invertedCoordinates[1];
+        properties = getAnnotationProperties();
+        switch (properties.shape) {
+        case 'rectangle':
+          this.creating = makeRectangle(this, invertedX, invertedY, properties.attributes);
+          this.shapes.push(this.creating);
+          break;
+        case 'circle':
+          this.creating = makeCircle(this, invertedX, invertedY, properties.attributes);
+          this.shapes.push(this.creating);
+          break;
+        case 'polygon':
+          if (this.creating === null) {
+            this.creating = makePolygon(this, invertedX, invertedY, properties.attributes);
+            this.shapes.push(this.creating);
+          } else {
+            this.creating.addPoint(this, invertedX, invertedY);
+          }
+          break;
+        }
+      };
+
+      // End the drag event.
+      onEnd = function () {
+        var properties;
+        properties = getAnnotationProperties();
+        if (this.creating === null) {
+          return;
+        }
+        switch (properties.shape) {
+        case 'rectangle':
+          if (this.creating.set !== undefined && this.creating.set.start !== undefined) {
+            this.creating.set.start = [];
+          }
+          this.creating = null;
+          break;
+        case 'circle':
+          // Clear all start events if any remain.
+          if (this.creating.start !== undefined) {
+            this.creating.start = [];
+          }
+          this.creating = null;
+          break;
+        case 'polygon':
+          this.creating = null;
+          break;
+        }
+      };
+      // Create the Canvas / paper to render onto.
+      raphael = that.makeRaphael('comment', canvas, that.canvasDivHash[canvas]);
+      invertedScale = 1.0 / raphael.newScale;
+      canvasHeight = Math.floor(raphael.height * invertedScale);
+      canvasWidth = Math.floor(raphael.width * invertedScale);
+      // Create a background rectangle in which will encompass the shapes drawn
+      // by the user.
+      background = raphael.rect(0, 0, canvasWidth, canvasHeight);
+      background.attr({
+        'fill': 'white',
+        'opacity': 0.15
+      });
+      background.creating = null;
+      background.paper = raphael;
+      background.shapes = [];
+      background.invertedScale = invertedScale;
+      raphael.annotationBackground = background;
+      background.drag(function (dx, dy) {
+        // Delegate on resize to the element being resized.
+        this.creating.resizeFn(dx, dy);
+      }, onStart, onEnd);
+    };
+
+    // @todo Document
+    function removeCommentAnnotations(canvas) {
+      var raphael;
+      if (that.raphaels.comment[canvas] !== undefined) {
+        raphael = that.raphaels.comment[canvas];
+        if (raphael.annotationBackground !== undefined) {
+          $.each(raphael.annotationBackground.shapes, function (index, shape) {
+            if (shape.set !== undefined) {
+              shape.set.remove();
+            } else {
+              shape.remove();
+            }
+          });
+          raphael.annotationBackground.remove();
+          $(raphael.wrapperElem).remove();
+          $(raphael).remove();
+        }
+        that.raphaels.comment[canvas] = undefined;
+      }
+    }
+
+    // @todo Document
+    this.stopAnnotating = function (canvas) {
+        removeCommentAnnotations(canvas);
     };
 
     /**
@@ -699,14 +1151,14 @@
         console.log(exception.stack);
       } finally {
         // Try to force GC on the query.
-        delete rdf.databank;
-        rdf = null;
+        // delete rdf.databank;
+        // rdf = null;
       }
 
       xmlFiles = {};
       $.each(annotations, function (index, annotation) {
         var type, canvas;
-        type = getAnnotationType(annotation);
+        type = annotation.getType();;
 
         if (!type) {
           return;
@@ -808,7 +1260,9 @@
       if (aggregations !== undefined && aggregations.length > 0) {
         // Create a new databank per file, and discard after extracting the
         // annotations.
+        // @todo Test?
         rdf = createRDFBase();
+        rdf = that.query;
         $.each(aggregations, function (index, aggregation) {
           var resouceMapURI = getAggregationResourceMapURI(aggregation, that.query);
           if ($.inArray(resouceMapURI, that.done) !== -1) {
@@ -829,15 +1283,17 @@
         type: 'GET',
         url: '/islandora/anno/get_annotation/' + pid,
         success: function (data, status, xhr) {
-          var rdf = $(data).rdf();
+          /*var rdf = $(data).rdf();
           if (rdf.databank.size() === 0) {
             try {
-              rdf = createRDFBase.load(data);
+              //rdf = createRDFBase.load(data);
+              rdf = that.query;
             } catch (exception) {
               console.log('Failed to load Comment Annotation: ' + exception);
               console.log(exception.stack);
             }
-          }
+          }*/
+          var rdf = that.query.add($(data).rdf());//databank.load(data);
           processAnnotations(rdf, '');
         }
       });

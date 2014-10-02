@@ -225,7 +225,6 @@ var RDF = {};
       painted: 0,
       zOrder: 0
     });
-    console.log(this.getTargetCanvas());
   };
   // RDF.Annotation inherits from RDF.Resource.
   RDF.Annotation.prototype = Object.create(RDF.Resource.prototype);
@@ -252,8 +251,10 @@ var RDF = {};
   };
 
   /**
+   * Gets the Canvas of this Annotation, or the canvas it's targets belongs to.
    *
-   * @returns {*}
+   * @returns {RDF.Resource}
+   *   The Canvas.
    */
   RDF.Annotation.prototype.getTargetCanvas = function () {
     var canvas = null;
@@ -262,10 +263,64 @@ var RDF = {};
         canvas = target;
         return false;
       }
+      if (target.isPartOfCanvas()) {
+        canvas = target.partOf;
+        return false;
+      }
     });
     return canvas;
   };
 
+  /**
+   * Gets the type of the this annotation.
+   *
+   * @returns {string|null}
+   *   The annotation type, either (image, text, audio, comment, zone), or
+   *   null if it could not be determined.
+   */
+  RDF.Annotation.prototype.getType = function () {
+    var annotationType = null;
+    // Annotations can have multiple type values, so we first check for the
+    // most generic description and then refine if possible.
+    if ($.inArray('http://www.w3.org/ns/openannotation/core/Annotation', this.types) !== -1) {
+      annotationType = 'comment';
+    }
+    // Check the more specific Annotations Types.
+    $.each(this.types, function (index, type) {
+      var types = {
+        'http://dms.stanford.edu/ns/ImageAnnotation': 'image',
+        'http://dms.stanford.edu/ns/TextAnnotation': 'text',
+        'http://dms.stanford.edu/ns/AudioAnnotation': 'audio',
+        'http://dms.stanford.edu/ns/CommentAnnotation': 'comment',
+        'http://dms.stanford.edu/ns/ZoneAnnotation': 'zone'
+      };
+      if (types[type] !== undefined) {
+        annotationType = types[type];
+        return false;
+      }
+    });
+    if (!annotationType) {
+      // Check body type
+      $.each(this.body.types, function (index, type) {
+        var types = {
+          'http://purl.org/dc/dcmitype/Image': 'image',
+          'http://purl.org/dc/dcmitype/Text': 'text',
+          'http://dms.stanford.edu/ns/ImageBody': 'audio',
+          'http://dms.stanford.edu/ns/TextBody': 'comment',
+          'http://dms.stanford.edu/ns/ImageSegment': 'zone'
+        };
+        if (types[type] !== undefined) {
+          annotationType = types[type];
+          return false;
+        }
+      });
+    }
+    if (!annotationType) {
+      // Check body fragment type
+      annotationType = this.body.fragmentType;
+    }
+    return annotationType;
+  };
 
   /**
    * Gets the fragment identifier from the given URI.
@@ -441,6 +496,15 @@ var RDF = {};
       return null;
     }
     return [x, y, width, height];
+  };
+
+  /**
+   * Checks if this target is part of a Canvas.
+   *
+   * @returns {boolean}
+   */
+  RDF.BodyTarget.prototype.isPartOfCanvas = function () {
+    return this.partOf !== undefined && this.partOf.isCanvas();
   };
 
 }(jQuery));

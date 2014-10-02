@@ -15,7 +15,9 @@
     </div>
   </div>
   <div class="islandora-image-annotation-right-column">
-    <button id="islandora-image-annotation-create-annotation-button"><?php print t('Annotate'); ?></button>
+    <?php if (user_access(ISLANDORA_IMAGE_ANNOTATION_CREATE)): ?>
+      <button id="islandora-image-annotation-create-annotation-button"><?php print t('Annotate'); ?></button>
+    <?php endif; ?>
     <button id="islandora-image-annotation-full-window-button"><?php print t('Full Window'); ?></button>
     <div class="clearfix"></div>
     <?php print $canvas; ?>
