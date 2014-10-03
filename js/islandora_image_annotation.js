@@ -46,58 +46,44 @@
    */
   Drupal.IslandoraImageAnnotation = function (base, settings) {
     // Private Members.
-    var that, rdf, fetched, annotations;
+    var that, manifestUrl;
 
     // Reference to this object for use in private functions, that might be
     // called from a different scope.
     that = this;
 
-    // Acts as a triple-store / databank.
-    rdf = $.rdf({
-      base: 'http://localhost/EmicShared/impl/',
-      namespaces: {
-        dc: 'http://purl.org/dc/elements/1.1/',
-        dcterms: 'http://purl.org/dc/terms/',
-        dctype: 'http://purl.org/dc/dcmitype/',
-        oa: 'http://www.w3.org/ns/openannotation/core/',
-        cnt: 'http://www.w3.org/2008/content#',
-        dms: 'http://dms.stanford.edu/ns/',
-        rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-        ore: 'http://www.openarchives.org/ore/terms/',
-        exif: 'http://www.w3.org/2003/12/exif/ns#'
-      }
+    // Manifest URL.
+    manifestUrl = IIAUtils.url('islandora/anno/serve/' + settings.pid + '/Manifest/manifest.xml');
+
+    // Public Members.
+    $.extend(this, {
+      // Keep track of all external resources we have fetched triples from so that
+      // we don't make any more requests than we need to.
+      fetched: [],
+      // A list of all of the processed annotations, grouped by type.
+      annotations: {
+        text: {},
+        audio: {},
+        image: {},
+        comment: {},
+        zone: {}
+      },
+      // Acts as a triple-store.
+      rdf: $.rdf({
+        base: 'http://localhost/EmicShared/impl/',
+        namespaces: {
+          dc: 'http://purl.org/dc/elements/1.1/',
+          dcterms: 'http://purl.org/dc/terms/',
+          dctype: 'http://purl.org/dc/dcmitype/',
+          oa: 'http://www.w3.org/ns/openannotation/core/',
+          cnt: 'http://www.w3.org/2008/content#',
+          dms: 'http://dms.stanford.edu/ns/',
+          rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+          ore: 'http://www.openarchives.org/ore/terms/',
+          exif: 'http://www.w3.org/2003/12/exif/ns#'
+        }
+      })
     });
-
-    // Keep track of all external resources we have fetched triples from so that
-    // we don't make any more requests than we need to.
-    fetched = [];
-
-    // A list of all of the processed annotations, grouped by type.
-    annotations =  {
-      text: {},
-      audio: {},
-      image: {},
-      comment: {},
-      zone: {}
-    };
-
-    /**
-     * Creates a full URL to the site with the given path.
-     *
-     * @param {string} path
-     * @returns {string}
-     */
-    function url(path) {
-      var origin;
-      // Handle IE missing feature.
-      if (!window.location.origin) {
-        origin = window.location.protocol + "//" + window.location.hostname;
-        origin += (window.location.port ? ':' + window.location.port : '');
-      } else {
-        origin = window.location.origin;
-      }
-      return origin + Drupal.settings.basePath + path;
-    }
 
     /**
      * Take RDF Resource and convert its RDF list to a javascript array.
@@ -118,7 +104,7 @@
 
       // Fetch all collection style triples, even if we are not interested in
       // them.
-      rdf.where('?what rdf:first ?first')
+      that.rdf.where('?what rdf:first ?first')
         .where('?what rdf:rest ?rest')
         .each(function () {
           firsts[this.what.value] = this.first.value;
@@ -154,44 +140,13 @@
      */
     function getAggregationResourceMapURI(aggregation) {
       var resourceMapURI = '';
-      rdf.reset();
-      rdf.where('<' + aggregation.toString() + '> ore:isDescribedBy ?resourceMap')
+      that.rdf.reset();
+      that.rdf.where('<' + aggregation.toString() + '> ore:isDescribedBy ?resourceMap')
         .where('?resourceMap dc:format "application/rdf+xml"')
         .each(function () {
           resourceMapURI = this.resourceMap.value.toString();
         });
       return resourceMapURI;
-    }
-
-    /**
-     * Pull rdf/xml file and parse to triples with rdfQuery.
-     *
-     * @param {string} url
-     *   The uri to fetch the triples from.
-     * @param {function} callback
-     *   The callback to execute upon success, it's expected to take the given
-     *   $.rdf object as it's first parameter, and the uri as it's second.
-     */
-    function fetchTriples(url, callback) {
-      // Store that we've fetched this URI to prevent duplicate requests.
-      fetched.push(url);
-      $.ajax({
-        type: 'GET',
-        async: true,
-        url: url,
-        success: function (data) {
-          try {
-            rdf.databank.load(data);
-            callback(url);
-          } catch (exception) {
-            console.log('Broken RDF/XML: ' + exception);
-            console.log(exception.stack);
-          }
-        },
-        error:  function (XMLHttpRequest, status, errorThrown) {
-          console.log('Can not fetch any data from ' + url + ': ' + errorThrown);
-        }
-      });
     }
 
     /**
@@ -207,8 +162,8 @@
      */
     function getOrderOfAggregationResources(resourceMap) {
       var zorder = {}, aggregation = null;
-      rdf.reset();
-      rdf.where('<' + resourceMap + '> ore:describes ?aggregation')
+      that.rdf.reset();
+      that.rdf.where('<' + resourceMap + '> ore:describes ?aggregation')
         .each(function () {
           aggregation = this.aggregation.value.toString();
         });
@@ -228,8 +183,8 @@
      */
     function getAnnotationIdentifiers() {
       var identifiers = [];
-      rdf.reset();
-      rdf.where('?annotation oa:hasBody ?body')
+      that.rdf.reset();
+      that.rdf.where('?annotation rdf:type <http://www.w3.org/ns/openannotation/core/Annotation>')
         .each(function () {
           var annotation = this.annotation.value.toString();
           identifiers.push(annotation);
@@ -246,19 +201,48 @@
      * @returns {object|null}
      *   The annotation object if found, null otherwise.
      */
-    function getAnnotation(identifier) {
+    this.getAnnotation = function (identifier) {
       var result = null;
-      $.each(annotations, function (type, typeAnnotations) {
-        $.each(typeAnnotations, function (id, annotation) {
-          if (identifier === id) {
-            result = annotation;
-            return false;
-          }
+      $.each(that.annotations, function (type, typeAnnotations) {
+        $.each(typeAnnotations, function (canvas, canvasAnnotations) {
+          $.each(canvasAnnotations, function (index, annotation) {
+            if (annotation.id === identifier) {
+              result = annotation;
+              return false;
+            }
+          });
+          return result === null;
         });
         return result === null;
       });
       return result;
-    }
+    };
+
+    /**
+     * Gets annotation from the given identifier.
+     *
+     * @param {string} identifier
+     *   The identifier used to look up the annotation object
+     *
+     * @returns {object|null}
+     *   The annotation object if found, null otherwise.
+     */
+    this.deleteAnnotation = function (identifier) {
+      var result = null;
+      $.each(that.annotations, function (type, typeAnnotations) {
+        $.each(typeAnnotations, function (canvas, canvasAnnotations) {
+          $.each(canvasAnnotations, function (index, annotation) {
+            if (annotation.id === identifier) {
+              that.constructor.trigger('deleteAnnotation', annotation);
+              delete canvasAnnotations[index];
+            }
+          });
+          return result === null;
+        });
+        return result === null;
+      });
+      return result;
+    };
 
     /**
      * Gets a annotations of the give type if given otherwise all annotations.
@@ -270,9 +254,9 @@
       var identifiers = getAnnotationIdentifiers();
       // Filter out the annotations which have already been processed.
       identifiers = $.grep(identifiers, function (id) {
-        return getAnnotation(id) === null;
+        return that.getAnnotation(id) === null;
       });
-      return RDF.createAnnotations(IIAUtils.unique(identifiers), rdf.databank.dump());
+      return RDF.createAnnotations(IIAUtils.unique(identifiers), that.rdf.databank.dump());
     }
 
     /**
@@ -285,6 +269,8 @@
       var unprocessedAnnotations, xmlFiles, zorder;
 
       unprocessedAnnotations = getUnprocessedAnnotations();
+      console.log('unprocessedAnnotations');
+      console.log(unprocessedAnnotations);
       zorder = (uri === undefined) ? {} : getOrderOfAggregationResources(uri);
 
       xmlFiles = {};
@@ -331,12 +317,12 @@
 
         // Cache all the processed annotations and group them by type and
         // canvas.
-        IIAUtils.push(annotations[type], canvas, annotation);
+        IIAUtils.push(that.annotations[type], canvas, annotation);
 
         // If this annotation requires no further processing notify the world
         // it's been processed.
         if (annotation.finished) {
-          that.trigger('processedAnnotation', annotation);
+          that.constructor.trigger('processedAnnotation', annotation);
         }
       });
 
@@ -369,7 +355,7 @@
               // If this annotation requires no further processing notify the
               // world it's been processed.
               if (annotation.finished) {
-                that.trigger('processedAnnotation', annotation);
+                that.constructor.trigger('processedAnnotation', annotation);
               }
             });
           },
@@ -389,7 +375,7 @@
     function processSequence(uri) {
       var sequence;
       // Fetch the Aggregation for the Resource Map.
-      rdf.where('?sequence rdf:type dms:Sequence')
+      that.rdf.where('?sequence rdf:type dms:Sequence')
         .where('?sequence ore:isDescribedBy <' + uri + '>')
         .each(function () {
           sequence = this.sequence.value;
@@ -397,17 +383,60 @@
       // If we don't find one that matches the given Resource map, just grab the
       // first one.
       if (sequence === undefined) {
-        rdf.where('?sequence rdf:type dms:Sequence')
+        that.rdf.where('?sequence rdf:type dms:Sequence')
           .each(function () {
             sequence = this.sequence.value;
           });
       }
       if (sequence !== undefined) {
         $.each(rdfListToArray(sequence), function (index, sequence) {
-          that.trigger('processedSequence', sequence.toString());
+          var id, dump;
+          id = sequence.toString();
+          dump = that.rdf.databank.dump();
+          that.constructor.trigger('processedSequence', new RDF.Resource(id, dump));
         });
       }
     }
+
+    /**
+     * Pull rdf/xml file and parse to triples with rdfQuery.
+     *
+     * @param {string} url
+     *   The uri to fetch the triples from.
+     * @param {function} [callback]
+     *   The callback to execute upon success.
+     */
+    this.fetchTriples = function (url, callback) {
+      // If no callback is provided assume processAnnotations.
+      var finished = callback || processAnnotations;
+      if ($.inArray(that.fetched, url) !== -1) {
+        return;
+      }
+      // Store that we've fetched this URI to prevent duplicate requests.
+      that.fetched.push(url);
+      $.ajax({
+        type: 'GET',
+        async: true,
+        url: url,
+        success: function (data, status, xhr) {
+          var contentType = xhr.getResponseHeader("content-type") || "";
+          try {
+            if (contentType === 'application/rdf+xml') {
+              that.rdf.databank.load(data);
+            } else {
+              that.rdf = that.rdf.add($(data).rdf());
+            }
+            finished(url);
+          } catch (exception) {
+            console.log('Broken RDF/XML: ' + exception);
+            console.log(exception.stack);
+          }
+        },
+        error:  function (XMLHttpRequest, status, errorThrown) {
+          console.log('Can not fetch any data from ' + url + ': ' + errorThrown);
+        }
+      });
+    };
 
     /**
      * Processes the Manifest of other Aggregations of Resources.
@@ -425,13 +454,13 @@
 
       // Build up the Sequences, typically only one NormalSequence.
       sequences = [];
-      rdf.where('<' + uri + '> ore:describes ?aggregation')
+      that.rdf.where('<' + uri + '> ore:describes ?aggregation')
         .where('?aggregation ore:aggregates ?sequence')
         .where('?sequence rdf:type dms:Sequence')
         .each(function () {
           sequences.push(this.sequence.value);
         });
-      rdf.reset();
+      that.rdf.reset();
 
       // Fetch the Image Annotations, Text Annotations, Audio Annotations,
       // Zone Annotations, and Comment Annotations for this Aggregation.
@@ -463,7 +492,7 @@
           IIAUtils.push(aggregations[type], canvas, sequence);
         };
       };
-      rdf.where('<' + uri + '> ore:describes ?aggregation')
+      that.rdf.where('<' + uri + '> ore:describes ?aggregation')
         .where('?aggregation ore:aggregates ?sequence')
         .optional('?sequence dms:forCanvas ?canvas')
         .where('?sequence rdf:type dms:ImageAnnotationList')
@@ -476,17 +505,20 @@
         .each(storeAggregation('zone')).end()
         .where('?sequence rdf:type dms:CommentAnnotationList')
         .each(storeAggregation('comment')).end();
-      rdf.reset();
+      that.rdf.reset();
 
       // Process the Sequences, typically there will be only one NormalSequence.
       $.each(sequences, function (index, sequence) {
-        fetchTriples(getAggregationResourceMapURI(sequence), processSequence);
+        that.fetchTriples(getAggregationResourceMapURI(sequence), processSequence);
       });
-      // Process all of the Annotation Aggregations.
-      $.each(aggregations, function (type, aggregations) {
-        $.each(aggregations, function (canvas, aggreations) {
-          $.each(aggreations, function (index, aggregation) {
-            fetchTriples(getAggregationResourceMapURI(aggregation), processAnnotations);
+      // Process all of the Annotation Aggregations, after the sequence has been
+      // processed.
+      that.constructor.on('processedSequence', function () {
+        $.each(aggregations, function (type, aggregations) {
+          $.each(aggregations, function (canvas, aggreations) {
+            $.each(aggreations, function (index, aggregation) {
+              that.fetchTriples(getAggregationResourceMapURI(aggregation), processAnnotations);
+            });
           });
         });
       });
@@ -494,13 +526,20 @@
 
     // @todo Remove.
     // Just some debug code.
-    this.on('processedSequence processedAnnotation', function (event) {
+    this.constructor.on('processedSequence', function (event, sequence) {
+      console.log(event.type);
+      console.log(sequence.id);
+      console.log(arguments);
+    });
+    this.constructor.on('processedAnnotation', function (event, annotation) {
+      console.log(event.type);
+      console.log(annotation.id);
       console.log(arguments);
     });
 
     // Manifest initialization, this will kick off the process of load all the
     // required data to render the image and it's annotations.
-    fetchTriples(url('islandora/anno/serve/' + settings.pid + '/Manifest/manifest.xml'), processManifest);
+    that.fetchTriples(manifestUrl, processManifest);
   };
 
   /**
@@ -512,21 +551,21 @@
    * @param {Array|Object} extraParameters
    *   Additional parameters to pass along to the event handler.
    */
-  Drupal.IslandoraImageAnnotation.prototype.trigger = function (event, extraParameters) {
+  Drupal.IslandoraImageAnnotation.trigger = function (event, extraParameters) {
     $(base).trigger(event, extraParameters);
   };
 
   /**
    * Registered callback for the given event.
    */
-  Drupal.IslandoraImageAnnotation.prototype.on = function (event, callback) {
+  Drupal.IslandoraImageAnnotation.on = function (event, callback) {
     $(base).on(event, callback);
   };
 
   /**
    * Unregistered callback for the given event.
    */
-  Drupal.IslandoraImageAnnotation.prototype.off = function (event, callback) {
+  Drupal.IslandoraImageAnnotation.off = function (event, callback) {
     $(base).off(event, callback);
   };
 

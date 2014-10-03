@@ -8,6 +8,7 @@
  */
 #canvas-body {
   position: relative;
+  padding: 0 15px 15px 15px;
 }
 #canvases, #svg-wrapper, #annotations {
   position: absolute;

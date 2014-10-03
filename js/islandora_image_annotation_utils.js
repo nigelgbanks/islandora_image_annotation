@@ -41,6 +41,24 @@ IslandoraImageAnnotationUtils = IIAUtils = {};
   };
 
   /**
+   * Creates a full URL to the site with the given path.
+   *
+   * @param {string} path
+   * @returns {string}
+   */
+  IslandoraImageAnnotationUtils.url = function (path) {
+    var origin;
+    // Handle IE missing feature.
+    if (!window.location.origin) {
+      origin = window.location.protocol + "//" + window.location.hostname;
+      origin += (window.location.port ? ':' + window.location.port : '');
+    } else {
+      origin = window.location.origin;
+    }
+    return origin + Drupal.settings.basePath + path;
+  }
+
+  /**
    * Splits the given string into it's urn components if found.
    *
    * Uses a regex and in theory can extract urns out of blocks of arbitrary

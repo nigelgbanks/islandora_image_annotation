@@ -1,3 +1,5 @@
+/*jslint browser: true*/
+/*global jQuery, Drupal, IIAUtils*/
 /**
  * @file
  * Defines the Islandora Image Annotation widget and it's Drupal behaviour.
@@ -214,7 +216,7 @@
     function getAnnotation(pid) {
       $.ajax({
         type: 'GET',
-        url: 'islandora/anno/get_annotation/' + pid,
+        url: IIAUtils.url('islandora/anno/get_annotation/' + pid),
         success: function (data, status, xhr) {
           // @todo Implement
           console.log('Implement getAnnotation');
@@ -246,7 +248,7 @@
       $.ajax({
         type: 'POST',
         async: true,
-        url: 'islandora/anno/add_annotation/' + objectPid,
+        url: IIAUtils.url('islandora/anno/add_annotation/' + objectPid),
         data: {
           title: title,
           type: type,

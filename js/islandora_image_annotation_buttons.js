@@ -1,3 +1,5 @@
+/*jslint browser: true*/
+/*global jQuery, Drupal*/
 /**
  * @file
  * Defines the Islandora Image Annotation buttons and their Drupal behaviour.
@@ -11,7 +13,7 @@
    * @type {{attach: attach}}
    */
   Drupal.behaviors.islandoraImageAnnotationCreateAnnotation = {
-    attach: function (context, settings) {
+    attach: function (context) {
       var base = '#islandora-image-annotation-create-annotation-button';
       $(base, context).once('islandoraCreateAnnotation', function () {
         $(this).click(function () {
@@ -27,7 +29,7 @@
    * @type {{attach: attach}}
    */
   Drupal.behaviors.islandoraImageAnnotationFullWindow = {
-    attach: function (context, settings) {
+    attach: function (context) {
       var base = '#islandora-image-annotation-full-window-button';
       $(base, context).once('islandoraToggleFullWindow', function () {
         var $imageAnnotation = $('#islandora-image-annotation'),
@@ -79,7 +81,7 @@
           $imageAnnotation.toggleClass(fullWindowClass);
 
           // Resize the Canvas.
-          Drupal.IslandoraImageAnnotationCanvas.getInstance().resizeCanvas();
+          Drupal.IslandoraImageAnnotationCanvas.getInstance().resizeCanvasContainer();
 
           if ($imageAnnotation.hasClass(fullWindowClass)) {
             $fullWindowButton.html(Drupal.t('Exit Full Window'));

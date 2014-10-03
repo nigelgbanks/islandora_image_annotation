@@ -1,24 +1,28 @@
+/*jslint browser: true*/
+/*global jQuery, Drupal, RDF, IIAUtils*/
 /**
  * @file
- * @todo Document.
+ * Models RDF triples as plain objects, makes it a bit easier to process.
  */
-var RDF = {};
+var RDF;
 
 (function ($) {
   'use strict';
+
+  RDF = {};
 
   // Older Browser such as IE8 don't provide Object.create, which we require.
   // So we create it if it's missing.
   // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create#Polyfill
   if (!Object.create) {
     Object.create = (function () {
-      function F() { return; }
+      var Noop = $.extend({}, $.noop);
       return function (o) {
         if (arguments.length !== 1) {
           throw new Error('Object.create implementation only accepts one parameter.');
         }
-        F.prototype = o;
-        return new F();
+        Noop.prototype = o;
+        return new Noop();
       };
     }());
   }
@@ -39,10 +43,10 @@ var RDF = {};
   /**
    * Adds a number of helper functions to the dump object.
    *
-   * @param {jQuery.rdf.dump} dump
+   * @param {object} dump
    *   A dump from the $.rdf objects databank that is focused on a resource.
    *
-   * @returns {jQuery.rdf.dump}
+   * @returns {object}
    *   The dump object with some additional helper fields.
    */
   function addPropertyFunctions(dump) {
@@ -104,10 +108,10 @@ var RDF = {};
    *
    * @param {string} id
    *   The id of the resource to fetch.
-   * @param {jQuery.rdf.dump} dump
+   * @param {object} dump
    *   A dump from the $.rdf objects databank that is focus on a resource.
    *
-   * @returns {jQuery.rdf.dump|null}
+   * @returns {object|null}
    *   A subset of the triples that relate to this resource if found, otherwise
    *   null.
    */
@@ -120,7 +124,7 @@ var RDF = {};
    *
    * @param {string} id
    *   The id of the resource to create.
-   * @param {jQuery.rdf.dump} dump
+   * @param {object} dump
    *   A dump from the $.rdf objects databank.
    * @constructor
    */
@@ -178,16 +182,15 @@ var RDF = {};
    */
   RDF.Resource.prototype.isCanvas = function () {
     var type = IIAUtils.getResourceURL('dms', 'Canvas');
-    return ($.inArray(type, this.types) !== -1) ? true : false;
+    return $.inArray(type, this.types) !== -1;
   };
-
 
   /**
    * Instantiate a RDF.Annotation object.
    *
    * @param {string} id
    *   The identifier of the annotation to create.
-   * @param {jQuery.rdf.dump} dump
+   * @param {object} dump
    *   A dump from the $.rdf objects databank. Contains the relevant data needed
    *   to build the Annotation.
    * @constructor
@@ -397,7 +400,11 @@ var RDF = {};
   /**
    * Instantiate a RDF.BodyType object.
    *
-   * @param id
+   * @param {string} id
+   *   The identifier of the annotation to create.
+   * @param {object} dump
+   *   A dump from the $.rdf objects databank. Contains the relevant data needed
+   *   to build the Annotation.
    * @constructor
    */
   RDF.BodyTarget = function (id, dump) {
@@ -468,17 +475,21 @@ var RDF = {};
   RDF.BodyTarget.prototype = Object.create(RDF.Resource.prototype);
   RDF.BodyTarget.prototype.constructor = RDF.BodyTarget;
 
+  //noinspection JSUnusedGlobalSymbols
   /**
    * Gets this targets rectangle.
    *
    * @returns {[x,y,width,height]}
    *   An rectangle representing this target.
+   *
+   * @public
    */
   RDF.BodyTarget.prototype.getRect =  function () {
     var doc, rect, x, y, width, height;
     if (this.constraint !== undefined) {
       // Extract from SVG
       doc = $($.parseXML(this.constraint.value));
+      //noinspection JSValidateTypes
       rect = doc.children().first();
       x = rect.getAttribute('x');
       y = rect.getAttribute('y');
@@ -499,6 +510,21 @@ var RDF = {};
   };
 
   /**
+   * Gets
+   * @returns {*}
+   */
+  RDF.BodyTarget.prototype.getTargetCanvas = function () {
+    if (this.isCanvas()) {
+      return this;
+    }
+    if (this.isPartOfCanvas()) {
+      return this.partOf;
+    }
+    return null;
+  };
+
+
+  /**
    * Checks if this target is part of a Canvas.
    *
    * @returns {boolean}
@@ -513,7 +539,8 @@ var RDF = {};
    * @param {[]} annotations
    *   An array of all the annotation identifiers.
    * @param {object} dump
-   *   A dump of triples from the $.rdf objects databank.
+   *   A dump from the $.rdf objects databank. Contains the relevant data needed
+   *   to build the Annotation.
    *
    * @returns {[RDF.Annotation]}
    *   An array of RDF.Annotation objects, representing the annotations given
