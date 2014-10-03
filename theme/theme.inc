@@ -185,6 +185,7 @@ function template_preprocess_islandora_image_annotation(array &$variables) {
   $object = $variables['object'];
   $settings = array(
     'pid' => $object->id,
+    'manifestUrl' => url("islandora/anno/serve/{$object->id}/Manifest/manifest.xml"),
     'editable' => user_access(ISLANDORA_IMAGE_ANNOTATION_CREATE),
     'categories' => islandora_image_annotation_get_categories($object),
     'enforceTaxonomy' => variable_get('islandora_annotation_enforce_taxonomy', TRUE),
@@ -237,9 +238,10 @@ function template_preprocess_islandora_image_annotation(array &$variables) {
 }
 
 function template_process_islandora_image_annotation(array &$variables) {
+  $module_path = drupal_get_path('module', 'islandora_image_annotation');
+  drupal_add_js("$module_path/js/islandora_image_annotation.js");
   $variables['dialog_box'] = drupal_render($variables['dialog_box']);
   $variables['list'] = drupal_render($variables['list']);
   $variables['canvas'] = drupal_render($variables['canvas']);
-  $module_path = drupal_get_path('module', 'islandora_image_annotation');
-  drupal_add_js("$module_path/js/islandora_image_annotation.js");
+  drupal_add_js("$module_path/js/islandora_image_annotation_buttons.js");
 }

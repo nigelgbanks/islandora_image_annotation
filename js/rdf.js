@@ -507,4 +507,24 @@ var RDF = {};
     return this.partOf !== undefined && this.partOf.isCanvas();
   };
 
+  /**
+   * Constructs RDF.Annotation objects for the given annotations identifiers.
+   *
+   * @param {[]} annotations
+   *   An array of all the annotation identifiers.
+   * @param {object} dump
+   *   A dump of triples from the $.rdf objects databank.
+   *
+   * @returns {[RDF.Annotation]}
+   *   An array of RDF.Annotation objects, representing the annotations given
+   *   to this function.
+   */
+  RDF.createAnnotations = function (annotations, dump) {
+    // Foreach annotation id build an annotation object.
+    return $.map(annotations, function (id) {
+      // Cache that we have build this annotation.
+      return new RDF.Annotation(id, dump);
+    });
+  };
+
 }(jQuery));

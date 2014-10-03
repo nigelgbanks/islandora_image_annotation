@@ -1,5 +1,5 @@
 /*jslint browser: true*/
-/*global jQuery, RDF, Raphael, ScaleRaphael*/
+/*global jQuery, Drupal, Raphael, ScaleRaphael*/
 /**
  * @file
  * Defines the Islandora Image Annotation Canvas and it's Drupal behaviour.
@@ -24,7 +24,7 @@
    */
   Drupal.behaviors.islandoraImageAnnotationCanvas = {
     attach: function (context, settings) {
-      $(base, context).once('islandoraImageAnnotation', function () {
+      $(base, context).once('islandoraImageAnnotationCanvas', function () {
         Drupal.IslandoraImageAnnotationCanvas[base] = new Drupal.IslandoraImageAnnotationCanvas(base, settings.islandoraImageAnnotationCanvas);
       });
     }
@@ -92,20 +92,6 @@
       'paintedAnnos': [],
       'audioAnno': null,
       'waitingXHR': 0,
-      opts: {
-        base: 'http://localhost/EmicShared/impl/',
-        namespaces: {
-          dc: 'http://purl.org/dc/elements/1.1/',
-          dcterms: 'http://purl.org/dc/terms/',
-          dctype: 'http://purl.org/dc/dcmitype/',
-          oa: 'http://www.w3.org/ns/openannotation/core/',
-          cnt: 'http://www.w3.org/2008/content#',
-          dms: 'http://dms.stanford.edu/ns/',
-          rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-          ore: 'http://www.openarchives.org/ore/terms/',
-          exif: 'http://www.w3.org/2003/12/exif/ns#'
-        }
-      }
     });
 
     /**

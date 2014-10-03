@@ -25,6 +25,22 @@ IslandoraImageAnnotationUtils = IIAUtils = {};
   };
 
   /**
+   * Helper function to push a a value onto a object's given property array.
+   *
+   * Handles the case when the property is an array or not yet defined, but if
+   * it is defined and not an array then an exception will be thrown.
+   */
+  IslandoraImageAnnotationUtils.push = function (object, key, value) {
+    if (object[key] === undefined) {
+      object[key] = [value];
+    } else if (Array.isArray(object[key])) {
+      object[key].push(value);
+    } else {
+      throw new Error('Invalid property ' + key + ' is not an array or undefined');
+    }
+  };
+
+  /**
    * Splits the given string into it's urn components if found.
    *
    * Uses a regex and in theory can extract urns out of blocks of arbitrary
