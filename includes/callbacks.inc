@@ -189,8 +189,11 @@ QUERY;
  * @return XML
  *   The XML content of the OAC datastream.
  */
-function islandora_image_annotation_get_annotation_data($pid) {
+function islandora_image_annotation_get_annotation_data($pid, $urn = NULL) {
   module_load_include('inc', 'fedora_repository', 'api/fedora_item');
+  if (isset($urn)) {
+    $pid = islandora_image_annotation_canvas_get_pid_from_urn($urn);
+  }
   $item = islandora_object_load($pid);
   if (!isset($item)) {
     return;

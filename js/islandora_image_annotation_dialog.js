@@ -1,5 +1,5 @@
 /*jslint browser: true*/
-/*global jQuery, Drupal, IIAUtils*/
+/*global jQuery, Drupal, UUID, IIAUtils*/
 /**
  * @file
  * Defines the Islandora Image Annotation widget and it's Drupal behaviour.
@@ -44,7 +44,21 @@
    * @constructor
    */
   Drupal.IslandoraImageAnnotationDialog = function (base, settings) {
-    var $dialog = $(base);
+    // Private Variables.
+    var $dialog, defaultDialogProperties;
+    $dialog = $(base);
+    defaultDialogProperties = {
+      height: 680,
+      width: 460,
+      resizable: true,
+      closeOnEscape: true,
+      modal: false,
+      position: {
+        my: "left top",
+        at: "left bottom",
+        of: '#content'
+      }
+    };
 
     /**
      * Fetches a random color from the 'svgAreaColors' table.
@@ -107,22 +121,24 @@
      * All the parameters are required. Except entityID, entityLabel which are
      * optional.
      *
-     * @param title
-     * @param type
-     * @param entityID
-     * @param entityLabel
-     * @param color
-     * @param content
-     * @param canvas
-     * @param shapes
+     * @param {object} properties
+     * @param {string} properties.title
+     * @param {string} properties.type
+     * @param {string} properties.entity
+     * @param {string} properties.entityLabel
+     * @param {string} properties.color
+     * @param {string} properties.content
+     * @param {string} properties.canvas
+     * @param {[object]} [properties.shapes]
      *
      * @returns {object}
      *  - annotationID: The uuid that identifies this annotation.
      *  - contentID: The uuid that identifies this annotations content.
      *  - rdfa: A html rdfa representation of this annotation
      */
-    function createAnnotation(title, type, entityID, entityLabel, color, content, canvas, shapes) {
-      var namespaces, xmlns, rdfa, annotationUUID, contentUUID;
+    function createAnnotation(properties) {
+      var namespaces, title, type, entityID, entityLabel, color, text,
+        canvas, shapes, xmlns, rdfa, annotationUUID, contentUUID;
       namespaces = {
         dc: 'http://purl.org/dc/elements/1.1/',
         dcterms: 'http://purl.org/dc/terms/',
@@ -134,6 +150,15 @@
         ore: 'http://www.openarchives.org/ore/terms/',
         exif: 'http://www.w3.org/2003/12/exif/ns#'
       };
+      title = properties.title;
+      type = properties.type;
+      entityID = properties.entity;
+      entityLabel = properties.entity_label;
+      color = properties.color;
+      text = properties.text;
+      canvas = properties.canvas;
+      shapes = properties.shapes || [];
+
       // We build the rdfa as a string.
       rdfa = '';
       annotationUUID = new UUID();
@@ -166,12 +191,15 @@
       rdfa += '<a rel="oa:hasBody" href="urn:uuid:' + contentUUID + '"></a>';
       rdfa += '<div about="urn:uuid:' + contentUUID + '">'; // Open Body Div
       rdfa += '<a rel="rdf:type" href="http://www.w3.org/2008/content#ContentAsText"></a>';
-      rdfa += '<span property="cnt:chars">' + content + '</span> ';
+      rdfa += '<span property="cnt:chars">' + text + '</span> ';
       rdfa += '<span property="cnt:characterEncoding" content="utf-8"></span>';
       rdfa += '</div>'; // Close Body Div
 
-      // Include shape SVG data.
-      shapes.each(function (shape) {
+      // Include shape SVG data, filter out ones that don't exist.
+      shapes = $.grep(shapes, function (shape) {
+        return shape.removed === undefined;
+      });
+      $.each(shapes, function (index, shape) {
         var svgXml, constrainedTargetUUID, svgConstraintUUID;
         svgXml = nodeToSVG(shape.node);
         constrainedTargetUUID = new UUID();
@@ -206,33 +234,9 @@
     }
 
     /**
-     * Fetches the html rdfa representation of the annotation.
-     *
-     * This function is async
-     *
-     * @param {string} pid
-     *   Get pid of the annotation object to be fetched from Fedora.
-     */
-    function getAnnotation(pid) {
-      $.ajax({
-        type: 'GET',
-        url: IIAUtils.url('islandora/anno/get_annotation/' + pid),
-        success: function (data, status, xhr) {
-          // @todo Implement
-          console.log('Implement getAnnotation');
-          // load_commentAnno(data);
-        },
-        error: function (data, status, xhr) {
-          // @todo Better error handling.
-          alert('Failed to Get the Annotation: ' + pid);
-        }
-      });
-    }
-
-    /**
      * Creates an Annotation Object within Fedora from the data provided.
      *
-     * @param {string} objectPid
+     * @param {string} pid
      *   The object identifier in which to add the annotation to, note that a
      *   new annotation object is created as a child of this one.
      * @param {string} title
@@ -244,32 +248,56 @@
      * @param {string} color
      *   The color of the annotation shape.
      */
-    function addAnnotationToObject(objectPid, title, rdfa, type, color) {
+    function ingestAnnotation(pid, title, rdfa, type, color) {
       $.ajax({
         type: 'POST',
         async: true,
-        url: IIAUtils.url('islandora/anno/add_annotation/' + objectPid),
+        url: IIAUtils.url('islandora/anno/add_annotation/' + pid),
         data: {
           title: title,
           type: type,
           data: encodeURI(rdfa),
-          // @todo Do I need type color or stroke-width?
+          // @todo Do we need type color or stroke-width? It's already part of
+          // the annotation rdfa?
           color: color,
           strokeWidth: $('#stroke_width').val()
         },
-        success: function (annotationPid, status, xhr) {
-          // We successfully created a new annotation, it's content is slightly
-          // different than what we posted as the server does some processing of
-          // the posted data, so we have to make an additional request to get
-          // the annotation again if we want to use it.
-          $(Drupal.IslandoraImageAnnotation).trigger('IslandoraImageAnnotation.AddAnnotation', {
-            objectPid: objectPid,
-            annotationPid: annotationPid
-          });
-          getAnnotation(annotationPid);
+        success: function (pid, status, xhr) {
+          var url = IIAUtils.url('islandora/anno/get_annotation/' + pid);
+          Drupal.IslandoraImageAnnotation.getInstance().fetchTriples(url);
         },
         error: function (data, status, xhr) {
-          console.log('Failed to Create Annotation for: ' + objectPid);
+          console.log('Failed to Create Annotation for: ' + pid);
+        }
+      });
+    }
+
+    /**
+     * Updates the given annotation server side.
+     * @param annotation
+     * @param properties
+     */
+    function updateAnnotation(annotation, properties) {
+      var urn = IIAUtils.urnComponents(annotation.id);
+      // We need to store slash fetch the pid here.
+      $.ajax({
+        type: 'POST',
+        async: false,
+        url: IIAUtils.url('islandora/anno/update_annotation/'),
+        data: {
+          urn: IIAUtils.urnComponents(annotation.id).nss,
+          title: properties.title,
+          annoType: properties.type,
+          content: properties.text,
+          color: properties.color,
+          // Backend always throws the percent symbol on so we remove it here.
+          strokeWidth: properties.stroke.replace(/%/, '')
+        },
+        success: function () {
+          var url = IIAUtils.url('islandora/anno/get_annotation/pid/' + urn.nss);
+          // Trigger reprocessing by deleting it first.
+          Drupal.IslandoraImageAnnotation.getInstance().deleteAnnotation(annotation.id);
+          Drupal.IslandoraImageAnnotation.getInstance().fetchTriples(url);
         }
       });
     }
@@ -292,7 +320,7 @@
       // Get all fields values.
       $('input,select,textarea', $dialog).each(function () {
         var $this, name;
-        $this = $(this)
+        $this = $(this);
         name = $(this).attr('name');
         values[name] = $this.val();
       });
@@ -301,7 +329,7 @@
       if (!values.canvas) {
         values.canvas = canvas.getCurrentCanvas();
       }
-      values.shapes = canvas.getShapes(values.canvas);
+      values.shapes = canvas.getShapes('comment', values.canvas);
       return values;
     }
 
@@ -344,11 +372,18 @@
       $('input,select,textarea', $dialog).val('');
       // Reset Defaults.
       $('input[name="stroke"]', $dialog).val('.3%');
-      chooseShape('polygon');
+      chooseShape('rectangle');
       // Set a random color for the annotations.
       $('input[name="color"]', $dialog).attr('value', getRandomColour());
-      // Destroy the miniColor
-      $('input[name="color"]', $dialog).miniColors('destroy');
+      // Set up the color chooser.
+      if (settings.canChooseColour) {
+        // Destroy the miniColor
+        $('input[name="color"]', $dialog).miniColors('destroy');
+        $('#color-picker-wrapper').click(function () {
+          $('#islandora-image-annotation-dialog-color-activated').attr('value', 'active');
+        });
+        $('.color-picker').miniColors();
+      }
     }
 
     /**
@@ -368,54 +403,85 @@
     }
 
     /**
-     * Creates a dialog box and displays it.
+     * Shows the Create Annotation Dialog.
      *
-     * @returns {*}
+     * Used for creating new annotations.
      */
-    this.show = function (annotation) {
-      // @todo Change the text of the annotation box.
-      // $('#create_annotation').text('Annotating'))
-      $dialog.dialog({
+    function showCreateDialog() {
+      $dialog.dialog($.extend(defaultDialogProperties, {
         title: Drupal.t('Annotate'),
-        height: 680,
-        width: 460,
-        resizable: true,
-        closeOnEscape: true,
-        modal: false,
-        position: {
-          my: "left top",
-          at: "left bottom",
-          of: '#content'
-        },
         open: function () {
-          var canvas;
+          var canvas = Drupal.IslandoraImageAnnotationCanvas.getInstance();
           // Clear the form to be safe.
           clearForm();
-          // Populate the form if we're editing a annotation.
-          if (annotation !== undefined) {
-            populateForm(annotation);
-          } else {
-            // If we aren't editing an existing annotation we must be creating a
-            // new one, so prepare the canvas.
-            canvas = Drupal.IslandoraImageAnnotationCanvas.getInstance();
-            $('#canvases .canvas').each(function () {
-              canvas.startAnnotating($(this).attr('canvas'), getAnnotationProperties);
-            });
-          }
-          // Set up the color chooser.
-          if (settings.canChooseColour) {
-            $('#color-picker-wrapper').click(function () {
-              $('#islandora-image-annotation-dialog-color-activated').attr('value', 'active');
-            });
-            $('.color-picker').miniColors();
-          }
+          // If we aren't editing an existing annotation we must be creating a
+          // new one, so prepare the canvas.
+          canvas.startAnnotating(canvas.getCurrentCanvas(), getAnnotationProperties);
         },
         close: function () {
           // Stop all annotations.
           var canvas = Drupal.IslandoraImageAnnotationCanvas.getInstance();
-          $('#canvases .canvas').each(function () {
-            canvas.stopAnnotating($(this).attr('canvas'));
-          });
+          canvas.stopAnnotating(canvas.getCurrentCanvas());
+          // Reset to defaults.
+          clearForm();
+        },
+        buttons: [{
+          text: 'Save',
+          // Assumes only one canvas with a valid 'canvas' attribute.
+          click: function () {
+            var values, annotation;
+
+            // Minimally we only allow users to create content if they have
+            // entered a title and annotation.
+            values = getFormValues();
+
+            if (!values.text || !values.title) {
+              alert('An annotation needs both title and content');
+              return 0;
+            }
+            // Also the user must have actually marked up the image.
+            if (values.canvas === null) {
+              alert('You must draw a shape around the target.');
+              return 0;
+            }
+
+            // Set default type if not specified.
+            values.type = (values.type === '' || values.type === null) ? Drupal.t('unclassified') : values.type;
+
+            // @todo Entity Linking!
+
+            // Create RDFa representing the current annotation, all the
+            // parameters are required. Except entityID, entityLabel, it also
+            // generates identifiers for the annotation and it's content.
+            annotation = createAnnotation(values);
+            console.log(annotation);
+            ingestAnnotation(settings.pid, values.canvas, annotation.rdfa, values.type, values.color);
+            $dialog.dialog('close');
+          }
+        }, {
+          text: 'Cancel',
+          click: function () {
+            $dialog.dialog('close');
+          }
+        }]
+      }));
+    }
+
+    /**
+     * Shows the Create Annotation Dialog.
+     *
+     * Used for creating new annotations.
+     */
+    function showEditDialog(annotation) {
+      $dialog.dialog($.extend(defaultDialogProperties, {
+        title: Drupal.t('Update Annotation'),
+        open: function () {
+          // Clear the form to be safe.
+          clearForm();
+          // Populate the form with the given annotation.
+          populateForm(annotation);
+        },
+        close: function () {
           // Reset to defaults.
           clearForm();
         },
@@ -444,12 +510,8 @@
 
             // @todo Entity Linking!
 
-            // Create RDFa representing the current annotation, all the
-            // parameters are required. Except entityID, entityLabel, it also
-            // generates identifiers for the annotation and it's content.
-            annotation = createAnnotation(values.title, values.type, null, null, values.color, values.text, values.canvas, values.shapes);
-            console.log(annotation);
-            //addAnnotationToObject(settings.pid, canvas, annotation.rdfa, type, color);
+            // Update the annotation.
+            updateAnnotation(annotation, values);
             $dialog.dialog('close');
           }
         }, {
@@ -458,7 +520,20 @@
             $dialog.dialog('close');
           }
         }]
-      });
+      }));
+    }
+
+    /**
+     * Creates a dialog box and displays it.
+     *
+     * @param {RDF.Annotation} annotation
+     */
+    this.show = function (annotation) {
+      if (annotation !== undefined) {
+        showEditDialog(annotation);
+      } else {
+        showCreateDialog();
+      }
     };
 
     // Link the Shapes to the the 'shape' hidden input field.

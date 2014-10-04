@@ -37,7 +37,7 @@ var RDF;
    *   The value of the property if found, otherwise null.
    */
   function getProperties(property) {
-    return (this[property] !== undefined) ? this[property] : null;
+    return (this[property] === undefined) ? null : this[property];
   }
 
   /**
@@ -168,8 +168,8 @@ var RDF;
       hasPart: me.getProperty(dcTermsHasPart) || undefined,
       value: me.getProperty(cntChars) || undefined,
       format: me.getProperty(dcFormat) || undefined,
-      height: me.getPropertyAsNumber(exifWidth) || undefined,
-      width: me.getPropertyAsNumber(exifHeight) || undefined,
+      width: me.getPropertyAsNumber(exifWidth) || undefined,
+      height: me.getPropertyAsNumber(exifHeight) || undefined,
       extent: me.getPropertyAsNumber(dcExtent) || undefined,
       imageType: imageType || undefined
     });

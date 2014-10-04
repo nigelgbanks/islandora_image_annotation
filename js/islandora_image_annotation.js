@@ -223,25 +223,31 @@
      *
      * @param {string} identifier
      *   The identifier used to look up the annotation object
-     *
-     * @returns {object|null}
-     *   The annotation object if found, null otherwise.
      */
     this.deleteAnnotation = function (identifier) {
-      var result = null;
+      var found = null, triple = '<' + identifier + '> ?predicate ?object';
       $.each(that.annotations, function (type, typeAnnotations) {
         $.each(typeAnnotations, function (canvas, canvasAnnotations) {
           $.each(canvasAnnotations, function (index, annotation) {
             if (annotation.id === identifier) {
-              that.constructor.trigger('deleteAnnotation', annotation);
-              delete canvasAnnotations[index];
+              found = {
+                type: type,
+                canvas: canvas,
+                index: index,
+                annotation: annotation
+              };
             }
+            return found === null;
           });
-          return result === null;
+          return found === null;
         });
-        return result === null;
+        return found === null;
       });
-      return result;
+      if (found) {
+        that.rdf.where(triple).remove(triple);
+        that.annotations[found.type][found.canvas].splice(found.index, 1);
+        that.constructor.trigger('deleteAnnotation', found.annotation);
+      }
     };
 
     /**
@@ -269,8 +275,6 @@
       var unprocessedAnnotations, xmlFiles, zorder;
 
       unprocessedAnnotations = getUnprocessedAnnotations();
-      console.log('unprocessedAnnotations');
-      console.log(unprocessedAnnotations);
       zorder = (uri === undefined) ? {} : getOrderOfAggregationResources(uri);
 
       xmlFiles = {};
@@ -419,12 +423,16 @@
         async: true,
         url: url,
         success: function (data, status, xhr) {
-          var contentType = xhr.getResponseHeader("content-type") || "";
+          var contentType, triples;
+          contentType = xhr.getResponseHeader("content-type") || "";
           try {
             if (contentType === 'application/rdf+xml') {
               that.rdf.databank.load(data);
             } else {
-              that.rdf = that.rdf.add($(data).rdf());
+              triples = $(data).rdf().databank.triples();
+              $.each(triples, function (index, triple) {
+                that.rdf.databank.add(triple);
+              });
             }
             finished(url);
           } catch (exception) {
@@ -523,19 +531,6 @@
         });
       });
     }
-
-    // @todo Remove.
-    // Just some debug code.
-    this.constructor.on('processedSequence', function (event, sequence) {
-      console.log(event.type);
-      console.log(sequence.id);
-      console.log(arguments);
-    });
-    this.constructor.on('processedAnnotation', function (event, annotation) {
-      console.log(event.type);
-      console.log(annotation.id);
-      console.log(arguments);
-    });
 
     // Manifest initialization, this will kick off the process of load all the
     // required data to render the image and it's annotations.

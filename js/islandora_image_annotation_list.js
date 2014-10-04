@@ -41,7 +41,6 @@
    * @constructor
    */
   Drupal.IslandoraImageAnnotationList = function (base, settings) {
-    var annotations = [];
 
     /**
      * Gets the type container from the given type.
@@ -88,6 +87,23 @@
         class: 'comment-type-content'
       }).hide();
       return $type.append($title, $content);
+    }
+
+    /**
+     * Inserts the annotation container in alphabetical order.
+     */
+    function insertAnnotationTypeContainer($element) {
+      var title, $containers;
+      title = $('.comment-type-title', $element).text().toLowerCase();
+      $containers = $('.comment-type-container', base).filter(function () {
+        return $('.comment-type-title', this).text().toLowerCase() > title;
+      });
+      if ($containers.length > 0) {
+        $element.insertBefore($containers.get(0));
+      } else {
+        $(base).append($element);
+      }
+      return $element;
     }
 
     /**
@@ -229,10 +245,8 @@
       if (hasAnnotationTypeContainer(type)) {
         container = getAnnotationTypeContainer(type);
       } else {
-        container = createAnnotationTypeContainer(type);
-        $(base).append(container);
+        container = insertAnnotationTypeContainer(createAnnotationTypeContainer(type));
       }
-      annotations[annotation.id] = annotation;
       $('.comment-type-content', container).append(createAnnotation(annotation));
     }
 
@@ -243,29 +257,14 @@
      *   The id of the annotation.
      */
     function deleteAnnotation(id) {
-      var $annotation, urn;
-      $annotation = getAnnotationElement(id);
+      var urn;
       urn = IIAUtils.urnComponents(id);
       $.ajax({
         type: 'POST',
         // @todo Refactor the menu callbacks, they require a pid they don't use.
         url: IIAUtils.url('islandora/anno/delete_annotation/pid/' + urn.nss),
         success: function () {
-          var $content, store;
-
-          // Hide the annotation and remove it.
-          hideAnnotation(id);
-          store = Drupal.IslandoraImageAnnotation.getInstance();
-          store.deleteAnnotation(store.getAnnotation(id));
-
-          $content = $annotation.parent();
-          // Remove the annotation from the list.
-          $annotation.remove();
-          // If there are no annotations of this type left anymore remove the
-          // type, group from the list.
-          if ($content.children().length === 0) {
-            $content.parent().remove();
-          }
+          Drupal.IslandoraImageAnnotation.getInstance().deleteAnnotation(id);
         }
       });
     }
@@ -273,7 +272,7 @@
     // Create the comment type containers for the comment annotations.
     // trigger a load of each comment annotation.
     $.each(settings.annotations, function (type) {
-      $(base).append(createAnnotationTypeContainer(type));
+      insertAnnotationTypeContainer(createAnnotationTypeContainer(type));
     });
 
     // Fetch the comment annotations only after we've processed the image
@@ -293,22 +292,38 @@
       }
     });
 
+    // Listen for removed 'comment' annotations and update th list accordingly.
+    Drupal.IslandoraImageAnnotation.on('deleteAnnotation', function (event, annotation) {
+      var $annotation, $content;
+      if (annotation.getType() === 'comment') {
+        $annotation = getAnnotationElement(annotation.id);
+        $content = $annotation.parent();
+        // Remove the annotation from the list.
+        $annotation.remove();
+        // If there are no annotations of this type left anymore remove the
+        // type, group from the list.
+        if ($content.children().length === 0) {
+          $content.parent().remove();
+        }
+      }
+    });
+
     // Set up context menu to display for each annotation title element.
     function createContextMenu() {
       $.contextMenu({
         selector : '.comment-title',
         items: {
           edit: {
-            name: "Edit",
-            icon: "edit"
+            name: 'Edit',
+            icon: 'edit'
           },
           delete: {
-            name : "Delete annotation",
-            icon : "delete"
+            name : 'Delete annotation',
+            icon : 'delete'
           }
         },
         callback : function (key) {
-          var $title, $annotation, id, title;
+          var $title, $annotation, id, annotation, title;
           $title = $(this);
           $annotation = $title.parent('.canvas-annotation');
           id = $annotation.attr('annotation');
@@ -317,7 +332,8 @@
           switch (key) {
           case 'edit':
             showAnnotation(id);
-            Drupal.IslandoraImageAnnotationDialog.getInstance().show(annotations[id]);
+            annotation = Drupal.IslandoraImageAnnotation.getInstance().getAnnotation(id);
+            Drupal.IslandoraImageAnnotationDialog.getInstance().show(annotation);
             break;
 
           case 'delete':
@@ -342,7 +358,7 @@
    * This function is meant to be used after Drupal.attachBehaviors() has been
    * called, otherwise the singleton instance won't exist.
    *
-   * @return {Drupal.IslandoraImageAnnotationDialog}
+   * @return {Drupal.IslandoraImageAnnotationList}
    *   The singleton
    */
   Drupal.IslandoraImageAnnotationList.getInstance = function () {

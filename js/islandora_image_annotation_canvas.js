@@ -248,7 +248,7 @@
      *   The Raphael object for drawing.
      */
     function makeRaphael(type, canvas) {
-      var svgId, $svg, paper, dimensions, scaled, scale;
+      var svgId, $svg, paper, dimensions, scaled;
 
       // One Raphael per Annotation Type / Canvas.
       if (that.raphaels[type][canvas] !== undefined) {
@@ -256,23 +256,14 @@
       }
       // Fetch dimensions for rendering and scaling.
       dimensions = that.canvases[canvas];
-      //scaled = getScaledCanvasDimensions(canvas);
-      /*
-      scale = getCanvasDimensions(canvas).width / that.canvases[canvas].width;
-      scaled = {
-        width: scale * dimensions.width,
-        height: scale * dimensions.height
-      };
-      scaled = getScaledCanvasDimensions(canvas);*/
       scaled = getCanvasDimensions(canvas);
-      svgId = new UUID();
+      // svgId = new UUID();
+      svgId = 'svg-annotation-' + type;
       $svg = $('<div />', {
         id: svgId,
         type: type,
-        canvas: canvas,
+        canvas: canvas
       });
-      $svg.width(scaled.width);
-      $svg.height(scaled.height);
       $('#svg-wrapper').append($svg);
 
       // Allow a base image at 1
@@ -285,8 +276,8 @@
         'collision': 'none'
       });
 
-      paper = new ScaleRaphael(svgId, that.canvases[canvas].width, that.canvases[canvas].height);
-      paper.changeSize(scaled.Width, scaled.Height, false, false);
+      paper = new ScaleRaphael(svgId, dimensions.width, dimensions.height);
+      paper.changeSize(scaled.width, scaled.height, false, false);
       if ($.browser.webkit) {
         paper.safari();
       }
@@ -927,7 +918,7 @@
 
     // Remove the given annotation.
     Drupal.IslandoraImageAnnotation.on('deleteAnnotation', function (event, annotation) {
-      hideAnnotation(annotation);
+      that.hideAnnotation(annotation);
     });
 
   };
