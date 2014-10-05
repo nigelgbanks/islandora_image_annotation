@@ -1,10 +1,12 @@
+/*jslint browser: true*/
+/*global jQuery, Drupal*/
 /**
  * @file
  * Adds a number of helper functions used by various image annotation widgets.
  */
-
 var IslandoraImageAnnotationUtils, IIAUtils;
-IslandoraImageAnnotationUtils = IIAUtils = {};
+IslandoraImageAnnotationUtils = {};
+IIAUtils = IslandoraImageAnnotationUtils;
 
 (function ($) {
   'use strict';
@@ -56,7 +58,7 @@ IslandoraImageAnnotationUtils = IIAUtils = {};
       origin = window.location.origin;
     }
     return origin + Drupal.settings.basePath + path;
-  }
+  };
 
   /**
    * Splits the given string into it's urn components if found.
@@ -90,7 +92,7 @@ IslandoraImageAnnotationUtils = IIAUtils = {};
    *
    * @param {string} namespacePrefix
    *   The namespace prefix used to fetch the base of the URL.
-   * @param {string} resource
+   * @param {string} [resource]
    *   The path suffix of the URL, in which to append to the URL identified by
    *   the given namespace prefix. It is optional, and will default to the empty
    *   string if not provided.
@@ -99,7 +101,8 @@ IslandoraImageAnnotationUtils = IIAUtils = {};
    *   The URL within the given namespace to the given resource.
    */
   IslandoraImageAnnotationUtils.getResourceURL = function (namespacePrefix, resource) {
-    var namespaces = {
+    var namespaces, namespace;
+    namespaces = {
       dc: 'http://purl.org/dc/elements/1.1/',
       dcterms: 'http://purl.org/dc/terms/',
       dctype: 'http://purl.org/dc/dcmitype/',
@@ -110,9 +113,8 @@ IslandoraImageAnnotationUtils = IIAUtils = {};
       ore: 'http://www.openarchives.org/ore/terms/',
       exif: 'http://www.w3.org/2003/12/exif/ns#'
     };
-    // Suffix defaults to the empty string.
-    resource = resource !== undefined ? resource : '';
-    return namespaces[namespacePrefix] !== undefined ? namespaces[namespacePrefix] + resource : '';
+    namespace = namespaces[namespacePrefix];
+    return (namespace !== undefined) ? namespace + (resource || '') : '';
   };
 
   /**

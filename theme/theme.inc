@@ -108,40 +108,6 @@ function template_process_islandora_image_annotation_dialog(array &$variables) {
 }
 
 /**
- * Helper function that lists all of the comments grouped by type.
- *
- * @todo Document and Move to a more reasonable location.
- *
- * @param AbstractObject $object
- *   The object in which the annotations are targeted at.
- *
- * @return array
- *   ...
- */
-function islandora_image_annotation_get_annotations(AbstractObject $object) {
-  $query = <<<QUERY
-    PREFIX fedora-rels-ext: <http://islandora.ca/ontology/relsext#>
-    PREFIX fedora-model: <info:fedora/fedora-system:def/model#>
-    SELECT ?pid ?type from <#ri> WHERE {
-      ?pid fedora-rels-ext:targets <info:fedora/{$object->id}> ;
-        fedora-rels-ext:isAnnotationType ?type;
-        fedora-model:state fedora-model:Active;
-    }
-    ORDER BY ASC(?type)
-QUERY;
-  $results = $object->repository->ri->sparqlQuery($query);
-  $return = array();
-  foreach ($results as $result) {
-    // Annotations are grouped by type.
-    $type = $result['type']['value'];
-    $return[$type][] = array(
-      'pid' => $result['pid']['value'],
-    );
-  }
-  return $return;
-}
-
-/**
  * Implements template_preprocess_theme().
  */
 function template_preprocess_islandora_image_annotation_list(array &$variables) {
@@ -170,6 +136,7 @@ function template_preprocess_islandora_image_annotation_canvas(array &$variables
   );
   drupal_add_js(array('islandoraImageAnnotationCanvas' => $settings), 'setting');
   drupal_add_js("$module_path/js/islandora_image_annotation_utils.js");
+  drupal_add_js("$module_path/lib/he.js");
   drupal_add_js("$module_path/js/rdf.js");
   drupal_add_js("$module_path/js/islandora_image_annotation_canvas.js");
   drupal_add_css("$module_path/css/islandora_image_annotation.canvas.css");

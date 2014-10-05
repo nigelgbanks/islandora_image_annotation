@@ -1,5 +1,5 @@
 /*jslint browser: true*/
-/*global jQuery, Drupal, RDF, IIAUtils*/
+/*global jQuery, Drupal, RDF, IIAUtils, he*/
 /**
  * @file
  * Models RDF triples as plain objects, makes it a bit easier to process.
@@ -28,19 +28,6 @@ var RDF;
   }
 
   /**
-   * Fetches all values of the given field if defined.
-   *
-   * @param {string} property
-   *   A URI that identifies the property to fetch from the dump.
-   *
-   * @returns {Array|null}
-   *   The value of the property if found, otherwise null.
-   */
-  function getProperties(property) {
-    return (this[property] === undefined) ? null : this[property];
-  }
-
-  /**
    * Adds a number of helper functions to the dump object.
    *
    * @param {object} dump
@@ -50,6 +37,20 @@ var RDF;
    *   The dump object with some additional helper fields.
    */
   function addPropertyFunctions(dump) {
+
+    /**
+     * Fetches all values of the given field if defined.
+     *
+     * @param {string} property
+     *   A URI that identifies the property to fetch from the dump.
+     *
+     * @returns {Array}
+     *   The values of the property if found, otherwise an empty array.
+     */
+    function getProperties(property) {
+      return (this[property] === undefined) ? [] : this[property];
+    }
+
     /**
      * Fetches the first value of the given field if defined.
      *
@@ -62,7 +63,7 @@ var RDF;
      */
     function getProperty(property) {
       var properties = this.getProperties(property);
-      return (properties !== null) ? properties[0].value : null;
+      return (properties.length > 0) ? properties[0].value : null;
     }
 
     /**
@@ -92,7 +93,7 @@ var RDF;
      *   True if the property exists in the dump, false otherwise.
      */
     function hasProperty(property) {
-      return this.getProperties(property) !== null;
+      return this.getProperties(property).length !== 0;
     }
     $.extend(dump, {
       getProperties: getProperties,
@@ -131,7 +132,7 @@ var RDF;
   RDF.Resource = function (id, dump) {
     var me, rdfType, dcTitle, dcFormat, dcExtent, dcTermsRelation,
       dcTermsHasPart, cntChars, exifHeight, exifWidth, dmsImageType,
-      dmsColorSpace, imageType;
+      dmsColorSpace, imageType, value;
 
     // Adds helper functions for fetching properties.
     me = getResourceFromDump(id, dump);
@@ -158,6 +159,10 @@ var RDF;
     // and there should be a separate field for colorSpace and imageType.
     imageType = me.getProperty(dmsColorSpace);
     imageType = (imageType === null) ? me.getProperty(dmsImageType) : imageType;
+
+    // Value might be encoded SVG or other XML values.
+    value = me.getProperty(cntChars) || undefined;
+    value = value ? he.decode(value) : undefined;
     $.extend(this, {
       id: id,
       types: IIAUtils.unique($.map(me.getProperties(rdfType), function (type) {
@@ -166,7 +171,7 @@ var RDF;
       title: me.getProperty(dcTitle) || undefined,
       relation: me.getProperty(dcTermsRelation) || undefined,
       hasPart: me.getProperty(dcTermsHasPart) || undefined,
-      value: me.getProperty(cntChars) || undefined,
+      value: value,
       format: me.getProperty(dcFormat) || undefined,
       width: me.getPropertyAsNumber(exifWidth) || undefined,
       height: me.getPropertyAsNumber(exifHeight) || undefined,
@@ -209,6 +214,7 @@ var RDF;
     dcTermsHasPart = IIAUtils.getResourceURL('dcterms', 'hasPart');
     oaHasBody = IIAUtils.getResourceURL('oa', 'hasBody');
     oaHasTarget = IIAUtils.getResourceURL('oa', 'hasTarget');
+
 
     // We can have zero or more targets.
     targets = $.map(me.getProperties(oaHasTarget), function (target) {

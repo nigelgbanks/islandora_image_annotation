@@ -279,12 +279,19 @@
 
       xmlFiles = {};
       $.each(unprocessedAnnotations, function (index, annotation) {
-        var type, pid, canvas;
+        var type, pid, canvas, canvasId;
         type = annotation.getType();
 
+        // We can't process any annotations that don't have a type.
         if (!type) {
           return;
         }
+
+        // Use '*' as a placeholder to say it's not annotating any specific
+        // canvas, and is likely not annotate anything at all. We need to still
+        // process these annotations though.
+        canvas = annotation.getTargetCanvas();
+        canvasId = (canvas && canvas.id) || '*';
 
         // Update the zOrder of the annotation, as defined by the annotation's
         // manifest.
@@ -292,36 +299,31 @@
           annotation.zOrder = zorder[annotation.id];
         }
 
-        // Figure out which canvas.
-        if (annotation.targets[0].partOf !== undefined) {
-          canvas = annotation.targets[0].partOf.id;
-        } else {
-          canvas = annotation.targets[0].id;
-        }
-
         // Type specific features:
         // 1) Fetch XML docs (eg TEI transcription).
-        if (annotation.body.fragmentType === 'xml') {
-          pid = annotation.body.partOf.id;
-          // Need to fetch XML before painting.
-          xmlFiles[pid] = (xmlFiles[pid] !== undefined) ? xmlFiles[pid] : [];
-          xmlFiles[pid].push([annotation, annotation.body]);
-          // Delay processed event until all document(s) are fetched.
-          annotation.finished -= 1;
-        }
-        // 2) Fetch SVG doc if external.
-        if (annotation.body.constraint !== undefined && !annotation.body.constraint.value) {
-          pid = annotation.body.constraint.id;
-          // Need to fetch XML before painting.
-          xmlFiles[pid] = (xmlFiles[pid] !== undefined) ? xmlFiles[pid] : [];
-          xmlFiles[pid].push([annotation, annotation.body.constraint]);
-          // Delay processed event until all document(s) are fetched.
-          annotation.finished -= 1;
+        if (annotation.body !== undefined) {
+          if (annotation.body.fragmentType === 'xml') {
+            pid = annotation.body.partOf.id;
+            // Need to fetch XML before painting.
+            xmlFiles[pid] = (xmlFiles[pid] !== undefined) ? xmlFiles[pid] : [];
+            xmlFiles[pid].push([annotation, annotation.body]);
+            // Delay processed event until all document(s) are fetched.
+            annotation.finished -= 1;
+          }
+          // 2) Fetch SVG doc if external.
+          if (annotation.body.constraint !== undefined && !annotation.body.constraint.value) {
+            pid = annotation.body.constraint.id;
+            // Need to fetch XML before painting.
+            xmlFiles[pid] = (xmlFiles[pid] !== undefined) ? xmlFiles[pid] : [];
+            xmlFiles[pid].push([annotation, annotation.body.constraint]);
+            // Delay processed event until all document(s) are fetched.
+            annotation.finished -= 1;
+          }
         }
 
         // Cache all the processed annotations and group them by type and
         // canvas.
-        IIAUtils.push(that.annotations[type], canvas, annotation);
+        IIAUtils.push(that.annotations[type], canvasId, annotation);
 
         // If this annotation requires no further processing notify the world
         // it's been processed.
@@ -426,7 +428,7 @@
           var contentType, triples;
           contentType = xhr.getResponseHeader("content-type") || "";
           try {
-            if (contentType === 'application/rdf+xml') {
+            if (contentType === 'application/rdf+xml' || contentType === 'text/xml') {
               that.rdf.databank.load(data);
             } else {
               triples = $(data).rdf().databank.triples();
@@ -436,7 +438,8 @@
             }
             finished(url);
           } catch (exception) {
-            console.log('Broken RDF/XML: ' + exception);
+            console.log('Failed to fetch triples from: ' + url);
+            console.log(exception);
             console.log(exception.stack);
           }
         },

@@ -342,3 +342,38 @@ function islandora_image_annotation_query_solr($query, $params) {
   $results = $query_processor->islandoraSolrResult;
   return $results;
 }
+
+/**
+ * Helper function that lists all of the comments grouped by type.
+ *
+ * @param AbstractObject $object
+ *   The object in which the annotations are targeted at.
+ *
+ * @return array
+ *   An associative array where each key is an annotation PID.
+ *   - pid: The PID for a annotation.
+ *   - type: The type of the annotation.
+ */
+function islandora_image_annotation_get_annotations(AbstractObject $object) {
+  $query = <<<QUERY
+    PREFIX islandora-rels-ext: <http://islandora.ca/ontology/relsext#>
+    PREFIX fedora-model: <info:fedora/fedora-system:def/model#>
+    SELECT ?pid ?type from <#ri> WHERE {
+      ?pid islandora-rels-ext:targets <info:fedora/{$object->id}> ;
+        islandora-rels-ext:isAnnotationType ?type;
+        fedora-model:state fedora-model:Active;
+    }
+    ORDER BY ASC(?type)
+QUERY;
+  $results = $object->repository->ri->sparqlQuery($query);
+  $return = array();
+  foreach ($results as $result) {
+    $pid = $result['pid']['value'];
+    $type = $result['type']['value'];
+    $return[$pid] = array(
+      'pid' => $pid,
+      'type' => $type
+    );
+  }
+  return $return;
+}

@@ -95,6 +95,9 @@
     function insertAnnotationTypeContainer($element) {
       var title, $containers;
       title = $('.comment-type-title', $element).text().toLowerCase();
+      if (hasAnnotationTypeContainer(title)) {
+        return getAnnotationTypeContainer(title);
+      }
       $containers = $('.comment-type-container', base).filter(function () {
         return $('.comment-type-title', this).text().toLowerCase() > title;
       });
@@ -204,7 +207,7 @@
         annotation: annotation.id,
         // Make the assumption that only one canvas will ever exist, and we'll
         // always have at least one target.
-        canvas: canvas.id,
+        canvas: canvas && canvas.id,
         class: 'canvas-annotation'
       });
       // Add Title, including the color icon.
@@ -240,14 +243,14 @@
      *   The annotation in to add to the list.
      */
     function addAnnotation(annotation) {
-      var type, container;
+      var type, $container;
       type = annotation.annotationType;
       if (hasAnnotationTypeContainer(type)) {
-        container = getAnnotationTypeContainer(type);
+        $container = getAnnotationTypeContainer(type);
       } else {
-        container = insertAnnotationTypeContainer(createAnnotationTypeContainer(type));
+        $container = insertAnnotationTypeContainer(createAnnotationTypeContainer(type));
       }
-      $('.comment-type-content', container).append(createAnnotation(annotation));
+      $('.comment-type-content', $container).append(createAnnotation(annotation));
     }
 
     /**
@@ -257,12 +260,9 @@
      *   The id of the annotation.
      */
     function deleteAnnotation(id) {
-      var urn;
-      urn = IIAUtils.urnComponents(id);
       $.ajax({
         type: 'POST',
-        // @todo Refactor the menu callbacks, they require a pid they don't use.
-        url: IIAUtils.url('islandora/anno/delete_annotation/pid/' + urn.nss),
+        url: IIAUtils.url('islandora/object/' + settings.pid + '/annotation/delete/' + id),
         success: function () {
           Drupal.IslandoraImageAnnotation.getInstance().deleteAnnotation(id);
         }
@@ -271,23 +271,24 @@
 
     // Create the comment type containers for the comment annotations.
     // trigger a load of each comment annotation.
-    $.each(settings.annotations, function (type) {
-      insertAnnotationTypeContainer(createAnnotationTypeContainer(type));
+    $.each(settings.annotations, function (pid, annotation) {
+      insertAnnotationTypeContainer(createAnnotationTypeContainer(annotation.type));
     });
 
-    // Fetch the comment annotations only after we've processed the image
-    // annotation they belong to.
+    // Fetch the comment annotations only after we've processed the canvas
+    // they belong to.
+    Drupal.IslandoraImageAnnotation.on('processedSequence', function (event, annotation) {
+      // Create the comment type containers for the comment annotations.
+      // trigger a load of each comment annotation.
+      $.each(settings.annotations, function (pid, annotation) {
+        var url = 'annotation/get/' + pid;
+        Drupal.IslandoraImageAnnotation.getInstance().fetchTriples(url);
+      });
+    });
+
+    // Add any processed comment annotations to the list.
     Drupal.IslandoraImageAnnotation.on('processedAnnotation', function (event, annotation) {
-      if (annotation.getType() === 'image') {
-        // Create the comment type containers for the comment annotations.
-        // trigger a load of each comment annotation.
-        $.each(settings.annotations, function (type, annotations) {
-          $.each(annotations, function (index, annotation) {
-            var url = IIAUtils.url('islandora/anno/get_annotation/' + annotation.pid);
-            Drupal.IslandoraImageAnnotation.getInstance().fetchTriples(url);
-          });
-        });
-      } else if (annotation.getType() === 'comment') {
+      if (annotation.getType() === 'comment') {
         addAnnotation(annotation);
       }
     });

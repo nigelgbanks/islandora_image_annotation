@@ -131,10 +131,8 @@
      * @param {string} properties.canvas
      * @param {[object]} [properties.shapes]
      *
-     * @returns {object}
-     *  - annotationID: The uuid that identifies this annotation.
-     *  - contentID: The uuid that identifies this annotations content.
-     *  - rdfa: A html rdfa representation of this annotation
+     * @returns {string}
+     *   The RDFa representation of this annotation.
      */
     function createAnnotation(properties) {
       var namespaces, title, type, entityID, entityLabel, color, text,
@@ -226,75 +224,52 @@
       });
       rdfa += "</div>"; // Close Annotation
       rdfa += "</div>"; // Close Root
-      return {
-        annotationID: annotationUUID,
-        contentID: contentUUID,
-        rdfa: rdfa
-      };
+      return rdfa;
     }
 
     /**
-     * Creates an Annotation Object within Fedora from the data provided.
+     * Creates an Annotation Object in Fedora from the data provided.
      *
-     * @param {string} pid
-     *   The object identifier in which to add the annotation to, note that a
-     *   new annotation object is created as a child of this one.
-     * @param {string} title
-     *   The annotation's title.
      * @param {string} rdfa
      *   An rdfa xml encoded representation of the annotation.
-     * @param {string} type
-     *   The type of the annotation.
-     * @param {string} color
-     *   The color of the annotation shape.
      */
-    function ingestAnnotation(pid, title, rdfa, type, color) {
+    function ingestAnnotation(rdfa) {
       $.ajax({
         type: 'POST',
         async: true,
-        url: IIAUtils.url('islandora/anno/add_annotation/' + pid),
+        url: IIAUtils.url('islandora/object/' + settings.pid + '/annotation/add'),
         data: {
-          title: title,
-          type: type,
-          data: encodeURI(rdfa),
-          // @todo Do we need type color or stroke-width? It's already part of
-          // the annotation rdfa?
-          color: color,
-          strokeWidth: $('#stroke_width').val()
+          data: rdfa
         },
-        success: function (pid, status, xhr) {
-          var url = IIAUtils.url('islandora/anno/get_annotation/' + pid);
+        success: function (pid) {
+          var url = IIAUtils.url('islandora/object/' + settings.pid + '/annotation/get/' + pid);
           Drupal.IslandoraImageAnnotation.getInstance().fetchTriples(url);
         },
-        error: function (data, status, xhr) {
-          console.log('Failed to Create Annotation for: ' + pid);
+        error: function () {
+          console.log('Failed to Create Annotation for: ' + settings.pid);
         }
       });
     }
 
     /**
      * Updates the given annotation server side.
+     *
      * @param annotation
      * @param properties
      */
     function updateAnnotation(annotation, properties) {
-      var urn = IIAUtils.urnComponents(annotation.id);
       // We need to store slash fetch the pid here.
       $.ajax({
         type: 'POST',
         async: false,
-        url: IIAUtils.url('islandora/anno/update_annotation/'),
+        url: IIAUtils.url('islandora/object/' + settings.pid + '/annotation/update/' + annotation.id),
         data: {
-          urn: IIAUtils.urnComponents(annotation.id).nss,
-          title: properties.title,
-          annoType: properties.type,
-          content: properties.text,
-          color: properties.color,
-          // Backend always throws the percent symbol on so we remove it here.
-          strokeWidth: properties.stroke.replace(/%/, '')
+          label: properties.title,
+          type: properties.type,
+          content: properties.text
         },
         success: function () {
-          var url = IIAUtils.url('islandora/anno/get_annotation/pid/' + urn.nss);
+          var url = IIAUtils.url('islandora/object/' + settings.pid + '/annotation/get/' + annotation.id);
           // Trigger reprocessing by deleting it first.
           Drupal.IslandoraImageAnnotation.getInstance().deleteAnnotation(annotation.id);
           Drupal.IslandoraImageAnnotation.getInstance().fetchTriples(url);
@@ -340,7 +315,6 @@
       // Although there can be multiple targets, we just assume one for this
       // form.
       var $svg = $(annotation.targets[0].constraint.value);
-      // @todo Deal with Entities.
       setFormValues({
         title: annotation.title,
         type: annotation.annotationType,
@@ -367,7 +341,7 @@
     /**
      * Resets the form to it's defaults.
      */
-    function clearForm() {
+    function clearForm(edit) {
       // Clear All the fields.
       $('input,select,textarea', $dialog).val('');
       // Reset Defaults.
@@ -379,10 +353,19 @@
       if (settings.canChooseColour) {
         // Destroy the miniColor
         $('input[name="color"]', $dialog).miniColors('destroy');
-        $('#color-picker-wrapper').click(function () {
-          $('#islandora-image-annotation-dialog-color-activated').attr('value', 'active');
-        });
         $('.color-picker').miniColors();
+      }
+      // In edit mode we can only see some fields.
+      if (edit) {
+        $('#islandora-image-annotation-dialog-icons').hide();
+        $('#islandora-image-annotation-dialog-entity-type').hide();
+        $('#islandora-image-annotation-dialog-color').hide();
+        $('#islandora-image-annotation-dialog-stroke').hide();
+      } else {
+        $('#islandora-image-annotation-dialog-icons').show();
+        $('#islandora-image-annotation-dialog-entity-type').show();
+        $('#islandora-image-annotation-dialog-color').show();
+        $('#islandora-image-annotation-dialog-stroke').show();
       }
     }
 
@@ -429,12 +412,10 @@
           text: 'Save',
           // Assumes only one canvas with a valid 'canvas' attribute.
           click: function () {
-            var values, annotation;
+            var values = getFormValues();
 
             // Minimally we only allow users to create content if they have
             // entered a title and annotation.
-            values = getFormValues();
-
             if (!values.text || !values.title) {
               alert('An annotation needs both title and content');
               return 0;
@@ -453,9 +434,7 @@
             // Create RDFa representing the current annotation, all the
             // parameters are required. Except entityID, entityLabel, it also
             // generates identifiers for the annotation and it's content.
-            annotation = createAnnotation(values);
-            console.log(annotation);
-            ingestAnnotation(settings.pid, values.canvas, annotation.rdfa, values.type, values.color);
+            ingestAnnotation(createAnnotation(values));
             $dialog.dialog('close');
           }
         }, {
@@ -475,9 +454,10 @@
     function showEditDialog(annotation) {
       $dialog.dialog($.extend(defaultDialogProperties, {
         title: Drupal.t('Update Annotation'),
+        height: 550,
         open: function () {
           // Clear the form to be safe.
-          clearForm();
+          clearForm(true);
           // Populate the form with the given annotation.
           populateForm(annotation);
         },
@@ -489,12 +469,10 @@
           text: 'Save',
           // Assumes only one canvas with a valid 'canvas' attribute.
           click: function () {
-            var values;
+            var values = getFormValues();
 
             // Minimally we only allow users to create content if they have
             // entered a title and annotation.
-            values = getFormValues();
-
             if (!values.text || !values.title) {
               alert('An annotation needs both title and content');
               return 0;
@@ -507,8 +485,6 @@
 
             // Set default type if not specified.
             values.type = (values.type === '' || values.type === null) ? Drupal.t('unclassified') : values.type;
-
-            // @todo Entity Linking!
 
             // Update the annotation.
             updateAnnotation(annotation, values);
