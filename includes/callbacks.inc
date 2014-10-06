@@ -15,6 +15,9 @@
  *   The PID of a object.
  */
 function islandora_image_annotation_canvas_setup($pid) {
+  module_load_include('inc', 'islandora', 'includes/utilities');
+  $message = islandora_deprecated('7.x-1.4');
+  trigger_error(filter_xss($message), E_USER_DEPRECATED);
   module_load_include('inc', 'islandora_image_annotation', 'includes/utils');
   drupal_json_output(islandora_image_annotation_canvas_init($pid));
 }
@@ -27,13 +30,15 @@ function islandora_image_annotation_canvas_setup($pid) {
  *   The pid of a object.
  */
 function islandora_image_annotation_add_annotation($pid) {
+  module_load_include('inc', 'islandora', 'includes/utilities');
+  $message = islandora_deprecated('7.x-1.4');
+  trigger_error(filter_xss($message), E_USER_DEPRECATED);
   global $user;
   module_load_include('inc', 'islandora', 'includes/utilities');
-  $data = check_plain($_POST['data']);
+
   // todo: In the future, the following fix could be eliminated
   // by adding the 'stroke width' option to the annotation jquery dialog
   // box (as a combo box selection).
-  $stroke_width;
   if (isset($_POST['strokeWidth'])) {
     $stroke_width = check_plain($_POST['strokeWidth']);
   }
@@ -96,7 +101,9 @@ function islandora_image_annotation_add_annotation($pid) {
  *   The transformed XML.
  */
 function islandora_image_annotation_shared_transform_annotation_list($xml_in, $input_type) {
-
+  module_load_include('inc', 'islandora', 'includes/utilities');
+  $message = islandora_deprecated('7.x-1.4', 'use theme("islandora_image_annotation") instead.');
+  trigger_error(filter_xss($message), E_USER_DEPRECATED);
   if ($xml_in == NULL || strlen($xml_in) < 5) {
     return " ";
   }
@@ -132,7 +139,9 @@ function islandora_image_annotation_shared_transform_annotation_list($xml_in, $i
  *   An array of pids.
  */
 function islandora_image_annotation_shared_get_annotation_pids($pid, $json_output = TRUE) {
-
+  module_load_include('inc', 'islandora', 'includes/utilities');
+  $message = islandora_deprecated('7.x-1.4', 'use theme("islandora_image_annotation") instead.');
+  trigger_error(filter_xss($message), E_USER_DEPRECATED);
   $query = <<<QUERY
     PREFIX io: <http://islandora.ca/ontology/relsext#>
     PREFIX fm: <info:fedora/fedora-system:def/model#>
@@ -190,13 +199,29 @@ QUERY;
  *   The XML content of the OAC datastream.
  */
 function islandora_image_annotation_get_annotation_data($pid) {
-  module_load_include('inc', 'fedora_repository', 'api/fedora_item');
+  module_load_include('inc', 'islandora', 'includes/utilities');
+  $message = islandora_deprecated('7.x-1.4');
+  trigger_error(filter_xss($message), E_USER_DEPRECATED);
   $item = islandora_object_load($pid);
   if (!isset($item)) {
     return;
   }
+  // The old way of doing this, where a user posted urlencode data, then ran it
+  // through check_plain then urldecode, change the SVG characters so it could
+  // not be represented XML. Then the javascript code that will receive this is
+  // expecting it to still be messed up. So we mess it up here on purpose.
+  // For users of the old code. This was added post deprecation.
   $annotation_xml = $item['OAC']->content;
-  return $annotation_xml;
+  $xml = simplexml_load_string($annotation_xml);
+  $is_svg_constraint = "rdf:type/@rdf:resource='http://www.w3.org/ns/openannotation/core/SvgConstraint'";
+  $results = $xml->xpath("//cnt:chars[preceding-sibling::$is_svg_constraint or following-sibling::$is_svg_constraint]");
+  foreach ($results as $result) {
+    $value = (string) $result;
+    if (strpos($value, '&amp;') !== 0) {
+      $result[0] = check_plain($value);
+    }
+  }
+  return $xml->asXML();
 }
 
 /**
@@ -211,6 +236,9 @@ function islandora_image_annotation_get_annotation_data($pid) {
  *   Urn.
  */
 function islandora_image_annotation_shared_get_annotation($pid, $urn = NULL) {
+  module_load_include('inc', 'islandora', 'includes/utilities');
+  $message = islandora_deprecated('7.x-1.4');
+  trigger_error(filter_xss($message), E_USER_DEPRECATED);
   if (isset($urn)) {
     $pid = islandora_image_annotation_canvas_get_pid_from_urn($urn);
   }
@@ -234,6 +262,9 @@ function islandora_image_annotation_shared_get_annotation($pid, $urn = NULL) {
  *   Urn.
  */
 function islandora_delete_annotation($pid, $urn) {
+  module_load_include('inc', 'islandora', 'includes/utilities');
+  $message = islandora_deprecated('7.x-1.4');
+  trigger_error(filter_xss($message), E_USER_DEPRECATED);
   $pid_to_delete = islandora_image_annotation_canvas_get_pid_from_urn($urn);
   $item = islandora_object_load($pid_to_delete);
   islandora_delete_object($item);
@@ -251,6 +282,9 @@ function islandora_delete_annotation($pid, $urn) {
  *   An IslandoraRdfBuilder object.
  */
 function islandora_save_updated_annotations($pid, $rdf) {
+  module_load_include('inc', 'islandora', 'includes/utilities');
+  $message = islandora_deprecated('7.x-1.4');
+  trigger_error(filter_xss($message), E_USER_DEPRECATED);
   $item = islandora_object_load($pid);
   $updated_annotation_list = $rdf->printRDF();
   $item['AnnotationList']->content = $updated_annotation_list;
@@ -266,6 +300,9 @@ function islandora_save_updated_annotations($pid, $rdf) {
  *   The pid retrived from an urn.
  */
 function islandora_image_annotation_canvas_get_pid_from_urn($urn) {
+  module_load_include('inc', 'islandora', 'includes/utilities');
+  $message = islandora_deprecated('7.x-1.4');
+  trigger_error(filter_xss($message), E_USER_DEPRECATED);
   module_load_include('inc', 'islandora', 'includes/tuque');
   $connection = islandora_get_tuque_connection();
   $query = "select \$id  from <#ri> where \$id <http://islandora.ca/ontology/relsext#hasURN> \$urn
@@ -283,6 +320,9 @@ and \$urn <mulgara:is> 'urn:uuid:$urn'";
  * Called by Shared Canvas with ajax
  */
 function islandora_image_annotation_canvas_update_annotation() {
+  module_load_include('inc', 'islandora', 'includes/utilities');
+  $message = islandora_deprecated('7.x-1.4');
+  trigger_error(filter_xss($message), E_USER_DEPRECATED);
   $changed = FALSE;
   // Retrieve variables from POST.
   $urn = urldecode(check_plain($_POST['urn']));
@@ -365,39 +405,6 @@ function islandora_image_annotation_canvas_update_annotation() {
 }
 
 /**
- * Get type terms via solr.
- *
- * @return array
- *   Keys of the terms returned from solr.
- */
-function islandora_image_annotation_get_type_terms() {
-  $type_field = variable_get('annotation_type_search_field', 'anno_category_s');
-  $query = format_string('!field:("!content_model" OR "info:fedora/!content_model")', array(
-    '!field' => variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms'),
-    '!content_model' => 'islandora:OACCModel',
-  ));
-
-  $params = array(
-    'fl' => "$type_field, PID",
-    'start' => '0',
-    'rows' => '10000',
-    'qt' => variable_get('islandora_solr_request_handler', ''),
-  );
-
-  $results = islandora_image_annotation_query_solr($query, $params);
-  $terms = array();
-  if (isset($results['solr_doc'])) {
-    foreach ($results['solr_doc'] as $doc) {
-      if (array_key_exists($type_field, $doc)) {
-        $terms[$doc[$type_field][0]] = 1;
-      }
-    }
-  }
-
-  return array_keys($terms);
-}
-
-/**
  * Return each solr doc found.
  *
  * @type string
@@ -406,11 +413,11 @@ function islandora_image_annotation_get_type_terms() {
  *   JSON string.
  */
 function islandora_image_annotation_get_title_terms($type) {
-  $title_field = variable_get('annotation_title_search_field', 'mads_titles_sv');
+  $title_field = variable_get('islandora_image_annotation_title_search_field', 'mads_titles_sv');
   $solr = variable_get('islandora_solr_url', 'localhost:8080/solr');
   $data = array(
     'q' => format_string('!field:"!value"', array(
-      '!field' => variable_get('annotation_genre_field', 'mads_genre_it'),
+      '!field' => variable_get('islandora_image_annotation_genre_search_field', 'mads_genre_it'),
       '!value' => $type,
     )),
     'fl' => "$title_field, PID",
@@ -465,32 +472,4 @@ function islandora_image_annotation_get_mads_as_json($pid) {
   }
   echo json_encode($arr);
   exit();
-}
-
-/**
- * Helper function to query solr.
- *
- * @param string $query
- *   A query string.
- *
- * @param array $params
- *   An associate array containing solr params.
- */
-function islandora_image_annotation_query_solr($query, $params) {
-  $query_processor = new IslandoraSolrQueryProcessor();
-  $query_processor->solrQuery = $query;
-  foreach ($params as $field => $value) {
-    if ($field == 'start') {
-      $query_processor->solrStart = $value;
-    }
-    elseif ($field == 'rows') {
-      $query_processor->solrLimit = $value;
-    }
-    else {
-      $query_processor->solrParams[$field] = $value;
-    }
-  }
-  $query_processor->executeQuery(FALSE);
-  $results = $query_processor->islandoraSolrResult;
-  return $results;
 }
