@@ -219,13 +219,43 @@
     };
 
     /**
-     * Gets annotation from the given identifier.
+     * Deletes the given annotation's triples and it's related triples.
+     *
+     * @param {string} identifier
+     *   The identifier used to look up the annotation object
+     */
+    function deleteAnnotationTriples(identifier) {
+      var body, target, constrainedBy;
+      // Remove the annotation's body's triples.
+      body = IIAUtils.getResourceURL('oa', 'hasBody');
+      that.rdf.where('<' + identifier + '> <' + body + '> ?subject')
+        .where('?subject ?predicate ?object')
+        .remove('?subject ?predicate ?object');
+      // Remove the annotation's target's triples, including their constraints..
+      target = IIAUtils.getResourceURL('oa', 'hasTarget');
+      constrainedBy = IIAUtils.getResourceURL('oa', 'constrainedBy');
+      // Remove target constraint's triples.
+      that.rdf.where('<' + identifier + '> <' + target + '> ?target')
+        .where('?target <' + constrainedBy + '> ?subject')
+        .where('?subject ?predicate ?object')
+        .remove('?subject ?predicate ?object');
+      // Remove target triples.
+      that.rdf.where('<' + identifier + '> <' + target + '> ?subject')
+        .where('?subject ?predicate ?object')
+        .remove('?subject ?predicate ?object');
+      // Remove Immediate Relations to the annotation.
+      that.rdf.where('<' + identifier + '> ?predicate ?object')
+        .remove('<' + identifier + '> ?predicate ?object');
+    }
+
+    /**
+     * Deletes the given annotation.
      *
      * @param {string} identifier
      *   The identifier used to look up the annotation object
      */
     this.deleteAnnotation = function (identifier) {
-      var found = null, triple = '<' + identifier + '> ?predicate ?object';
+      var found = null;
       $.each(that.annotations, function (type, typeAnnotations) {
         $.each(typeAnnotations, function (canvas, canvasAnnotations) {
           $.each(canvasAnnotations, function (index, annotation) {
@@ -244,7 +274,7 @@
         return found === null;
       });
       if (found) {
-        that.rdf.where(triple).remove(triple);
+        deleteAnnotationTriples(identifier);
         that.annotations[found.type][found.canvas].splice(found.index, 1);
         that.constructor.trigger('deleteAnnotation', found.annotation);
       }
@@ -503,6 +533,8 @@
           IIAUtils.push(aggregations[type], canvas, sequence);
         };
       };
+      // @todo At some point we could make an aggregate for comments to reduce
+      // the number of requests we are currently making to fetch each one.
       that.rdf.where('<' + uri + '> ore:describes ?aggregation')
         .where('?aggregation ore:aggregates ?sequence')
         .optional('?sequence dms:forCanvas ?canvas')

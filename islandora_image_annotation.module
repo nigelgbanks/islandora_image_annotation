@@ -126,7 +126,7 @@ function islandora_image_annotation_menu() {
       // It's assumed that the XACML Policy of the Object applies to it's
       // annotations, so we only check the annotations parent object.
       'access callback' => 'islandora_object_access_callback',
-      'access arguments' => array(ISLANDORA_IMAGE_ANNOTATION_CREATE),
+      'access arguments' => array(ISLANDORA_IMAGE_ANNOTATION_CREATE, 2),
       'file' => 'includes/annotation.inc',
       'type' => MENU_CALLBACK,
     ),
