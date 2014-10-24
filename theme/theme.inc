@@ -142,7 +142,7 @@ function template_preprocess_islandora_image_annotation_dialog(array &$variables
   $variables['title'] = islandora_image_annotation_title_field($variables['object']);
   $variables['type'] = islandora_image_annotation_type_field($variables['object']);
   $variables['stroke_width'] = islandora_image_annotation_stroke_width_field();
-  $variables['use_entity_tagging'] = variable_get('islandora_image_annotation_use_entity_tagging', TRUE);
+  $variables['use_entity_tagging'] = module_exists('islandora_entities') && variable_get('islandora_image_annotation_use_entity_tagging', FALSE);
   $variables['can_choose_colour'] = !variable_get('islandora_image_annotation_choose_color', TRUE);
   $settings = islandora_image_annotation_get_settings($variables['object']);
   drupal_add_js(array('islandoraImageAnnotationDialog' => $settings['islandoraImageAnnotationDialog']), 'setting');

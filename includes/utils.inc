@@ -135,7 +135,7 @@ function islandora_image_annotation_include_common_js() {
   $message = islandora_deprecated('7.x-1.4');
   watchdog('islandora_image_annotation', '@msg', array('@msg' => filter_xss($message)));
   $image_annotation_module_path = drupal_get_path('module', 'islandora_image_annotation');
-  $allow_entity_linking = variable_get('islandora_image_annotation_use_entity_tagging', TRUE);
+  $allow_entity_linking = module_exists('islandora_entities') && variable_get('islandora_image_annotation_use_entity_tagging', FALSE);
   $can_choose = variable_get('islandora_image_annotation_choose_color', TRUE);
   drupal_add_js(array('islandora_image_annotation' => array('allow_entity_linking' => $allow_entity_linking)), 'setting');
 
@@ -454,7 +454,7 @@ function islandora_image_annotation_get_settings(AbstractObject $object) {
         'pid' => $object->id,
         // Types is used in the autocomplete for the "Types" field.
         'types' => islandora_image_annotation_get_types(),
-        'allowEntityLinking' => variable_get('islandora_image_annotation_use_entity_tagging', TRUE),
+        'allowEntityLinking' => module_exists('islandora_entities') && variable_get('islandora_image_annotation_use_entity_tagging', FALSE),
         'useTitleVocabulary' => variable_get('islandora_image_annotation_use_title_vocabulary', FALSE),
         'canChooseColour' => !variable_get('islandora_image_annotation_choose_color', TRUE),
         'dialog' => array(

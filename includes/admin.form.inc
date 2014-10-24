@@ -137,7 +137,7 @@ function islandora_image_annotation_admin_settings_form(array $form, array &$for
       '#access' => $entities_enabled,
       '#type' => 'checkbox',
       '#title' => t('Allow entity tagging on images.'),
-      '#default_value' => variable_get('islandora_image_annotation_use_entity_tagging', TRUE),
+      '#default_value' => variable_get('islandora_image_annotation_use_entity_tagging', FALSE),
       '#description' => t('If checked, users will be able to tag image annotations with an entity.'),
     ),
     'islandora_image_annotation_use_title_vocabulary' => array(
