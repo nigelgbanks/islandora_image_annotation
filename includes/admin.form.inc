@@ -143,8 +143,8 @@ function islandora_image_annotation_admin_settings_form(array $form, array &$for
     'islandora_image_annotation_use_title_vocabulary' => array(
       '#access' => $solr_enabled,
       '#type' => 'checkbox',
-      '#title' => t('Use a entity controlled vocabulary for annotations'),
-      '#description' => t('If checked the "title", "type", and "body" fields can be auto-populated from entity metadata.'),
+      '#title' => t('Use a controlled vocabulary for annotations'),
+      '#description' => t('If checked you must configure a Solr field to retrieve the titles from.'),
       '#default_value' => variable_get('islandora_image_annotation_use_title_vocabulary', FALSE),
     ),
     'controlled_vocabulary' => array(
