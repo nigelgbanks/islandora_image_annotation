@@ -217,7 +217,8 @@ function islandora_image_annotation_get_annotation_data($pid) {
   $results = $xml->xpath("//cnt:chars[preceding-sibling::$is_svg_constraint or following-sibling::$is_svg_constraint]");
   foreach ($results as $result) {
     $value = (string) $result;
-    if (strpos($value, '&amp;') !== 0) {
+    $value = trim($value);
+    if (strpos($value, '&') !== 0) {
       $result[0] = check_plain($value);
     }
   }
