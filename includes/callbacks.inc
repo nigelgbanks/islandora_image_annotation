@@ -126,7 +126,7 @@ function islandora_image_annotation_shared_transform_annotation_list($xml_in, $i
   $input->loadXML(trim($xml_in));
   $xsl = $proc->importStylesheet($xsl);
   $newdom = $proc->transformToDoc($input);
-  $return_xml = $newdom->saveXML();
+  $return_xml = $newdom->saveHTML();
   return $return_xml;
 }
 
