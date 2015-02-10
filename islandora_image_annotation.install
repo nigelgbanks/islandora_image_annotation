@@ -27,6 +27,7 @@ function islandora_image_annotation_uninstall() {
     'islandora_image_annotation_solr_field_type',
     'islandora_image_annotation_use_title_vocabulary',
     'islandora_image_annotation_stroke_width',
+    'islandora_image_annotation_enforce_taxonomy',
     'islandora_image_annotation_mappings',
     'islandora_image_annotation_choose_color',
   );
