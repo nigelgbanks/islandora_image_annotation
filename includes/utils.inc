@@ -387,7 +387,7 @@ function islandora_image_annotation_get_types() {
   $solr = variable_get('islandora_solr_url', 'localhost:8080/solr');
   $solr_url = url($solr . '/select', array('query' => $data));
   $result_request = drupal_http_request($solr_url);
-  // Test whether the reponse status code is 200
+  // Test whether the reponse status code is 200.
   if ($result_request->code == 200) {
     $results = json_decode($result_request->data, TRUE);
     $types = array();
@@ -402,8 +402,7 @@ function islandora_image_annotation_get_types() {
   }
   else {
     return array();
-  }
-  
+  } 
 }
 
 /**
