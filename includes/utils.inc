@@ -402,7 +402,7 @@ function islandora_image_annotation_get_types() {
   }
   else {
     return array();
-  } 
+  }
 }
 
 /**
