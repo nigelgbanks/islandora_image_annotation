@@ -387,16 +387,22 @@ function islandora_image_annotation_get_types() {
   $solr = variable_get('islandora_solr_url', 'localhost:8080/solr');
   $solr_url = url($solr . '/select', array('query' => $data));
   $result_request = drupal_http_request($solr_url);
-  $results = json_decode($result_request->data, TRUE);
-  $types = array();
-  if (isset($results['response']['docs'])) {
-    foreach ($results['response']['docs'] as $doc) {
-      $types[] = $doc[$solr_field];
+  // Test whether the reponse status code is 200.
+  if ($result_request->code == 200) {
+    $results = json_decode($result_request->data, TRUE);
+    $types = array();
+    if (isset($results['response']['docs'])) {
+      foreach ($results['response']['docs'] as $doc) {
+        $types[] = $doc[$solr_field];
+      }
     }
+    $types = array_unique($types);
+    sort($types, SORT_STRING);
+    return $types;
   }
-  $types = array_unique($types);
-  sort($types, SORT_STRING);
-  return $types;
+  else {
+    return array();
+  }
 }
 
 /**
