@@ -18,6 +18,10 @@ This module requires the following modules/libraries:
 * [Taxonomy](https://www.drupal.org/documentation/modules/taxonomy)
 * [jQuery Update](https://www.drupal.org/project/jquery_update)
 
+### jQuery Update
+
+Image Annotation requires jQuery 1.8.
+
 ## Installation
 
 Install as usual, see [this](https://drupal.org/documentation/install/modules-themes/modules-7) for further information.
