@@ -316,10 +316,9 @@
         svgEncoding.setAttribute('content', 'utf-8');
         svgAbout.appendChild(svgEncoding);
       });
-
       // XXX: Need to handle the output this way because of IE browser
       // incompatabilities.
-      return (new XMLSerializer()).serializeToString(xmldoc.documentElement);
+      return $(xmldoc.documentElement).html();
     };
 
     /**
