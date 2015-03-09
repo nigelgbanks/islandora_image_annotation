@@ -178,34 +178,88 @@
 
       // Build the RDFa, open the Root Tag.
       rdfa = '<div ' + xmlns.join(' ') + '>'; // Open Root Div
+      var basedoc = '<div ' + xmlns.join(' ') + '></div>';
+
+      if (window.DOMParser) {
+        var parser = new DOMParser();
+        var xmldoc = parser.parseFromString(basedoc, 'text/xml');
+      }
+      else {
+        var xmldoc = new ActiveXObject("Microsoft.XMLDOM");
+        xmldoc.async = false;
+        xmldoc.loadXML(basedoc);
+      }
 
       // Build Annotation, include UUID and type and creation date.
-      rdfa += '<div about="urn:uuid:' + annotationUUID + '"> '; // Open Annotation Div
-      rdfa += ('<a rel="rdf:type" href="' + namespaces.oa + 'Annotation' + '"></a>');
-      rdfa += '<span property="dcterms:created" content="' + isoDate(new Date()) + '"></span> ';
+      var rootAbout = xmldoc.createElement('div')
+      rootAbout.setAttribute('about', 'urn:uuid:' + annotationUUID);
+      xmldoc.documentElement.appendChild(rootAbout);
+
+      var rdfType = xmldoc.createElement('a');
+      rdfType.setAttribute('rel', 'rdf:type');
+      rdfType.setAttribute('href', namespaces.oa + 'Annotation');
+      rootAbout.appendChild(rdfType);
+
+      var dcterms = xmldoc.createElement('span');
+      dcterms.setAttribute('property', 'dcterms:created');
+      dcterms.setAttribute('content', isoDate(new Date()));
+      rootAbout.appendChild(dcterms);
 
       // Include the linked entity if defined.
       if (typeof entityID === 'string' && entityID !== '') {
-        rdfa += '<span property="dcterms:relation" content="' + entityID + '"></span>';
-        rdfa += '<span property="dcterms:hasPart" content="' + entityLabel + '"></span>';
+        var relation = xmldoc.createElement('span');
+        relation.setAttribute('property', 'dcterms:relation');
+        relation.setAttribute('content', entityID);
+        rootAbout.appendChild(relation);
+
+        var hasPart = xmldoc.createElement('span');
+        hasPart.setAttribute('property', 'dcterms:hasPart');
+        hasPart.setAttribute('content', entityLabel);
+        rootAbout.appendChild(hasPart);
       }
 
       // Include title / type.
-      rdfa += '<span property="dc:title" content="' + title + '"></span>';
-      rdfa += '<span property="dc:type" content="' + type + '"></span>';
+      var dctitle = xmldoc.createElement('span');
+      dctitle.setAttribute('property', 'dc:title');
+      dctitle.setAttribute('content', title);
+      rootAbout.appendChild(dctitle);
+
+      var dctype = xmldoc.createElement('span');
+      dctype.setAttribute('property', 'dc:type');
+      dctype.setAttribute('content', type);
+      rootAbout.appendChild(dctype);
 
       // Include the actual annotation field's content.
-      rdfa += '<a rel="oa:hasBody" href="urn:uuid:' + contentUUID + '"></a>';
-      rdfa += '<div about="urn:uuid:' + contentUUID + '">'; // Open Body Div
-      rdfa += '<a rel="rdf:type" href="http://www.w3.org/2008/content#ContentAsText"></a>';
-      rdfa += '<span property="cnt:chars">' + text + '</span> ';
-      rdfa += '<span property="cnt:characterEncoding" content="utf-8"></span>';
-      rdfa += '</div>'; // Close Body Div
+      var hasBody = xmldoc.createElement('a');
+      hasBody.setAttribute('rel', 'oa:hasBody');
+      hasBody.setAttribute('href', 'urn:uuid:' + contentUUID);
+      rootAbout.appendChild(hasBody);
+
+      var about = xmldoc.createElement('div');
+      about.setAttribute('about', 'urn:uuid:' + contentUUID);
+      rootAbout.appendChild(about);
+
+      var contentAsText = xmldoc.createElement('a');
+      contentAsText.setAttribute('rel', 'rdf:type');
+      contentAsText.setAttribute('href', 'http://www.w3.org/2008/content#ContentAsText');
+      about.appendChild(contentAsText);
+
+      var cntChars = xmldoc.createElement('span');
+      cntChars.setAttribute('property', 'cnt:chars');
+      var charText = xmldoc.createTextNode(text);
+      cntChars.appendChild(charText);
+      about.appendChild(cntChars);
+
+      var cntCharacterEncoding = xmldoc.createElement('span');
+      cntCharacterEncoding.setAttribute('property', 'cnt:characterEncoding');
+      cntCharacterEncoding.setAttribute('content', 'utf-8');
+      about.appendChild(cntCharacterEncoding);
 
       // Include shape SVG data, filter out ones that don't exist.
       shapes = $.grep(shapes, function (shape) {
         return shape.removed === undefined;
       });
+
       $.each(shapes, function (index, shape) {
         var svgXml, constrainedTargetUUID, svgConstraintUUID;
         svgXml = nodeToSVG(shape.node);
@@ -214,24 +268,58 @@
         svgXml = svgXml.replace("stroke='#000000'", "stroke='" + color +  "'");
         // Escape html entities, probably could use some core
         // javascript for this.
-        svgXml = svgXml.replace(/</g, '&lt;');
-        svgXml = svgXml.replace(/>/g, '&gt;');
-        rdfa += '<a rel="oa:hasTarget" href="urn:uuid:' + constrainedTargetUUID + '"></a>';
-        rdfa += '<div about="urn:uuid:' + constrainedTargetUUID + '">';
-        rdfa += '<a rel="rdf:type" href="http://www.w3.org/ns/openannotation/core/ConstrainedTarget"></a>';
-        rdfa += '<a rel="oa:constrains" href="' + canvas + '"></a>';
-        rdfa += '<a rel="oa:constrainedBy" href="urn:uuid:' + svgConstraintUUID + '"></a>';
-        rdfa += '<div about="urn:uuid:' + svgConstraintUUID + '">';
-        rdfa += '<a rel="rdf:type" href="http://www.w3.org/ns/openannotation/core/SvgConstraint"></a>';
-        rdfa += '<a rel="rdf:type" href="http://www.w3.org/2008/content#ContentAsText"></a>';
-        rdfa += '<span property="cnt:chars" content="' + svgXml + '"></span>';
-        rdfa += '<span property="cnt:characterEncoding" content="utf-8"></span>';
-        rdfa += "</div>"; // Close Constraint
-        rdfa += "</div>"; // Close Constrained Target
+        var hasTarget = xmldoc.createElement('a');
+        hasTarget.setAttribute('rel', 'oa:hasTarget');
+        hasTarget.setAttribute('href', 'urn:uuid:' + constrainedTargetUUID);
+        rootAbout.appendChild(hasTarget);
+
+        var shapeAbout = xmldoc.createElement('div');
+        shapeAbout.setAttribute('about', 'urn:uuid:' + constrainedTargetUUID);
+        rootAbout.appendChild(shapeAbout);
+
+        var constrainedTarget = xmldoc.createElement('a');
+        constrainedTarget.setAttribute('rel', 'rdf:type');
+        constrainedTarget.setAttribute('href', 'http://www.w3.org/ns/openannotation/core/ConstrainedTarget');
+        shapeAbout.appendChild(constrainedTarget);
+
+        var constrains = xmldoc.createElement('a');
+        constrains.setAttribute('rel', 'oa:constrains');
+        constrains.setAttribute('href', canvas);
+        shapeAbout.appendChild(constrains);
+
+        var constrainedBy = xmldoc.createElement('a');
+        constrainedBy.setAttribute('rel', 'oa:constrainedBy');
+        constrainedBy.setAttribute('href', 'urn:uuid:' + svgConstraintUUID);
+        shapeAbout.appendChild(constrainedBy);
+
+        var svgAbout = xmldoc.createElement('div');
+        svgAbout.setAttribute('about', 'urn:uuid:' + svgConstraintUUID);
+        shapeAbout.appendChild(svgAbout);
+
+        var svgConstraint = xmldoc.createElement('a');
+        svgConstraint.setAttribute('rel', 'rdf:type');
+        svgConstraint.setAttribute('href', 'http://www.w3.org/ns/openannotation/core/SvgConstraint');
+        svgAbout.appendChild(svgConstraint);
+
+        var svgContentAsText = xmldoc.createElement('a');
+        svgContentAsText.setAttribute('rel', 'rdf:type');
+        svgContentAsText.setAttribute('href', 'http://www.w3.org/2008/content#ContentAsText');
+        svgAbout.appendChild(svgContentAsText);
+
+        var svgContent = xmldoc.createElement('span');
+        svgContent.setAttribute('property', 'cnt:chars');
+        svgContent.setAttribute('content', svgXml);
+        svgAbout.appendChild(svgContent);
+
+        var svgEncoding = xmldoc.createElement('span');
+        svgEncoding.setAttribute('property', 'cnt:characterEncoding');
+        svgEncoding.setAttribute('content', 'utf-8');
+        svgAbout.appendChild(svgEncoding);
       });
-      rdfa += "</div>"; // Close Annotation
-      rdfa += "</div>"; // Close Root
-      return rdfa;
+
+      // XXX: Need to handle the output this way because of IE browser
+      // incompatabilities.
+      return (new XMLSerializer()).serializeToString(xmldoc.documentElement);
     };
 
     /**
