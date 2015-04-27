@@ -316,9 +316,21 @@
         svgEncoding.setAttribute('content', 'utf-8');
         svgAbout.appendChild(svgEncoding);
       });
-      // XXX: Need to handle the output this way because of IE browser
-      // incompatabilities.
-      return $(xmldoc.documentElement).html();
+      
+      // Test browser features and call correct to string method
+      var serializeXmlComp = function(xmldoc) {
+        if (typeof window.XMLSerializer != "undefined") {
+          return (new window.XMLSerializer()).serializeToString( xmldoc );
+        } else if (typeof xmldoc.xml != "undefined") {
+          return xmldoc.xml;
+        }
+        return "";
+      }
+ 
+      // convert XML DOM document to string
+      var xmlAsString = serializeXmlComp( xmldoc );
+
+      return xmlAsString;
     };
 
     /**
