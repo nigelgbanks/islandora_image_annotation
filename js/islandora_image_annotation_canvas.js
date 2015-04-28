@@ -285,9 +285,9 @@
 
       paper = new ScaleRaphael(svgId, dimensions.width, dimensions.height);
       paper.changeSize(scaled.width, scaled.height, false, false);
-      if ($.browser.webkit) {
-        paper.safari();
-      }
+      //paper.safari() can be called without previous Browser detection. Raphael does this check.
+      paper.safari();
+      
       // Cache svgCanvas.
       that.raphaels[type][canvas] = paper;
       return paper;
