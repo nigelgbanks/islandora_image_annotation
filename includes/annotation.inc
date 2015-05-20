@@ -49,15 +49,42 @@ function islandora_image_annotation_get_callback(AbstractObject $object) {
  *   The object in which the new annotation will 'annotate'.
  */
 function islandora_image_annotation_add_callback(AbstractObject $object) {
+  try {
+    $annotation_object = islandora_image_annotation_create_annotation($object);
+    // Ingest the object and return it's PID to the client side application.
+    islandora_add_object($annotation_object);
+    echo $annotation_object->id;
+  }
+  catch (IslandoraImageAnnotationPropertyMissingException $e) {
+    drupal_add_http_header('Status', '400 Bad Request');
+  }
+  drupal_exit();
+}
+
+class IslandoraImageAnnotationPropertyMissingException extends Exception {}
+
+/**
+ * Create a new annotation object.
+ *
+ * @param AbstractObject $object
+ *   The object in which the new annotation will 'annotate'.
+ * @param DOMDocument $rdf
+ *   A DOMDocument containing the parsed RDF, as might be returned by
+ *   islandora_image_annotation_html_to_rdf(). If not passed, we will try to
+ *   parse this out of $_POST['data'].
+ */
+function islandora_image_annotation_create_annotation(AbstractObject $object, $rdf = NULL) {
   global $user;
   module_load_include('inc', 'islandora', 'includes/utilities');
-  // Transform the posted HTML into RDF.
-  // @ignore security_17
-  $rdf = islandora_image_annotation_html_to_rdf($_POST['data']);
+  if ($rdf === NULL) {
+    // Transform the posted HTML into RDF.
+    // @ignore security_17
+    $rdf = islandora_image_annotation_html_to_rdf($_POST['data']);
+  }
   $properties = islandora_image_annotation_parse_rdf($rdf);
   // We require at minimum a label, type, and urn to create the annotation.
   if (empty($properties['label']) || empty($properties['type']) || empty($properties['urn'])) {
-    return;
+    throw new IslandoraImageAnnotationPropertyMissingException('One of "label", "type" or "urn" missing.');
   }
   // Create the new annotation object.
   $namespace = islandora_get_namespace($object->id);
@@ -79,10 +106,7 @@ function islandora_image_annotation_add_callback(AbstractObject $object) {
   $oac_datastream->mimetype = 'text/xml';
   $oac_datastream->content = $rdf->saveXML();
   $annotation_object->ingestDatastream($oac_datastream);
-  // Ingest the object and return it's PID to the client side application.
-  islandora_add_object($annotation_object);
-  echo $annotation_object->id;
-  drupal_exit();
+  return $annotation_object;
 }
 
 /**
