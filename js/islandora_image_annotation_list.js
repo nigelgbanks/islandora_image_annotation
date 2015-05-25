@@ -80,7 +80,7 @@
     Drupal.IslandoraImageAnnotation.on('deleteAnnotation', function (event, annotation) {
       var $annotation, $content;
       if (annotation.getType() === 'comment') {
-        $annotation = getAnnotationElement(annotation.id);
+        $annotation = that.getAnnotationElement(annotation.id);
         $content = $annotation.parent();
         // Remove the annotation from the list.
         $annotation.remove();
