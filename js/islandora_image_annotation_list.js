@@ -48,9 +48,56 @@
    * @constructor
    */
   Drupal.IslandoraImageAnnotationList = function (base, settings) {
-    // Private Variables.
     var that = this;
+    this.base = base;
+    this.settings = settings;
 
+    // Create the comment type containers for the comment annotations.
+    // trigger a load of each comment annotation.
+    $.each(settings.annotations, function (pid, annotation) {
+      that.insertAnnotationTypeContainer(that.createAnnotationTypeContainer(annotation.type));
+    });
+
+    // Fetch the comment annotations only after we've processed the canvas
+    // they belong to.
+    Drupal.IslandoraImageAnnotation.on('processedSequence', function (event, annotation) {
+      // Create the comment type containers for the comment annotations.
+      // trigger a load of each comment annotation.
+      $.each(settings.annotations, function (pid, annotation) {
+        var url = IIAUtils.url('islandora/object/' + settings.pid + '/annotation/get/' + pid);
+        Drupal.IslandoraImageAnnotation.getInstance().fetchTriples(url);
+      });
+    });
+
+    // Add any processed comment annotations to the list.
+    Drupal.IslandoraImageAnnotation.on('processedAnnotation', function (event, annotation) {
+      if (annotation.getType() === 'comment') {
+        that.addAnnotation(annotation);
+      }
+    });
+
+    // Listen for removed 'comment' annotations and update th list accordingly.
+    Drupal.IslandoraImageAnnotation.on('deleteAnnotation', function (event, annotation) {
+      var $annotation, $content;
+      if (annotation.getType() === 'comment') {
+        $annotation = that.getAnnotationElement(annotation.id);
+        $content = $annotation.parent();
+        // Remove the annotation from the list.
+        $annotation.remove();
+        // If there are no annotations of this type left anymore remove the
+        // type, group from the list.
+        if ($content.children().length === 0) {
+          $content.parent().remove();
+        }
+      }
+    });
+
+    if (settings.editable) {
+      this.createContextMenu();
+    }
+  }
+
+  Drupal.IslandoraImageAnnotationList.prototype = $.extend(Drupal.IslandoraImageAnnotationList.prototype, {
     /**
      * Gets the type container from the given type.
      *
@@ -58,9 +105,9 @@
      *   jQuery wrapper around the type container if found, otherwise an empty,
      *   jQuery wrapper.
      */
-    function getAnnotationTypeContainer(type) {
+    getAnnotationTypeContainer: function (type) {
       return $('.comment-type-container[type="' + type + '"]');
-    }
+    },
 
     /**
      * The list of comment annotations are grouped by type.
@@ -68,9 +115,9 @@
      * @returns {bool}
      *   True if the given type container exists false otherwise.
      */
-    function hasAnnotationTypeContainer(type) {
-      return getAnnotationTypeContainer(type).length !== 0;
-    }
+    hasAnnotationTypeContainer: function (type) {
+      return this.getAnnotationTypeContainer(type).length !== 0;
+    },
 
     /**
      * Creates a container in which to put annotations by the given type.
@@ -78,7 +125,7 @@
      * @returns {jQuery}
      *   True if the given type container exists false otherwise.
      */
-    function createAnnotationTypeContainer(type) {
+    createAnnotationTypeContainer: function (type) {
       var $type, $title, $content;
       // Annotations are grouped by type.
       $type = $('<div />', {
@@ -96,27 +143,27 @@
         class: 'comment-type-content'
       }).hide();
       return $type.append($title, $content);
-    }
+    },
 
     /**
      * Inserts the annotation container in alphabetical order.
      */
-    function insertAnnotationTypeContainer($element) {
+    insertAnnotationTypeContainer: function ($element) {
       var title, $containers;
       title = $('.comment-type-title', $element).text().toLowerCase();
-      if (hasAnnotationTypeContainer(title)) {
-        return getAnnotationTypeContainer(title);
+      if (this.hasAnnotationTypeContainer(title)) {
+        return this.getAnnotationTypeContainer(title);
       }
-      $containers = $('.comment-type-container', base).filter(function () {
+      $containers = $('.comment-type-container', this.base).filter(function () {
         return $('.comment-type-title', this).text().toLowerCase() > title;
       });
       if ($containers.length > 0) {
         $element.insertBefore($containers.get(0));
       } else {
-        $(base).append($element);
+        $(this.base).append($element);
       }
       return $element;
-    }
+    },
 
     /**
      * Gets the annotation's list element given it's annotation id.
@@ -125,9 +172,9 @@
      *   The identifier for the annotation expected to be a UUID with the format
      *   "urn:"<NID>":"<NSS>.
      */
-    function getAnnotationElement(id) {
-      return $(".canvas-annotation[annotation='" + id + "']", base);
-    }
+    getAnnotationElement: function (id) {
+      return $(".canvas-annotation[annotation='" + id + "']", this.base);
+    },
 
     /**
      * Toggles the display of the annotation identified by the given id.
@@ -138,9 +185,9 @@
      * @param {string} id
      *   The identifier for the annotation.
      */
-    this.showAnnotation = function (id) {
+    showAnnotation: function (id) {
       var $annotation, canvas, annotation;
-      $annotation = getAnnotationElement(id);
+      $annotation = this.getAnnotationElement(id);
       $('.comment-text, span.color', $annotation).show();
       $('.comment-show-hide', $annotation).text('-');
       $('.comment-title', $annotation).addClass('annotation-opened');
@@ -149,7 +196,7 @@
       if (annotation) {
         canvas.drawAnnotation(annotation);
       }
-    };
+    },
 
     /**
      * Hides the given annotation from view.
@@ -157,9 +204,9 @@
      * @param {string} id
      *   The identifier for the annotation.
      */
-    this.hideAnnotation = function (id) {
+    hideAnnotation: function (id) {
       var $annotation, canvas, annotation;
-      $annotation = getAnnotationElement(id);
+      $annotation = this.getAnnotationElement(id);
       $('.comment-text, span.color', $annotation).hide();
       $('.comment-show-hide', $annotation).text('+');
       $('.comment-title', $annotation).removeClass('annotation-opened');
@@ -168,7 +215,7 @@
       if (annotation) {
         canvas.hideAnnotation(annotation);
       }
-    };
+    },
 
     /**
      * Toggles the display of the annotation identified by the given urn.
@@ -176,8 +223,9 @@
      * @param id
      *   The id of the annotation to display.
      */
-    function toggleAnnotationDisplay(id) {
-      var $annotation = getAnnotationElement(id);
+    toggleAnnotationDisplay: function (id) {
+      var that = this;
+      var $annotation = this.getAnnotationElement(id);
       $('.comment-text, span.color', $annotation).toggle();
       $('.comment-title', $annotation).toggleClass('annotation-opened');
       if ($('span.color', $annotation).is(':visible')) {
@@ -187,7 +235,7 @@
         $('.comment-show-hide', $annotation).text('+');
         that.hideAnnotation(id);
       }
-    }
+    },
 
     /**
      * Gets the color of the given annotation.
@@ -198,12 +246,12 @@
      * @returns {string|null}
      *   The color in #ffffff format if found, otherwise null.
      */
-    function getAnnotationTargetColor(target) {
+    getAnnotationTargetColor: function (target) {
       if (target.constraint !== undefined && target.constraint.value !== undefined) {
         return $(target.constraint.value).attr('stroke');
       }
       return null;
-    }
+    },
 
     /**
      * Creates an Annotation element to insert into the list.
@@ -214,8 +262,9 @@
      * @returns {jQuery}
      *   The HTML as a jQuery object.
      */
-    function createAnnotation(annotation) {
+    createAnnotation: function (annotation) {
       var $annotation, $annotationTitle, $annotationText, canvas, entity_url;
+      var that = this;
       canvas = annotation.getTargetCanvas();
       // Create annotation block.
       $annotation = $('<div />', {
@@ -232,7 +281,7 @@
       $annotationTitle.append('<span>' + annotation.title + '</span>');
       // Append Color Icons
       $.each(annotation.targets, function (index, target) {
-        var color = getAnnotationTargetColor(target);
+        var color = that.getAnnotationTargetColor(target);
         $annotationTitle.append($('<span />', {
           color: color,
           class: 'color',
@@ -241,7 +290,7 @@
       });
       // Display the annotation when the title is clicked.
       $annotationTitle.click(function () {
-        toggleAnnotationDisplay(annotation.id);
+        that.toggleAnnotationDisplay(annotation.id);
       });
       // Add Text / Entity, initially hidden.
       $annotationText = $('<div class="comment-text" />').hide();
@@ -253,7 +302,7 @@
       }
       $annotation = $annotation.append($annotationTitle, $annotationText);
       return $annotation;
-    }
+    },
 
     /**
      * Adds the given annotation to the list.
@@ -261,16 +310,16 @@
      * @param {RDF.Annotation} annotation
      *   The annotation in to add to the list.
      */
-    function addAnnotation(annotation) {
+    addAnnotation: function (annotation) {
       var type, $container;
       type = annotation.annotationType;
-      if (hasAnnotationTypeContainer(type)) {
-        $container = getAnnotationTypeContainer(type);
+      if (this.hasAnnotationTypeContainer(type)) {
+        $container = this.getAnnotationTypeContainer(type);
       } else {
-        $container = insertAnnotationTypeContainer(createAnnotationTypeContainer(type));
+        $container = this.insertAnnotationTypeContainer(this.createAnnotationTypeContainer(type));
       }
-      $('.comment-type-content', $container).append(createAnnotation(annotation));
-    }
+      $('.comment-type-content', $container).append(this.createAnnotation(annotation));
+    },
 
     /**
      * Deletes the given Annotation from Fedora and the interface.
@@ -278,58 +327,21 @@
      * @param {string} id
      *   The id of the annotation.
      */
-    function deleteAnnotation(id) {
+    deleteAnnotation: function (id) {
       $.ajax({
         type: 'POST',
-        url: IIAUtils.url('islandora/object/' + settings.pid + '/annotation/delete/' + id),
+        url: IIAUtils.url('islandora/object/' + this.settings.pid + '/annotation/delete/' + id),
         success: function () {
           Drupal.IslandoraImageAnnotation.getInstance().deleteAnnotation(id);
         }
       });
-    }
+    },
 
-    // Create the comment type containers for the comment annotations.
-    // trigger a load of each comment annotation.
-    $.each(settings.annotations, function (pid, annotation) {
-      insertAnnotationTypeContainer(createAnnotationTypeContainer(annotation.type));
-    });
-
-    // Fetch the comment annotations only after we've processed the canvas
-    // they belong to.
-    Drupal.IslandoraImageAnnotation.on('processedSequence', function (event, annotation) {
-      // Create the comment type containers for the comment annotations.
-      // trigger a load of each comment annotation.
-      $.each(settings.annotations, function (pid, annotation) {
-        var url = IIAUtils.url('islandora/object/' + settings.pid + '/annotation/get/' + pid);
-        Drupal.IslandoraImageAnnotation.getInstance().fetchTriples(url);
-      });
-    });
-
-    // Add any processed comment annotations to the list.
-    Drupal.IslandoraImageAnnotation.on('processedAnnotation', function (event, annotation) {
-      if (annotation.getType() === 'comment') {
-        addAnnotation(annotation);
-      }
-    });
-
-    // Listen for removed 'comment' annotations and update th list accordingly.
-    Drupal.IslandoraImageAnnotation.on('deleteAnnotation', function (event, annotation) {
-      var $annotation, $content;
-      if (annotation.getType() === 'comment') {
-        $annotation = getAnnotationElement(annotation.id);
-        $content = $annotation.parent();
-        // Remove the annotation from the list.
-        $annotation.remove();
-        // If there are no annotations of this type left anymore remove the
-        // type, group from the list.
-        if ($content.children().length === 0) {
-          $content.parent().remove();
-        }
-      }
-    });
 
     // Set up context menu to display for each annotation title element.
-    function createContextMenu() {
+    createContextMenu: function () {
+      var that = this;
+
       $.contextMenu({
         selector : '.comment-title',
         items: {
@@ -358,18 +370,14 @@
 
           case 'delete':
             if (confirm("Permanently Delete Annotation '" + title + "'")) {
-              deleteAnnotation(id);
+              that.deleteAnnotation(id);
             }
             break;
           }
         }
       });
     }
-    // Only initialize the context menu if the user is able to edit the object.
-    if (settings.editable) {
-      createContextMenu();
-    }
-  };
+  });
 
   /**
    * Gets the global singleton of this class.
