@@ -6,24 +6,6 @@
  */
 
 /**
- * Ajax callback for Shared Canvas.
- *
- * Supplies the basic data, including manifest URI.
- * Returns JSON to be echoed to the client.
- *
- * @param string $pid
- *   The PID of a object.
- */
-function islandora_image_annotation_canvas_setup($pid) {
-  module_load_include('inc', 'islandora', 'includes/utilities');
-  $message = islandora_deprecated('7.x-1.4');
-  watchdog('islandora_image_annotation', '@msg', array('@msg' => filter_xss($message)));
-  module_load_include('inc', 'islandora_image_annotation', 'includes/utils');
-  drupal_json_output(islandora_image_annotation_canvas_init($pid));
-}
-
-
-/**
  * Creates annotation objects from html supplied by Shared Canvas.
  *
  * @param string $pid
