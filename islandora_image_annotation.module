@@ -37,9 +37,7 @@ function islandora_image_annotation_menu() {
       'access callback' => 'islandora_image_annotation_access',
       'access arguments' => array(ISLANDORA_IMAGE_ANNOTATION_VIEW, 2),
     ),
-    // Gets the Drupal.settings for all the image annotation widgets, so that it
-    // can be embedded in an AJAX environment, it's not currently used by this
-    // module, but is used by "islandora_cwrc_writer".
+    // @deprecated
     'islandora/object/%islandora_object/annotation/settings' => array(
       'page callback' => 'islandora_image_annotation_settings',
       'page arguments' => array(2),
