@@ -17,8 +17,6 @@ define('ISLANDORA_IMAGE_ANNOTATION_NAMESPACE_EXIF', 'http://www.w3.org/2003/12/e
 
 /**
  * Gets the settings for configuring image annotation module.
- *
- * The following parameters are expected to be posted for this function to work.
  */
 function islandora_image_annotation_settings(AbstractObject $object) {
   module_load_include('inc', 'islandora_image_annotation', 'includes/utils');
